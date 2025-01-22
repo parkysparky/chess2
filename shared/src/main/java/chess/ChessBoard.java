@@ -9,7 +9,8 @@ package chess;
 public class ChessBoard {
 
     public ChessBoard() {
-        
+        //0 indexed positions. all other places have 1 indexed positions. must compensate
+        ChessPiece[][] chessBoard = new ChessPiece[8][8]; //initialize an 8x8 array of new chess pieces
     }
 
     /**
@@ -19,6 +20,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
+
         throw new RuntimeException("Not implemented");
     }
 
