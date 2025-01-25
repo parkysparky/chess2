@@ -24,7 +24,7 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         //get values from position and convert them to 0 indexed values
-        chessBoard[position.getColumn()-1][position.getRow()-1] = piece; //TODO verify col and row are not switched
+        chessBoard[position.getColumn()-1][position.getRow()-1] = piece;
     }
 
     /**
@@ -51,14 +51,14 @@ public class ChessBoard {
             chessBoard[i][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
             chessBoard[i][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         }
-        for(int i = 1; i < 8; i+=5){//place knight
+        for(int i = 1; i < 8; i+=5){//place knights
             chessBoard[i][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
             chessBoard[i][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         }
-        for(int i = 2; i < 8; i+=3){//place bishop
+        for(int i = 2; i < 8; i+=3){//place bishops
             chessBoard[i][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
             chessBoard[i][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-        }
+        }//place royalty
         chessBoard[3][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
         chessBoard[3][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
         chessBoard[4][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
