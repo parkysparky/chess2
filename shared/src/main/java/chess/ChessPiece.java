@@ -53,34 +53,28 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         if(board.getPiece(myPosition).getPieceType() == PieceType.PAWN){
-            PawnMoveCalculator pawnMovesCalcualtor = new PawnMoveCalculator();
-            Collection<ChessMove> pawnMoves = pawnMovesCalcualtor.calculateMoves(board, myPosition);
-            return pawnMoves;
+            PawnMoveCalculator pawnMoveCalculator = new PawnMoveCalculator();
+            return pawnMoveCalculator.calculateMoves(board, myPosition);
         }
         if(board.getPiece(myPosition).getPieceType() == PieceType.ROOK){
-            RookMoveCalculator rookMovesCalcualtor = new RookMoveCalculator();
-            Collection<ChessMove> rookMoves = rookMovesCalcualtor.calculateMoves(board, myPosition);
-            return rookMoves;
+            RookMoveCalculator rookMoveCalculator = new RookMoveCalculator();
+            return rookMoveCalculator.calculateMoves(board, myPosition);
         }
         if(board.getPiece(myPosition).getPieceType() == PieceType.KNIGHT){
-            KnightMoveCalculator knightMovesCalcualtor = new KnightMoveCalculator();
-            Collection<ChessMove> knightMoves = knightMovesCalcualtor.calculateMoves(board, myPosition);
-            return knightMoves;
+            KnightMoveCalculator knightMoveCalculator = new KnightMoveCalculator();
+            return knightMoveCalculator.calculateMoves(board, myPosition);
         }
         if(board.getPiece(myPosition).getPieceType() == PieceType.BISHOP){
-            BishopMoveCalculator bishopMovesCalcualtor = new BishopMoveCalculator();
-            Collection<ChessMove> bishopMoves = bishopMovesCalcualtor.calculateMoves(board, myPosition);
-            return bishopMoves;
+            BishopMoveCalculator bishopMoveCalculator = new BishopMoveCalculator();
+            return bishopMoveCalculator.calculateMoves(board, myPosition);
         }
         if(board.getPiece(myPosition).getPieceType() == PieceType.QUEEN){
-            QueenMoveCalculator queenMovesCalcualtor = new QueenMoveCalculator();
-            Collection<ChessMove> queenMoves = queenMovesCalcualtor.calculateMoves(board, myPosition);
-            return queenMoves;
+            QueenMoveCalculator queenMoveCalculator = new QueenMoveCalculator();
+            return queenMoveCalculator.calculateMoves(board, myPosition);
         }
         if(board.getPiece(myPosition).getPieceType() == PieceType.KING){
-            KingMoveCalculator kingMovesCalcualtor = new KingMoveCalculator();
-            Collection<ChessMove> kingMoves = kingMovesCalcualtor.calculateMoves(board, myPosition);
-            return kingMoves;
+            KingMoveCalculator kingMoveCalculator = new KingMoveCalculator();
+            return kingMoveCalculator.calculateMoves(board, myPosition);
         }
         return null;
     }
