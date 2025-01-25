@@ -52,7 +52,33 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        if(board.getPiece(myPosition).getPieceType() == PieceType.PAWN){
+            PawnMoveCalculator pawnMovesCalcualtor = new PawnMoveCalculator();
+            Collection<ChessMove> pawnMoves = pawnMovesCalcualtor.calculateMoves(board, myPosition);
+            return pawnMoves;
+        }
+        if(board.getPiece(myPosition).getPieceType() == PieceType.ROOK){
+            RookMoveCalculator rookMovesCalcualtor = new RookMoveCalculator();
+            Collection<ChessMove> rookMoves = rookMovesCalcualtor.calculateMoves(board, myPosition);
+            return rookMoves;
+        }
+        if(board.getPiece(myPosition).getPieceType() == PieceType.KNIGHT){
+            return null;
+        }
+        if(board.getPiece(myPosition).getPieceType() == PieceType.BISHOP){
+            BishopMoveCalculator bishopMovesCalcualtor = new BishopMoveCalculator();
+            Collection<ChessMove> bishopMoves = bishopMovesCalcualtor.calculateMoves(board, myPosition);
+            return bishopMoves;
+        }
+        if(board.getPiece(myPosition).getPieceType() == PieceType.QUEEN){
+            QueenMoveCalculator queenMovesCalcualtor = new QueenMoveCalculator();
+            Collection<ChessMove> queenMoves = queenMovesCalcualtor.calculateMoves(board, myPosition);
+            return queenMoves;
+        }
+        if(board.getPiece(myPosition).getPieceType() == PieceType.KING){
+            return null;
+        }
+        return null;
     }
 
     @Override

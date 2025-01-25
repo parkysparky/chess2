@@ -12,9 +12,7 @@ import java.util.Objects;
 public class ChessBoard {
     ChessPiece[][] chessBoard = new ChessPiece[8][8];
 
-    public ChessBoard() {
-        resetBoard();
-    }
+    public ChessBoard() {    }
 
     /**
      * Adds a chess piece to the chessboard

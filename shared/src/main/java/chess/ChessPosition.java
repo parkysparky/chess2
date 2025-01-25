@@ -54,6 +54,6 @@ public class ChessPosition {
     @Override
     public String toString() {
         String rowLetters = " abcdefgh";
-        return rowLetters.substring(getRow(), getRow()+1) + getColumn(); //TODO test piece move toString
+        return rowLetters.substring(getColumn(), getColumn()+1) + getRow();
     }
 }

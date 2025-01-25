@@ -1,8 +1,22 @@
 package chess;
 
+import java.util.Collection;
+
 public class PieceRules {
 
     public PieceRules() {
+    }
+
+    protected boolean addMove(Collection<ChessMove> pieceMoves, ChessBoard board, ChessPosition startPosition, ChessPosition endPosition){
+        if(isEmpty(board, endPosition)){
+            pieceMoves.add(new ChessMove(startPosition, endPosition, null));
+            return false;
+        } else {
+            if (canCapture(board, startPosition, endPosition)){
+                pieceMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
+            return true;
+        }
     }
 
     public boolean isInBounds(ChessPosition position){
