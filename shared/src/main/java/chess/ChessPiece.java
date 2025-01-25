@@ -63,7 +63,9 @@ public class ChessPiece {
             return rookMoves;
         }
         if(board.getPiece(myPosition).getPieceType() == PieceType.KNIGHT){
-            return null;
+            KnightMoveCalculator knightMovesCalcualtor = new KnightMoveCalculator();
+            Collection<ChessMove> knightMoves = knightMovesCalcualtor.calculateMoves(board, myPosition);
+            return knightMoves;
         }
         if(board.getPiece(myPosition).getPieceType() == PieceType.BISHOP){
             BishopMoveCalculator bishopMovesCalcualtor = new BishopMoveCalculator();

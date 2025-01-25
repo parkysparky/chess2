@@ -11,14 +11,14 @@ public class PieceRules {
         if(isInBounds(endPosition)){
             if(isEmpty(board, endPosition)) {
                 pieceMoves.add(new ChessMove(startPosition, endPosition, null));
-                return false;
+                return false; //returns false if no collision has occurred
             } else {
                 if (canCapture(board, startPosition, endPosition)){
                     pieceMoves.add(new ChessMove(startPosition, endPosition, null));
                 }
             }
         }
-        return true;
+        return true;  //returns true if piece collides with another, captures another, or attempts out of bounds movement
     }
 
     public boolean isInBounds(ChessPosition position){
