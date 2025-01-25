@@ -1,4 +1,9 @@
 package chess;
 
-public class PawnMoveCalculator {
+public class PawnMoveCalculator extends PieceRules {
+
+    public PawnMoveCalculator() {
+    }
+
+
 }

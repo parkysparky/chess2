@@ -1,12 +1,8 @@
 package chess;
 
 public class PieceRules {
-    private ChessBoard board;
-    private ChessPosition position;
 
-    public PieceRules(ChessBoard board, ChessPosition position) {
-        this.board = board;
-        this.position = position;
+    public PieceRules() {
     }
 
     public boolean isInBounds(ChessPosition position){
