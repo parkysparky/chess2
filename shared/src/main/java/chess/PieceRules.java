@@ -8,15 +8,17 @@ public class PieceRules {
     }
 
     protected boolean addMove(Collection<ChessMove> pieceMoves, ChessBoard board, ChessPosition startPosition, ChessPosition endPosition){
-        if(isEmpty(board, endPosition)){
-            pieceMoves.add(new ChessMove(startPosition, endPosition, null));
-            return false;
-        } else {
-            if (canCapture(board, startPosition, endPosition)){
+        if(isInBounds(endPosition)){
+            if(isEmpty(board, endPosition)) {
                 pieceMoves.add(new ChessMove(startPosition, endPosition, null));
+                return false;
+            } else {
+                if (canCapture(board, startPosition, endPosition)){
+                    pieceMoves.add(new ChessMove(startPosition, endPosition, null));
+                }
             }
-            return true;
         }
+        return true;
     }
 
     public boolean isInBounds(ChessPosition position){

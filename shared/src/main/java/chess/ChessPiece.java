@@ -76,7 +76,9 @@ public class ChessPiece {
             return queenMoves;
         }
         if(board.getPiece(myPosition).getPieceType() == PieceType.KING){
-            return null;
+            KingMoveCalculator kingMovesCalcualtor = new KingMoveCalculator();
+            Collection<ChessMove> kingMoves = kingMovesCalcualtor.calculateMoves(board, myPosition);
+            return kingMoves;
         }
         return null;
     }
@@ -99,7 +101,7 @@ public class ChessPiece {
     }
 
     @Override
-    public String toString() { //TODO test this
+    public String toString() {
         return pieceColor + " " + type;
     }
 }
