@@ -13,7 +13,7 @@ public class ChessBoardTests {
     @Test
     @DisplayName("Add and Get Piece")
     public void getAddPiece() {
-        ChessPosition position = new ChessPosition(4, 4);
+        ChessPosition position = new ChessPosition(5, 4);
         ChessPiece piece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
 
         var board = new ChessBoard();
