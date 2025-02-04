@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -82,6 +83,32 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return Arrays.deepToString(chessBoard);
+        Map<ChessPiece.PieceType, Character> PIECE_TO_LETTER = Map.of(
+                ChessPiece.PieceType.PAWN, 'p',
+                ChessPiece.PieceType.KNIGHT, 'n',
+                ChessPiece.PieceType.ROOK, 'r',
+                ChessPiece.PieceType.QUEEN, 'q',
+                ChessPiece.PieceType.KING, 'k',
+                ChessPiece.PieceType.BISHOP, 'b');
+
+        StringBuilder toPrint = new StringBuilder();
+
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                toPrint.append("|");
+                if(chessBoard[i][j] == null){
+                    toPrint.append(" ");
+                }
+                else {
+                    Character piece = PIECE_TO_LETTER.get(chessBoard[i][j].getPieceType());
+                    if(chessBoard[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
+                        piece = Character.toUpperCase(piece); }
+                    toPrint.append(piece);
+                }
+            }
+            toPrint.append("|\n");
+        }
+
+        return toPrint.toString();
     }
 }
