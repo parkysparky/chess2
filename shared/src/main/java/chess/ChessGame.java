@@ -53,15 +53,30 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         //get initial board state
+        ChessBoard boardStart = chessBoard;
         //get list of moves
+        HashSet<ChessMove> moveList = (HashSet<ChessMove>) chessBoard.getPiece(startPosition).pieceMoves(chessBoard, startPosition);
         //for each move in list of moves
-            //make a move ////TODO implement make move, maybe make a testMove function??
-            //check if test move puts you in check
-                //if so, remove move from list
-            //restore board
+        for(var move : moveList){
+            tryMove(move); //make a move
+            if(isInCheck(getTeamTurn())){  //check if test move puts you in check
+                moveList.remove(move);  //if so, remove move from list
+            }
+            chessBoard = boardStart;  //restore board
+        }
         //return what moves are left
-        //restore board
-        throw new RuntimeException("Not implemented");
+        return moveList;
+    }
+
+    private void tryMove(ChessMove move){
+        if(move.getPromotionPiece() == null){
+            chessBoard.addPiece(move.getEndPosition(), chessBoard.getPiece(move.getStartPosition())); //put start piece in new position
+            chessBoard.addPiece(move.getStartPosition(), null); //remove piece from old position
+        }
+        else{
+            chessBoard.addPiece(move.getEndPosition(), new ChessPiece(getTeamTurn(), move.getPromotionPiece())); //put promotion piece in new position
+            chessBoard.addPiece(move.getStartPosition(), null); //remove piece from old position
+        }
     }
 
     /**
