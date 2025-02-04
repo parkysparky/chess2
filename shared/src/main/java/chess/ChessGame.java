@@ -62,7 +62,7 @@ public class ChessGame {
             if(isInCheck(getTeamTurn())){  //check if test move puts you in check
                 moveList.remove(move);  //if so, remove move from list
             }
-            chessBoard = boardStart;  //restore board
+            setBoard(boardStart);  //restore board
         }
         //return what moves are left
         return moveList;
@@ -86,7 +86,8 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+
+        throw new InvalidMoveException("Puts king in check");
     }
 
     /**
@@ -122,6 +123,40 @@ public class ChessGame {
         }
         return moveCollection;
     }
+    private HashMap<ChessPosition, HashSet<ChessMove>> getLegalMoves(TeamColor teamColor){ //// TODO check this with Braden
+        var verifiedMoves = new HashMap<ChessPosition, HashSet<ChessMove>>();
+        for(int i = 1; i < 9; i++){
+            for(int j = 1; j < 9; j++){
+                ChessPosition checkPosition = new ChessPosition(i, j);
+                ChessPiece checkPiece = chessBoard.getPiece(checkPosition);
+                if(null != checkPiece && teamColor == checkPiece.getTeamColor()){
+                    var legalMoves = (HashSet<ChessMove>) validMoves(checkPosition);
+                    if(legalMoves != null && !legalMoves.isEmpty()){
+                        verifiedMoves.put(checkPosition, legalMoves); //if you own pieces that can move, add them to the map
+                    }
+                }
+            }
+        }
+
+        return verifiedMoves; //if the map is not empty, you can move
+    }
+    private boolean hasLegalMoves(TeamColor teamColor){ //// TODO check this with Braden
+        var verifiedMoves = new HashMap<ChessPosition, HashSet<ChessMove>>();
+        for(int i = 1; i < 9; i++){
+            for(int j = 1; j < 9; j++){
+                ChessPosition checkPosition = new ChessPosition(i, j);
+                ChessPiece checkPiece = chessBoard.getPiece(checkPosition);
+                if(null != checkPiece && teamColor == checkPiece.getTeamColor()){
+                    var legalMoves = (HashSet<ChessMove>) validMoves(checkPosition);
+                    if(legalMoves != null && !legalMoves.isEmpty()){
+                        return true; //if you own pieces that can move, return true
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
     private ChessPosition findKing(TeamColor teamColor){
         ChessPosition kingPosition = new ChessPosition(1, 1);
         for(int i = 1; i < 9; i++){
@@ -151,7 +186,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return isInCheck(teamColor) && !hasLegalMoves(teamColor);
     }
 
     /**
@@ -162,7 +197,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return !isInCheck(teamColor) && !hasLegalMoves(teamColor);
     }
 
     /**
