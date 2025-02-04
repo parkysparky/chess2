@@ -82,8 +82,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if(validMoves(move.getStartPosition()).contains(move)){
+            tryMove(move);
+            setTeamTurn(getOppositeColor(getTeamTurn()));
+        }
+        else{
+            throw new InvalidMoveException("Puts king in check");
+        }
 
-        throw new InvalidMoveException("Puts king in check");
     }
 
     /**
