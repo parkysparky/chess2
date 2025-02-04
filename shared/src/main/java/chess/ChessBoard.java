@@ -93,15 +93,15 @@ public class ChessBoard {
 
         StringBuilder toPrint = new StringBuilder();
 
-        for(int i = 0; i < 8; i++){
+        for(int i = 7; i > -1; i--){
             for(int j = 0; j < 8; j++){
                 toPrint.append("|");
-                if(chessBoard[i][j] == null){
+                if(chessBoard[j][i] == null){
                     toPrint.append(" ");
                 }
                 else {
-                    Character piece = PIECE_TO_LETTER.get(chessBoard[i][j].getPieceType());
-                    if(chessBoard[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    Character piece = PIECE_TO_LETTER.get(chessBoard[j][i].getPieceType());
+                    if(chessBoard[j][i].getTeamColor() == ChessGame.TeamColor.WHITE) {
                         piece = Character.toUpperCase(piece); }
                     toPrint.append(piece);
                 }
