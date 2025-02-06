@@ -107,11 +107,11 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        Collection<ChessMove> enemyMoves = findAllTeamMoves(getOppositeColor(teamColor)); //get all enemy moves
-        ChessPosition kingPosition = findKing(teamColor);  //find king - return king position
+        Collection<ChessMove> enemyMoves = findAllTeamMoves(getOppositeColor(teamColor));
+        ChessPosition kingPosition = findKing(teamColor);
         for(ChessMove move : enemyMoves){  //check enemy moves against king position
             if(move.getEndPosition().equals(kingPosition)){  //return true if any matches
-                return true;  //I am in check if the other team has a valid move ending on the king space
+                return true;
             }
         }
 
@@ -149,7 +149,7 @@ public class ChessGame {
             }
         }
 
-        return verifiedMoves; //if the map is not empty, you can move
+        return verifiedMoves; //data structure of all the possible moves of given team
     }
 
     private boolean noLegalMoves(TeamColor teamColor){
