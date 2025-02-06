@@ -49,15 +49,15 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessBoard boardStart = chessBoard.clone();
         var validMoves = new HashSet<ChessMove>();
-        var checkPiece = boardStart.getPiece(startPosition);
+        var checkPiece = chessBoard.getPiece(startPosition);
         if(checkPiece == null){ //null check empty spots
             return validMoves;
         }
-        var checkedMoves = (HashSet<ChessMove>) checkPiece.pieceMoves(boardStart, startPosition);
+        var checkedMoves = (HashSet<ChessMove>) checkPiece.pieceMoves(chessBoard, startPosition);
         //for each move in list of moves
         for(var move : checkedMoves){
             tryMove(move); //make a move
-            if(!isInCheck(getTeamTurn())){  //check if test move puts you in check
+            if(!isInCheck(chessBoard.getPiece(move.getEndPosition()).getTeamColor())){  //check if test move puts you in check
                 validMoves.add(move);  //if not, add move to list
             }
             chessBoard = boardStart.clone();  //restore board
