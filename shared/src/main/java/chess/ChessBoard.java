@@ -10,10 +10,14 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard implements Cloneable{
     ChessPiece[][] chessBoard = new ChessPiece[8][8];
 
     public ChessBoard() {    }
+
+    public ChessBoard(ChessBoard board) {
+        this.chessBoard = board.getBoardState();
+    }
 
     /**
      * Adds a chess piece to the chessboard
@@ -36,6 +40,10 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         return chessBoard[position.getColumn()-1][position.getRow()-1];
         }
+
+    public ChessPiece[][] getBoardState() {
+        return chessBoard;
+    }
 
     /**
      * Sets the board to the default starting board
@@ -110,5 +118,28 @@ public class ChessBoard {
         }
 
         return toPrint.toString();
+    }
+
+    @Override
+    public ChessBoard clone() {
+        try {
+            ChessBoard clone = (ChessBoard) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+
+            clone.chessBoard = new ChessPiece[8][8];
+            //iterate over array to coppy values
+            for(int i = 0; i < 8; i++){
+                for(int  j = 0; j < 8; j++){
+                    ChessPosition position = new ChessPosition(j+1, i+1); //TODO verify i and j
+                    if(this.getPiece(position) == null)
+                        continue;
+                    clone.addPiece(position, new ChessPiece(this.getPiece(position))); //add copy constructor to ChessPiece
+                }
+            }
+
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

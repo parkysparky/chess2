@@ -47,18 +47,20 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        //get initial board state
-        ChessBoard boardStart = getBoard();
-        //get list of moves
+        ChessBoard boardStart = chessBoard.clone();
         var validMoves = new HashSet<ChessMove>();
-        var checkedMoves= (HashSet<ChessMove>) chessBoard.getPiece(startPosition).pieceMoves(chessBoard, startPosition);
+        var checkPiece = boardStart.getPiece(startPosition);
+        if(checkPiece == null){ //null check empty spots
+            return validMoves;
+        }
+        var checkedMoves = (HashSet<ChessMove>) checkPiece.pieceMoves(boardStart, startPosition);
         //for each move in list of moves
         for(var move : checkedMoves){
             tryMove(move); //make a move
             if(!isInCheck(getTeamTurn())){  //check if test move puts you in check
                 validMoves.add(move);  //if not, add move to list
             }
-            setBoard(boardStart);  //restore board
+            chessBoard = boardStart.clone();  //restore board
         }
         //return what moves are left
         return validMoves;
@@ -82,12 +84,18 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        ChessPiece movedPiece = chessBoard.getPiece(move.getStartPosition());
+        if(movedPiece == null) {//moved piece is not current teamTurn
+            throw new InvalidMoveException("attempted to move from empty square");
+        } else if (movedPiece.getTeamColor() != getTeamTurn()) {
+            throw new InvalidMoveException("attempted to move out of turn");
+        }
         if(validMoves(move.getStartPosition()).contains(move)){
             tryMove(move);
             setTeamTurn(getOppositeColor(getTeamTurn()));
         }
         else{
-            throw new InvalidMoveException("Puts king in check");
+            throw new InvalidMoveException("illegal move attempted");
         }
 
     }
@@ -125,7 +133,8 @@ public class ChessGame {
         }
         return moveCollection;
     }
-    private HashMap<ChessPosition, HashSet<ChessMove>> getLegalMoves(TeamColor teamColor){ //// TODO check this with Braden
+
+    private HashMap<ChessPosition, HashSet<ChessMove>> getLegalMoves(TeamColor teamColor){
         var verifiedMoves = new HashMap<ChessPosition, HashSet<ChessMove>>();
         for(int i = 1; i < 9; i++){
             for(int j = 1; j < 9; j++){
@@ -142,8 +151,8 @@ public class ChessGame {
 
         return verifiedMoves; //if the map is not empty, you can move
     }
-    private boolean noLegalMoves(TeamColor teamColor){ //// TODO check this with Braden
-        var verifiedMoves = new HashMap<ChessPosition, HashSet<ChessMove>>();
+
+    private boolean noLegalMoves(TeamColor teamColor){
         for(int i = 1; i < 9; i++){
             for(int j = 1; j < 9; j++){
                 ChessPosition checkPosition = new ChessPosition(i, j);
@@ -159,6 +168,7 @@ public class ChessGame {
 
         return true;
     }
+
     private ChessPosition findKing(TeamColor teamColor){
         ChessPosition kingPosition = new ChessPosition(1, 1);
         for(int i = 1; i < 9; i++){
@@ -174,6 +184,7 @@ public class ChessGame {
         }
         return kingPosition;
     }
+
     private TeamColor getOppositeColor(TeamColor ownColor){
         if (ownColor == TeamColor.WHITE){
             return TeamColor.BLACK;
