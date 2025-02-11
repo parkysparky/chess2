@@ -38,7 +38,7 @@ Handler -> Service: register(RegisterRequest)
 Service -> DataAccess: getUser(username)
 DataAccess -> db:Find UserData by username
 DataAccess --> Service: UserData
-Service --> Handler: 403{"message": "Error: already taken"}
+Service --> Client: 403{"message": "Error: already taken"}
 
 ==Failure, Error(500): (description of error)==
 
