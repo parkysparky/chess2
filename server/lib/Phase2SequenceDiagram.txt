@@ -21,9 +21,27 @@ DataAccess -> db:Add AuthData
 Service --> Handler: RegisterResult
 Handler --> Server: {"username" : " ", "authToken" : " "}
 Server --> Client: 200\n{"username" : " ", "authToken" : " "}
-==Failure, Error(400): bad request==
-==Failure, Error(403): already taken==
+
+==Failure, bad URL==
+Client -> Server: [POST] /use\n{"username":" ", "password":" ", "email":" "}
+Server --> Client: 400\n{"message": "Error: bad request"}
+
+==Failure, no username==
+Client -> Server: [POST] /user\n{"username", "password":" ", "email":" "}
+Server -> Handler: {"username", "password":" ", "email":" "}
+Handler --> Client: 400\n{"message": "Error: bad request"}
+
+==Failure, username taken==
+Client -> Server: [POST] /user\n{"username":" ", "password":" ", "email":" "}
+Server -> Handler: {"username":" ", "password":" ", "email":" "}
+Handler -> Service: register(RegisterRequest)
+Service -> DataAccess: getUser(username)
+DataAccess -> db:Find UserData by username
+DataAccess --> Service: UserData
+Service --> Handler: 403{"message": "Error: already taken"}
+
 ==Failure, Error(500): (description of error)==
+
 end
 
 group #orange Login #white
