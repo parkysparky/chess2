@@ -28,24 +28,44 @@ end
 
 group #orange Login #white
 Client -> Server: [POST] /session\n{username, password}
+==Successfull, happy path(200)==
+==Failure, Error(401): unauthorized==
+==Failure, Error(500): (description of error)==
 end
 
 group #green Logout #white
 Client -> Server: [DELETE] /session\nauthToken
+==Successfull, happy path(200)==
+==Failure, Error(401): unauthorized==
+==Failure, Error(500): (description of error)==
 end
 
 group #red List Games #white
 Client -> Server: [GET] /game\nauthToken
+==Successfull, happy path(200)==
+==Failure, Error(401): unauthorized==
+==Failure, Error(500): (description of error)==
 end
 
 group #purple Create Game #white
 Client -> Server: [POST] /game\nauthToken\n{gameName}
+==Successfull, happy path(200)==
+==Failure, Error(400): bad request==
+==Failure, Error(401): unauthorized==
+==Failure, Error(500): (description of error)==
 end
 
 group #yellow Join Game #black
 Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+==Successfull, happy path(200)==
+==Failure, Error(400): bad request==
+==Failure, Error(401): unauthorized==
+==Failure, Error(403): already taken==
+==Failure, Error(500): (description of error)==
 end
 
 group #gray Clear application #white
 Client -> Server: [DELETE] /db
+==Successfull, happy path(200)==
+==Failure, Error(500): (description of error)==
 end
