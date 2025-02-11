@@ -1,0 +1,51 @@
+actor Client
+participant Server
+participant Handler
+participant Service
+participant DataAccess
+database db
+
+entryspacing 0.9
+group #navy Registration #white
+==Successfull, happy path==
+Client -> Server: [POST] /user\n{"username":" ", "password":" ", "email":" "}
+Server -> Handler: {"username":" ", "password":" ", "email":" "}
+Handler -> Service: register(RegisterRequest)
+Service -> DataAccess: getUser(username)
+DataAccess -> db:Find UserData by username
+DataAccess --> Service: null
+Service -> DataAccess:createUser(userData)
+DataAccess -> db:Add UserData
+Service -> DataAccess:createAuth(authData)
+DataAccess -> db:Add AuthData
+Service --> Handler: RegisterResult
+Handler --> Server: {"username" : " ", "authToken" : " "}
+Server --> Client: 200\n{"username" : " ", "authToken" : " "}
+==Failure, Error(400): bad request==
+==Failure, Error(403): already taken==
+==Failure, Error(500): (description of error)==
+end
+
+group #orange Login #white
+Client -> Server: [POST] /session\n{username, password}
+end
+
+group #green Logout #white
+Client -> Server: [DELETE] /session\nauthToken
+end
+
+group #red List Games #white
+Client -> Server: [GET] /game\nauthToken
+end
+
+group #purple Create Game #white
+Client -> Server: [POST] /game\nauthToken\n{gameName}
+end
+
+group #yellow Join Game #black
+Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+end
+
+group #gray Clear application #white
+Client -> Server: [DELETE] /db
+end
