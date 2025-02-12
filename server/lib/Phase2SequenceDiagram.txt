@@ -22,14 +22,16 @@ Service --> Handler: RegisterResult
 Handler --> Server: {"username" : " ", "authToken" : " "}
 Server --> Client: 200\n{"username" : " ", "authToken" : " "}
 
-==Failure, bad URL==
-Client -> Server: [POST] /use\n{"username":" ", "password":" ", "email":" "}
+==Failure, invalid email==
+Client -> Server: [POST] /user\n{"username":" ", "password":" ", "email":" "}
+Server -> Handler: {"username":" ", "password":" ", "email":" "}
+Handler -> Service: register(RegisterRequest)
 Server --> Client: 400\n{"message": "Error: bad request"}
 
-==Failure, no username==
-Client -> Server: [POST] /user\n{"username", "password":" ", "email":" "}
-Server -> Handler: {"username", "password":" ", "email":" "}
-Handler --> Server: {"message": "Error: bad request"}
+==Failure, weak password==
+Client -> Server: [POST] /user\n{"username":" ", "password":" ", "email":" "}
+Server -> Handler: {"username":" ", "password":" ", "email":" "}
+Handler -> Service: register(RegisterRequest)
 Server --> Client: 400\n{"message": "Error: bad request"}
 
 ==Failure, username taken==
@@ -43,7 +45,23 @@ Service --> Handler: RegisterResult
 Handler --> Server: {"message": "Error: already taken"}
 Server --> Client: 403\n{"message": "Error: already taken"}
 
-==Failure, Error(500): (description of error)==
+==Failure, no username==
+Client -> Server: [POST] /user\n{"username", "password":" ", "email":" "}
+Server -> Handler: {"username", "password":" ", "email":" "}
+Handler --> Server: {"message": "Error: (no username)"}
+Server --> Client: 500\n{"message": "Error: (no username)"}
+
+==Failure, no password==
+Client -> Server: [POST] /user\n{"username": " ", "password", "email":" "}
+Server -> Handler: {"username": " ", "password", "email":" "}
+Handler --> Server: {"message": "Error: (no password)"}
+Server --> Client: 500\n{"message": "Error: (no password)"}
+
+==Failure, no email==
+Client -> Server: [POST] /user\n{"username": " ", "password":" ", "email"}
+Server -> Handler: {"username":" ", "password":" ", "email"}
+Handler --> Server: {"message": "Error: (no email)"}
+Server --> Client: 500\n{"message": "Error: (no email)"}
 
 end
 
@@ -84,7 +102,17 @@ Service --> Handler: LoginResult
 Handler --> Server: {"message": "Error: unauthorized"}
 Server --> Client: 401\n{"message": "Error: unauthorized"}
 
-==Failure, Error(500): (description of error)==
+==Failure, missing username==
+Client -> Server: [POST] /session\n{password}
+Server -> Handler: {password}
+Handler --> Server: {"message": "Error: (missing username)"}
+Server --> Client: 500\n{"message": "Error: (missing username)"}
+
+==Failure, missing password==
+Client -> Server: [POST] /session\n{username}
+Server -> Handler: {username}
+Handler --> Server: {"message": "Error: (missing password)"}
+Server --> Client: 500\n{"message": "Error: (missing password)"}
 
 end
 
@@ -114,7 +142,11 @@ Service --> Handler: LogoutResult
 Handler --> Server: {"message": "Error: unauthorized"}
 Server --> Client: 401\n{"message": "Error: unauthorized"}
 
-==Failure, Error(500): (description of error)==
+==Failure, no authToken==
+Client -> Server: [DELETE] /session
+Server -> Handler: authToken
+Handler --> Server: {"message": "Error: (no authToken provided)"}
+Server --> Client: 500\n{"message": "Error: (no authToken provided)"}
 
 end
 
@@ -145,7 +177,11 @@ Service --> Handler: ListResult
 Handler --> Server: {"message": "Error: unauthorized"}
 Server --> Client: 401\n{"message": "Error: unauthorized"}
 
-==Failure, Error(500): (description of error)==
+==Failure, no authToken==
+Client -> Server: [GET] /game
+Server -> Handler: null
+Handler --> Server: {"message": "Error: (no authToken provided)"}
+Server --> Client: 500\n{"message": "Error: (no authToken provided)"}
 
 end
 
@@ -158,6 +194,9 @@ Handler -> Service: create(CreateRequest)
 Service -> DataAccess: getAuthData(authToken)
 DataAccess -> db: Find AuthData by authToken
 DataAccess --> Service: AuthData
+Service -> DataAccess: getGames(AuthData.username)
+DataAccess -> db: find user's ChessGames
+DataAccess --> Service: list(ChessGames)
 Service -> DataAccess: createGame(AuthData.username)
 DataAccess -> db: add ChessGame to database
 DataAccess --> Service: ChessGame.gameID
@@ -165,12 +204,18 @@ Service --> Handler: CreateResult
 Handler --> Server: {"gameID": 1234}
 Server --> Client: 200\n{"gameID": 1234}
 
-==Failure, missing game name==
-Client -> Server: [POST] /game\nauthToken\n{}
-Server -> Client: 400\n{"message": "Error: bad request"}
-
-==Failure, missing authToken==
-Client -> Server: [POST] /game\n{gameName}
+==Failure, bad game name \n(User already belongs in game with same name)==
+Client -> Server: [POST] /game\nauthToken\n{gameName}
+Server -> Handler: authToken\n{gameName}
+Handler -> Service: create(CreateRequest)
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
+DataAccess --> Service: AuthData
+Service -> DataAccess: getGames(AuthData.username)
+DataAccess -> db: find user's ChessGames
+DataAccess --> Service: list(ChessGames)
+Service --> Handler: CreateResult
+Handler --> Server: {"message": "Error: bad request"}
 Server -> Client: 400\n{"message": "Error: bad request"}
 
 ==Failure, bad authToken: unauthorized==
@@ -184,25 +229,91 @@ Service --> Handler: CreateResult
 Handler --> Server: {"message": "Error: unauthorized"}
 Server --> Client: 401\n{"message": "Error: unauthorized"}
 
-==Failure, Error(500): (description of error)==
+==Failure, missing authToken==
+Client -> Server: [POST] /game\n{gameName}
+Server -> Handler: {gameName}
+Handler --> Server: {"message": "Error: (missing authToken)"}
+Server --> Client: 500\n{"message": "Error: (missing authToken)"}
+
+==Failure, missing gameName==
+Client -> Server: [POST] /game\nauthToken\n{}
+Server -> Handler: authToken
+Handler --> Server: {"message": "Error: (missing gameName)"}
+Server --> Client: 500\n{"message": "Error: (missing gameName)"}
 
 end
 
 
 group #yellow Join Game #black
-==Successfull, happy path(200)==
+==Successfull, happy path==
 Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+Server -> Handler: authToken\n{playerColor, gameID}
+Handler -> Service: join(JoinRequest)
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
+DataAccess --> Service: AuthData
+Service -> DataAccess: getGames(AuthData.username)
+DataAccess -> db: find user's ChessGames
+DataAccess --> Service: list(ChessGames)
+Service -> DataAccess: find(ChessGame.gameID)
 
-==Failure, Error(400): bad request==
-Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+Service --> Handler: JoinResult
+Handler --> Server: {}
+Server --> Client: 200\n{}
 
-==Failure, Error(401): unauthorized==
+==Failure, badGameID==
 Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+Server -> Handler: authToken\n{playerColor, gameID}
+Handler -> Service: join(JoinRequest)
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
+DataAccess --> Service: AuthData
+Service -> DataAccess: getGames(AuthData.username)
+DataAccess -> db: find user's ChessGames
+DataAccess --> Service: list(ChessGames)
+Service -> DataAccess: find(ChessGame.gameID)
+DataAccess -> Service: null
+Service -> Handler: JoinResult
+Handler -> Server: {"message": "Error: bad request"}
+Server -> Client: 400\n{"message": "Error: bad request"}
+
+==Failure, bad authToken==
+Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+Server -> Handler: authToken\n{playerColor, gameID}
+Handler -> Service: join(JoinRequest)
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
+DataAccess --> Service: null
+Service --> Handler: JoinResult
+Handler --> Server: {"message": "Error: unauthorized"}
+Server --> Client: 401\n{"message": "Error: unauthorized"}
 
 ==Failure, Error(403): already taken==
 Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+Server -> Handler: authToken\n{playerColor, gameID}
+Handler -> Service: join(JoinRequest)
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
+DataAccess --> Service: AuthData
+Service -> DataAccess: getGames(AuthData.username)
+DataAccess -> db: find user's ChessGames
+DataAccess --> Service: list(ChessGames)
+Service -> DataAccess: find(ChessGame.gameID)
+Service --> Handler: JoinResult
+Handler --> Server: {"message": "Error: already taken"}
+Server --> Client: 403\n{"message": "Error: already taken"}
 
-==Failure, Error(500): (description of error)==
+==Failure, missing authToken: bad request==
+Client -> Server: [PUT] /game\n{playerColor, gameID}
+Server -> Client: 500\n{"message": "Error: (missing authToken)"}
+
+==Failure, missing playerColor: bad request==
+Client -> Server: [PUT] /game\nauthToken\n{gameID}
+Server -> Client: 500\n{"message": "Error: (missing playerColor)"}
+
+==Failure, missing gameID: bad request==
+Client -> Server: [PUT] /game\nauthToken\n{playerColor}
+Server -> Client: 500\n{"message": "Error: (missing gameID)"}
 end
 
 
