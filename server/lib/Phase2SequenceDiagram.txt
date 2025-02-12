@@ -120,11 +120,30 @@ end
 
 
 group #red List Games #white
-==Successfull, happy path(200)==
+==Successfull, happy path==
 Client -> Server: [GET] /game\nauthToken
+Server -> Handler: AuthToken
+Handler -> Service: list(ListRequest)
+Service -> DataAccess: getAuthToken(authData)
+DataAccess -> db: Find AuthToken
+DataAccess --> Service: AuthToken
+Service -> DataAccess: getGames(username)
+DataAccess -> db: find user's ChessGames
+DataAccess --> Service: list(ChessGames)
+Service --> Handler: ListResult
+Handler --> Server: { "games": [{"gameID": 1234, "whiteUsername":"", "blackUsername":"", "gameName:""}
+Server --> Client: 200\n{ "games": [{"gameID": 1234, "whiteUsername":"", "blackUsername":"", "gameName:""}] }
 
-==Failure, Error(401): unauthorized==
+==Failure, bad authToken==
 Client -> Server: [GET] /game\nauthToken
+Server -> Handler: AuthToken
+Handler -> Service: list(ListRequest)
+Service -> DataAccess: getAuthToken(authData)
+DataAccess -> db: Find AuthToken
+DataAccess --> Service: null
+Service --> Handler: ListResult
+Handler --> Server: {"message": "Error: unauthorized"}
+Server --> Client: 401\n{"message": "Error: unauthorized"}
 
 ==Failure, Error(500): (description of error)==
 
@@ -164,8 +183,15 @@ end
 
 
 group #gray Clear application #white
-==Successfull, happy path(200)==
+==Successfull, happy path==
 Client -> Server: [DELETE] /db
+Server -> Handler: delete()
+Handler -> Service: delete()
+Service -> DataAccess: clearUserData(), clearGameData(), clearAuthData()
+DataAccess -> db: clearUserData(), clearGameData(), clearAuthData()
+Service --> Handler: ClearResult
+Handler --> Server: {}
+Server --> Client: 200\n{}
 
 ==Failure, Error(500): (description of error)==
 end
