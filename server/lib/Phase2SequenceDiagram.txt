@@ -101,31 +101,52 @@ end
 
 
 group #red List Games #white
-Client -> Server: [GET] /game\nauthToken
 ==Successfull, happy path(200)==
+Client -> Server: [GET] /game\nauthToken
+
 ==Failure, Error(401): unauthorized==
+Client -> Server: [GET] /game\nauthToken
+
 ==Failure, Error(500): (description of error)==
+
 end
+
 
 group #purple Create Game #white
-Client -> Server: [POST] /game\nauthToken\n{gameName}
 ==Successfull, happy path(200)==
+Client -> Server: [POST] /game\nauthToken\n{gameName}
+
 ==Failure, Error(400): bad request==
+Client -> Server: [POST] /game\nauthToken\n{gameName}
+
 ==Failure, Error(401): unauthorized==
+Client -> Server: [POST] /game\nauthToken\n{gameName}
+
 ==Failure, Error(500): (description of error)==
+
 end
+
 
 group #yellow Join Game #black
-Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
 ==Successfull, happy path(200)==
+Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+
 ==Failure, Error(400): bad request==
+Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+
 ==Failure, Error(401): unauthorized==
+Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+
 ==Failure, Error(403): already taken==
+Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
+
 ==Failure, Error(500): (description of error)==
 end
 
+
 group #gray Clear application #white
-Client -> Server: [DELETE] /db
 ==Successfull, happy path(200)==
+Client -> Server: [DELETE] /db
+
 ==Failure, Error(500): (description of error)==
 end
