@@ -94,11 +94,11 @@ group #green Logout #white
 Client -> Server: [DELETE] /session\nauthToken
 Server -> Handler: authToken
 Handler -> Service: logout(LogoutRequest)
-Service -> DataAccess: getAuthToken(authData)
-DataAccess -> db: Find AuthToken
-DataAccess --> Service: AuthToken
-Service -> DataAccess: delete(authData)
-DataAccess -> db: Delete the found AuthToken
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
+DataAccess --> Service: AuthData
+Service -> DataAccess: delete(AuthData)
+DataAccess -> db: Delete the found AuthData
 Service --> Handler: LogoutResult
 Handler --> Server: {}
 Server --> Client: 200\n{}
@@ -107,8 +107,8 @@ Server --> Client: 200\n{}
 Client -> Server: [DELETE] /session\nauthToken
 Server -> Handler: AuthToken
 Handler -> Service: logout(LogoutRequest)
-Service -> DataAccess: getAuthToken(authData)
-DataAccess -> db: Find authToken
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
 DataAccess --> Service: null
 Service --> Handler: LogoutResult
 Handler --> Server: {"message": "Error: unauthorized"}
@@ -124,10 +124,10 @@ group #red List Games #white
 Client -> Server: [GET] /game\nauthToken
 Server -> Handler: AuthToken
 Handler -> Service: list(ListRequest)
-Service -> DataAccess: getAuthToken(authData)
-DataAccess -> db: Find AuthToken
-DataAccess --> Service: AuthToken
-Service -> DataAccess: getGames(username)
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
+DataAccess --> Service: AuthData
+Service -> DataAccess: getGames(AuthData.username)
 DataAccess -> db: find user's ChessGames
 DataAccess --> Service: list(ChessGames)
 Service --> Handler: ListResult
@@ -138,8 +138,8 @@ Server --> Client: 200\n{ "games": [{"gameID": 1234, "whiteUsername":"", "blackU
 Client -> Server: [GET] /game\nauthToken
 Server -> Handler: AuthToken
 Handler -> Service: list(ListRequest)
-Service -> DataAccess: getAuthToken(authData)
-DataAccess -> db: Find AuthToken
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
 DataAccess --> Service: null
 Service --> Handler: ListResult
 Handler --> Server: {"message": "Error: unauthorized"}
@@ -151,14 +151,33 @@ end
 
 
 group #purple Create Game #white
-==Successfull, happy path(200)==
+==Successfull, happy path==
 Client -> Server: [POST] /game\nauthToken\n{gameName}
+Server -> Handler: authToken\n{gameName}
+Handler -> Service: create(CreateRequest)
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
+DataAccess --> Service: AuthData
+Service -> DataAccess: createGame(AuthData.username)
+DataAccess -> db: add ChessGame to database
+DataAccess --> Service: ChessGame.gameID
+Service --> Handler: CreateResult
+Handler --> Server: {"gameID": 1234}
+Server --> Client: 200\n{"gameID": 1234}
 
 ==Failure, Error(400): bad request==
 Client -> Server: [POST] /game\nauthToken\n{gameName}
 
 ==Failure, Error(401): unauthorized==
 Client -> Server: [POST] /game\nauthToken\n{gameName}
+Server -> Handler: authToken\n{gameName}
+Handler -> Service: create(CreateRequest)
+Service -> DataAccess: getAuthData(authToken)
+DataAccess -> db: Find AuthData by authToken
+DataAccess --> Service: null
+Service --> Handler: CreateResult
+Handler --> Server: {"message": "Error: unauthorized"}
+Server --> Client: 401\n{"message": "Error: unauthorized"}
 
 ==Failure, Error(500): (description of error)==
 
