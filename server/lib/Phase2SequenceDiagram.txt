@@ -94,22 +94,25 @@ group #green Logout #white
 Client -> Server: [DELETE] /session\nauthToken
 Server -> Handler: authToken
 Handler -> Service: logout(LogoutRequest)
-Service -> DataAccess: getAuthToken(authToken)
+Service -> DataAccess: getAuthToken(authData)
+DataAccess -> db: Find AuthToken
 DataAccess --> Service: AuthToken
+Service -> DataAccess: delete(authData)
 DataAccess -> db: Delete the found AuthToken
 Service --> Handler: LogoutResult
-Handler --> Server: 200\n{}
-
+Handler --> Server: {}
+Server --> Client: 200\n{}
 
 ==Failure, invalid authToken==
 Client -> Server: [DELETE] /session\nauthToken
-Client -> Server: [DELETE] /session\nauthToken
-Server -> Handler: authToken
+Server -> Handler: AuthToken
 Handler -> Service: logout(LogoutRequest)
-Service -> DataAccess: getAuthToken(authToken)
+Service -> DataAccess: getAuthToken(authData)
+DataAccess -> db: Find authToken
 DataAccess --> Service: null
 Service --> Handler: LogoutResult
-Handler --> Server: 200\n{}
+Handler --> Server: {"message": "Error: unauthorized"}
+Server --> Client: 401\n{"message": "Error: unauthorized"}
 
 ==Failure, Error(500): (description of error)==
 
