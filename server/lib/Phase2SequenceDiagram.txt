@@ -85,15 +85,31 @@ Handler --> Server: {"message": "Error: unauthorized"}
 Server --> Client: 401\n{"message": "Error: unauthorized"}
 
 ==Failure, Error(500): (description of error)==
+
 end
 
 
 group #green Logout #white
-==Successfull, happy path(200)==
+==Successfull, happy path==
 Client -> Server: [DELETE] /session\nauthToken
+Server -> Handler: authToken
+Handler -> Service: logout(LogoutRequest)
+Service -> DataAccess: getAuthToken(authToken)
+DataAccess --> Service: AuthToken
+DataAccess -> db: Delete the found AuthToken
+Service --> Handler: LogoutResult
+Handler --> Server: 200\n{}
 
-==Failure, Error(401): unauthorized==
+
+==Failure, invalid authToken==
 Client -> Server: [DELETE] /session\nauthToken
+Client -> Server: [DELETE] /session\nauthToken
+Server -> Handler: authToken
+Handler -> Service: logout(LogoutRequest)
+Service -> DataAccess: getAuthToken(authToken)
+DataAccess --> Service: null
+Service --> Handler: LogoutResult
+Handler --> Server: 200\n{}
 
 ==Failure, Error(500): (description of error)==
 
