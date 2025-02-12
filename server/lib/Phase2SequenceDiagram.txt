@@ -49,7 +49,7 @@ end
 
 
 group #orange Login #white
-==Successfull, happy path(200)==
+==Successfull, happy path==
 Client -> Server: [POST] /session\n{username, password}
 Server -> Handler: {username, password}
 Handler -> Service: login(LoginRequest)
@@ -59,8 +59,8 @@ DataAccess --> Service UserData
 Service -> DataAccess: createAuth(authData)
 DataAccess -> db: add AuthData
 Service --> Handler: LoginResult
-Handler --> Server: {"username":"", "authToken":""}
-Server --> Client: 200\n{"username":"", "authToken":""}
+Handler --> Server: {"username":" ", "password":" "}
+Server --> Client: 200\n{"username":" ", "authToken":" "}
 
 ==Failure, bad username==
 Client -> Server: [POST] /session\n{username, password}
@@ -68,7 +68,7 @@ Server -> Handler: {username, password}
 Handler -> Service: login(LoginRequest)
 Service -> DataAccess: getUser(username)
 DataAccess -> db: Find UserData by username
-DataAccess --> null
+DataAccess --> Service: null
 Service --> Handler: LoginResult
 Handler --> Server: {"message": "Error: unauthorized"}
 Server --> Client: 401\n{"message": "Error: unauthorized"}
@@ -79,7 +79,7 @@ Server -> Handler: {username, password}
 Handler -> Service: login(LoginRequest)
 Service -> DataAccess: getUser(username)
 DataAccess -> db: Find UserData by username
-DataAccess --> Service UserData
+DataAccess --> Service: UserData
 Service --> Handler: LoginResult
 Handler --> Server: {"message": "Error: unauthorized"}
 Server --> Client: 401\n{"message": "Error: unauthorized"}
@@ -89,11 +89,16 @@ end
 
 
 group #green Logout #white
-Client -> Server: [DELETE] /session\nauthToken
 ==Successfull, happy path(200)==
+Client -> Server: [DELETE] /session\nauthToken
+
 ==Failure, Error(401): unauthorized==
+Client -> Server: [DELETE] /session\nauthToken
+
 ==Failure, Error(500): (description of error)==
+
 end
+
 
 group #red List Games #white
 Client -> Server: [GET] /game\nauthToken
