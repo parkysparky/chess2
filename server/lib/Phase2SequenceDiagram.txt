@@ -11,6 +11,7 @@ group #navy Registration #white
 Client -> Server: [POST] /user\n{"username":" ", "password":" ", "email":" "}
 Server -> Handler: {"username":" ", "password":" ", "email":" "}
 Handler -> Service: register(RegisterRequest)
+
 Service -> DataAccess: getUser(username)
 DataAccess -> db:Find UserData by username
 DataAccess --> Service: null
@@ -74,6 +75,7 @@ Handler -> Service: login(LoginRequest)
 Service -> DataAccess: getUser(username)
 DataAccess -> db: Find UserData by username
 DataAccess --> Service: UserData
+Service -> Service: userData.checkPassword(password)
 Service -> DataAccess: createAuth(authData)
 DataAccess -> db: add AuthData
 Service --> Handler: LoginResult
@@ -98,6 +100,7 @@ Handler -> Service: login(LoginRequest)
 Service -> DataAccess: getUser(username)
 DataAccess -> db: Find UserData by username
 DataAccess --> Service: UserData
+Service -> Service: userData.checkPassword(password)
 Service --> Handler: LoginResult
 Handler --> Server: {"message": "Error: unauthorized"}
 Server --> Client: 401\n{"message": "Error: unauthorized"}
@@ -159,8 +162,8 @@ Handler -> Service: list(ListRequest)
 Service -> DataAccess: getAuthData(authToken)
 DataAccess -> db: Find AuthData by authToken
 DataAccess --> Service: AuthData
-Service -> DataAccess: getGames(AuthData.username)
-DataAccess -> db: find user's ChessGames
+Service -> DataAccess: getGames()
+DataAccess -> db: get ChessGames
 DataAccess --> Service: list(ChessGames)
 Service --> Handler: ListResult
 Handler --> Server: { "games": [{"gameID": 1234, "whiteUsername":"", "blackUsername":"", "gameName:""}
@@ -194,31 +197,14 @@ Handler -> Service: create(CreateRequest)
 Service -> DataAccess: getAuthData(authToken)
 DataAccess -> db: Find AuthData by authToken
 DataAccess --> Service: AuthData
-Service -> DataAccess: getGames(AuthData.username)
-DataAccess -> db: find user's ChessGames
-DataAccess --> Service: list(ChessGames)
-Service -> DataAccess: createGame(AuthData.username)
+Service -> DataAccess: createGame(AuthData.username, gameName)
 DataAccess -> db: add ChessGame to database
 DataAccess --> Service: ChessGame.gameID
 Service --> Handler: CreateResult
 Handler --> Server: {"gameID": 1234}
 Server --> Client: 200\n{"gameID": 1234}
 
-==Failure, bad game name \n(User already belongs in game with same name)==
-Client -> Server: [POST] /game\nauthToken\n{gameName}
-Server -> Handler: authToken\n{gameName}
-Handler -> Service: create(CreateRequest)
-Service -> DataAccess: getAuthData(authToken)
-DataAccess -> db: Find AuthData by authToken
-DataAccess --> Service: AuthData
-Service -> DataAccess: getGames(AuthData.username)
-DataAccess -> db: find user's ChessGames
-DataAccess --> Service: list(ChessGames)
-Service --> Handler: CreateResult
-Handler --> Server: {"message": "Error: bad request"}
-Server -> Client: 400\n{"message": "Error: bad request"}
-
-==Failure, bad authToken: unauthorized==
+==Failure, bad authToken==
 Client -> Server: [POST] /game\nauthToken\n{gameName}
 Server -> Handler: authToken\n{gameName}
 Handler -> Service: create(CreateRequest)
@@ -252,11 +238,12 @@ Handler -> Service: join(JoinRequest)
 Service -> DataAccess: getAuthData(authToken)
 DataAccess -> db: Find AuthData by authToken
 DataAccess --> Service: AuthData
-Service -> DataAccess: getGames(AuthData.username)
-DataAccess -> db: find user's ChessGames
-DataAccess --> Service: list(ChessGames)
-Service -> DataAccess: find(ChessGame.gameID)
-
+Service -> DataAccess: getGameData(gameID)
+DataAccess -> db: find GameData from gameID
+DataAccess --> Service: GameData
+Service -> Service: GameData.colorAvailable(playerColor)
+Service -> DataAccess: GameData.addPlayer(playerColor, AuthData.getUsername())
+DataAccess -> db: update GameData with new player
 Service --> Handler: JoinResult
 Handler --> Server: {}
 Server --> Client: 200\n{}
@@ -268,14 +255,12 @@ Handler -> Service: join(JoinRequest)
 Service -> DataAccess: getAuthData(authToken)
 DataAccess -> db: Find AuthData by authToken
 DataAccess --> Service: AuthData
-Service -> DataAccess: getGames(AuthData.username)
-DataAccess -> db: find user's ChessGames
-DataAccess --> Service: list(ChessGames)
-Service -> DataAccess: find(ChessGame.gameID)
-DataAccess -> Service: null
-Service -> Handler: JoinResult
-Handler -> Server: {"message": "Error: bad request"}
-Server -> Client: 400\n{"message": "Error: bad request"}
+Service -> DataAccess: getGameData(gameID)
+DataAccess -> db: find GameData from gameID
+DataAccess --> Service: null
+Service --> Handler: JoinResult
+Handler --> Server: {"message": "Error: bad request"}
+Server --> Client: 400\n{"message": "Error: bad request"}
 
 ==Failure, bad authToken==
 Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
@@ -288,17 +273,17 @@ Service --> Handler: JoinResult
 Handler --> Server: {"message": "Error: unauthorized"}
 Server --> Client: 401\n{"message": "Error: unauthorized"}
 
-==Failure, Error(403): already taken==
+==Failure, game already has \nplayer of provided color==
 Client -> Server: [PUT] /game\nauthToken\n{playerColor, gameID}
 Server -> Handler: authToken\n{playerColor, gameID}
 Handler -> Service: join(JoinRequest)
 Service -> DataAccess: getAuthData(authToken)
 DataAccess -> db: Find AuthData by authToken
 DataAccess --> Service: AuthData
-Service -> DataAccess: getGames(AuthData.username)
-DataAccess -> db: find user's ChessGames
-DataAccess --> Service: list(ChessGames)
-Service -> DataAccess: find(ChessGame.gameID)
+Service -> DataAccess: getGameData(gameID)
+DataAccess -> db: find GameData from gameID
+DataAccess --> Service: GameData
+Service -> Service: GameData.colorAvailable(playerColor)
 Service --> Handler: JoinResult
 Handler --> Server: {"message": "Error: already taken"}
 Server --> Client: 403\n{"message": "Error: already taken"}
@@ -323,10 +308,10 @@ Client -> Server: [DELETE] /db
 Server -> Handler: delete()
 Handler -> Service: delete()
 Service -> DataAccess: clearUserData(), clearGameData(), clearAuthData()
-DataAccess -> db: clearUserData(), clearGameData(), clearAuthData()
+DataAccess -> db: clearUserData()
+DataAccess -> db: clearGameData()
+DataAccess -> db: clearAuthData()
 Service --> Handler: ClearResult
 Handler --> Server: {}
 Server --> Client: 200\n{}
-
-==Failure, Error(500): (description of error)==
 end
