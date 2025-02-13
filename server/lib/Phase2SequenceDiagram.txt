@@ -290,14 +290,20 @@ Server --> Client: 403\n{"message": "Error: already taken"}
 
 ==Failure, missing authToken: bad request==
 Client -> Server: [PUT] /game\n{playerColor, gameID}
+Server -> Handler: \n{playerColor, gameID}
+Handler --> Server: {"message": "Error: (missing authToken)"}
 Server -> Client: 500\n{"message": "Error: (missing authToken)"}
 
 ==Failure, missing playerColor: bad request==
 Client -> Server: [PUT] /game\nauthToken\n{gameID}
+Server -> Handler: authToken\n{gameID}
+Handler --> Server: {"message": "Error: (missing playerColor)"}
 Server -> Client: 500\n{"message": "Error: (missing playerColor)"}
 
 ==Failure, missing gameID: bad request==
 Client -> Server: [PUT] /game\nauthToken\n{playerColor}
+Server -> Handler: authToken\n{playerColor}
+Handler --> Server: {"message": "Error: (missing gameID)"}
 Server -> Client: 500\n{"message": "Error: (missing gameID)"}
 end
 
