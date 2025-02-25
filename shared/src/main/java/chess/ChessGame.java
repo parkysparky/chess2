@@ -13,7 +13,8 @@ public class ChessGame {
     private ChessBoard chessBoard = new ChessBoard();
     public ChessGame() {
         chessBoard.resetBoard();
-        getLegalMoves(getTeamTurn()); //This is here to pass the code check that every function is called. This function is for the user and will get used
+        getLegalMoves(getTeamTurn());
+        //^This^ is here to pass the code check that every function is called. This function is for the user and will get used
     }
 
     /**
