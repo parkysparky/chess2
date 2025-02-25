@@ -91,7 +91,7 @@ public class ChessBoard implements Cloneable{
 
     @Override
     public String toString() {
-        Map<ChessPiece.PieceType, Character> PIECE_TO_LETTER = Map.of(
+        final Map<ChessPiece.PieceType, Character> PIECE_TO_LETTER = Map.of(
                 ChessPiece.PieceType.PAWN, 'p',
                 ChessPiece.PieceType.KNIGHT, 'n',
                 ChessPiece.PieceType.ROOK, 'r',
@@ -124,13 +124,12 @@ public class ChessBoard implements Cloneable{
     public ChessBoard clone() {
         try {
             ChessBoard clone = (ChessBoard) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
 
             clone.chessBoard = new ChessPiece[8][8];
             //iterate over array to coppy values
             for(int i = 0; i < 8; i++){
                 for(int  j = 0; j < 8; j++){
-                    ChessPosition position = new ChessPosition(j+1, i+1); //TODO verify i and j
+                    ChessPosition position = new ChessPosition(j+1, i+1);
                     if(this.getPiece(position) == null)
                         continue;
                     clone.addPiece(position, new ChessPiece(this.getPiece(position))); //add copy constructor to ChessPiece
