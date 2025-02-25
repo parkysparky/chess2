@@ -58,11 +58,11 @@ public class ChessMove {
 
     @Override
     public int hashCode() {
-        return Objects.hash(startPosition, endPosition, promotionPiece); //TODO do I need to update hash?
+        return Objects.hash(startPosition, endPosition, promotionPiece); //should this be a "better" hash?
     }
 
     @Override
-    public String toString() { //TODO test this
+    public String toString() {
         String returnString;
         if(null == promotionPiece){
             returnString = getStartPosition() + " to " + getEndPosition();

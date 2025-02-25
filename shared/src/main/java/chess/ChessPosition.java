@@ -48,7 +48,7 @@ public class ChessPosition {
 
     @Override
     public int hashCode() { //do I need to spice this up?
-        return Objects.hash(row, col);  //TODO update hashCode function in each class
+        return Objects.hash(row, col);
     }
 
     @Override

@@ -97,7 +97,7 @@ public class ChessPiece {
     }
 
     @Override
-    public int hashCode() { //TODO update this hash?
+    public int hashCode() { //should this be a "better" hash?
         return Objects.hash(pieceColor, type);
     }
 
