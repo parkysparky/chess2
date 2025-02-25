@@ -199,7 +199,7 @@ DataAccess -> db: Find AuthData by authToken
 DataAccess --> Service: AuthData
 Service -> DataAccess: createGame(AuthData.username, gameName)
 DataAccess -> db: add ChessGame to database
-DataAccess --> Service: ChessGame.gameID
+DataAccess --> Service: GameData.getGameID()
 Service --> Handler: CreateResult
 Handler --> Server: {"gameID": 1234}
 Server --> Client: 200\n{"gameID": 1234}
