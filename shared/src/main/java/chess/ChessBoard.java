@@ -130,8 +130,9 @@ public class ChessBoard implements Cloneable{
             for(int i = 0; i < 8; i++){
                 for(int  j = 0; j < 8; j++){
                     ChessPosition position = new ChessPosition(j+1, i+1);
-                    if(this.getPiece(position) == null)
+                    if(this.getPiece(position) == null){
                         continue;
+                    }
                     clone.addPiece(position, new ChessPiece(this.getPiece(position))); //add copy constructor to ChessPiece
                 }
             }
