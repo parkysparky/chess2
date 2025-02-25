@@ -46,24 +46,23 @@ public class PawnMoveCalculator extends PieceRules {
         }
         if(isInBounds(endPosition)){
             if(isEmpty(board, endPosition)) {
-                if(inPromotionRow(endPosition, board.getPiece(startPosition).getTeamColor())){
-                    addPromotionMove(pieceMoves, startPosition, endPosition);
-                } else {
-                    pieceMoves.add(new ChessMove(startPosition, endPosition, null));
-                }
+                addMoveHelper(pieceMoves, board, startPosition, endPosition);
                 return true; //returns false if no collision has occurred
             } else {
                 if (canCapture(board, startPosition, endPosition)){
-                    if(inPromotionRow(endPosition, board.getPiece(startPosition).getTeamColor())){
-                        addPromotionMove(pieceMoves, startPosition, endPosition);
-                    } else {
-                        pieceMoves.add(new ChessMove(startPosition, endPosition, null));
-                    }
+                    addMoveHelper(pieceMoves, board, startPosition, endPosition);
                     return true;
                 }
             }
         }
         return false;  //returns true if piece collides with another, captures another, or attempts out of bounds movement
+    }
+    protected void addMoveHelper(Collection<ChessMove> pieceMoves, ChessBoard board, ChessPosition startPosition, ChessPosition endPosition) {
+        if (inPromotionRow(endPosition, board.getPiece(startPosition).getTeamColor())) {
+            addPromotionMove(pieceMoves, startPosition, endPosition);
+        } else {
+            pieceMoves.add(new ChessMove(startPosition, endPosition, null));
+        }
     }
 
     private void addPromotionMove(Collection<ChessMove> pieceMoves,  ChessPosition startPosition, ChessPosition endPosition){
