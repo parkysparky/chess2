@@ -91,7 +91,7 @@ public class ChessBoard implements Cloneable{
 
     @Override
     public String toString() {
-        final Map<ChessPiece.PieceType, Character> PIECE_TO_LETTER = Map.of(
+        final Map<ChessPiece.PieceType, Character> pieceToLetter = Map.of(
                 ChessPiece.PieceType.PAWN, 'p',
                 ChessPiece.PieceType.KNIGHT, 'n',
                 ChessPiece.PieceType.ROOK, 'r',
@@ -108,7 +108,7 @@ public class ChessBoard implements Cloneable{
                     toPrint.append(" ");
                 }
                 else {
-                    Character piece = PIECE_TO_LETTER.get(chessBoard[j][i].getPieceType());
+                    Character piece = pieceToLetter.get(chessBoard[j][i].getPieceType());
                     if(chessBoard[j][i].getTeamColor() == ChessGame.TeamColor.WHITE) {
                         piece = Character.toUpperCase(piece); }
                     toPrint.append(piece);
