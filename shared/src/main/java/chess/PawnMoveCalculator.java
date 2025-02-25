@@ -4,10 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class PawnMoveCalculator extends PieceRules {
-    final private int whiteStart = 2;
-    final private int blackStart = 7;
-    final private int whitePromotion = 8;
-    final private int blackPromotion = 1;
     final private int whiteIncrement = 1;
     final private int blackIncrement = -1;
 
@@ -19,8 +15,9 @@ public class PawnMoveCalculator extends PieceRules {
 
         ChessGame.TeamColor ownColor = board.getPiece(position).getTeamColor();
 
-        if(addMove(pawnMoves, board, position, increment(position, ownColor)) && inStartRow(position, ownColor))
+        if(addMove(pawnMoves, board, position, increment(position, ownColor)) && inStartRow(position, ownColor)) {
             addMove(pawnMoves, board, position, increment2(position, ownColor));
+        }
         addMove(pawnMoves, board, position, incrementCaptureLeft(board, position, ownColor));
         addMove(pawnMoves, board, position, incrementCaptureRight(board, position, ownColor));
 
@@ -51,15 +48,17 @@ public class PawnMoveCalculator extends PieceRules {
             if(isEmpty(board, endPosition)) {
                 if(inPromotionRow(endPosition, board.getPiece(startPosition).getTeamColor())){
                     addPromotionMove(pieceMoves, startPosition, endPosition);
-                } else
+                } else {
                     pieceMoves.add(new ChessMove(startPosition, endPosition, null));
+                }
                 return true; //returns false if no collision has occurred
             } else {
                 if (canCapture(board, startPosition, endPosition)){
                     if(inPromotionRow(endPosition, board.getPiece(startPosition).getTeamColor())){
                         addPromotionMove(pieceMoves, startPosition, endPosition);
-                    } else
+                    } else {
                         pieceMoves.add(new ChessMove(startPosition, endPosition, null));
+                    }
                     return true;
                 }
             }
@@ -75,23 +74,29 @@ public class PawnMoveCalculator extends PieceRules {
     }
 
     private boolean inPromotionRow(ChessPosition endPosition, ChessGame.TeamColor teamColor){
+        boolean returnValue = false;
+        int whitePromotion = 8;
+        int blackPromotion = 1;
         if(ChessGame.TeamColor.WHITE == teamColor && endPosition.getRow() == whitePromotion){
-            return true;
+            returnValue = true;
         } else if (ChessGame.TeamColor.BLACK == teamColor && endPosition.getRow() == blackPromotion) {
-            return true;
+            returnValue = true;
         }
-        else
-            return false;
+
+        return returnValue;
     }
 
     private boolean inStartRow(ChessPosition startPosition, ChessGame.TeamColor teamColor) {
+        int whiteStart = 2;
+        int blackStart = 7;
         if(ChessGame.TeamColor.WHITE == teamColor && startPosition.getRow() == whiteStart){
             return true;
         } else if (ChessGame.TeamColor.BLACK == teamColor && startPosition.getRow() == blackStart) {
             return true;
         }
-        else
+        else {
             return false;
+        }
     }
 
     private ChessPosition increment(ChessPosition startPosition, ChessGame.TeamColor teamColor){
@@ -116,8 +121,9 @@ public class PawnMoveCalculator extends PieceRules {
             }
         } else if(ChessGame.TeamColor.BLACK == teamColor){
             ChessPosition endPosition = new ChessPosition(startPosition.getRow() + blackIncrement, startPosition.getColumn() - 1);
-            if (canCapture(board, startPosition, endPosition))
+            if (canCapture(board, startPosition, endPosition)){
                 return endPosition;
+            }
         }
         return startPosition;
     }
@@ -130,8 +136,9 @@ public class PawnMoveCalculator extends PieceRules {
             }
         } else if(ChessGame.TeamColor.BLACK == teamColor){
             ChessPosition endPosition = new ChessPosition(startPosition.getRow() + blackIncrement, startPosition.getColumn()+1);
-            if (canCapture(board, startPosition, endPosition))
+            if (canCapture(board, startPosition, endPosition)){
                 return endPosition;
+            }
         }
         return startPosition;
     }
