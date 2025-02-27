@@ -1,6 +1,6 @@
 package server.service;
 
-public class GameService {
+public class GameService {//TODO create these
     public ListGamesResult register(ListGamesRequest registerRequest) {}
 
     public CreateGameResult login(CreateGameRequest loginRequest) {}
