@@ -1,4 +1,4 @@
 package server.service.result;
 
-public record ClearResult() {//TODO add stuff to this if necessary, remove it if not
+public record ClearResult() {//placeholder object for the toJson conversion
 }

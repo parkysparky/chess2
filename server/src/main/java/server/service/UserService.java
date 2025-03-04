@@ -24,4 +24,12 @@ public class UserService {
 //    public LoginResult login(LoginRequest loginRequest) {}
 //
 //    public LogoutResult logout(LogoutRequest logoutRequest) {}
+
+    public void clearUserData(){
+        memoryUserDAO = new MemoryUserDAO();
+    }
+
+    public void clearAuthData(){
+        memoryAuthDAO = new MemoryAuthDAO();
+    }
 }

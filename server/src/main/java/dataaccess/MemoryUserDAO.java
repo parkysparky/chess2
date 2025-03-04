@@ -14,6 +14,7 @@ public class MemoryUserDAO implements UserDAO {
         } catch (DataAccessException e) {
             UserData newUser = new UserData(username, password, email);
             userData.add(newUser);
+            return;
         }
         throw new DataAccessException("User already exists");
     }
