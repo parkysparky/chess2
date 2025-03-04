@@ -16,7 +16,7 @@ public class MemoryUserDAO implements UserDAO {
             userData.add(newUser);
             return;
         }
-        throw new DataAccessException("User already exists");
+        throw new DataAccessException("already taken");
     }
 
     @Override

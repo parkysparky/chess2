@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dataaccess.DataAccessException;
+import model.ErrorData;
 import server.service.ClearService;
 import server.service.GameService;
 import server.service.UserService;
@@ -43,13 +44,24 @@ public class Server {
         Spark.post("/user", (req, res) -> {
             //get and deserialize body
             RegisterRequest registerRequest = deserialize(req.body(), RegisterRequest.class);
+            if(registerRequest.email()==null || registerRequest.email().isBlank() ||
+               registerRequest.username()==null || registerRequest.username().isBlank() ||
+               registerRequest.password()==null || registerRequest.password().isBlank()){
+                res.status(400);
+                return new Gson().toJson(new RegisterResult("bad request", null)); //TODO: figure out why this test won't past
+            }
 
             //send req data to service class, operate on it, return res object
             try{
                 return new Gson().toJson(userService.register(registerRequest));
                }
             catch (DataAccessException e){
-                return null;
+//                ErrorData errorData = new ErrorData(e.getMessage());
+//                if(errorData.errorMessage().equals("already taken")){
+                    res.status(403);
+//                    res.body("already taken");
+//                }
+                return new Gson().toJson(new RegisterResult("already taken", null)); //TODO: figure out why this test won't past
             }
         });
 
