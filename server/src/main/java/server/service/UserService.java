@@ -1,5 +1,8 @@
 package server.service;
 
+import dataaccess.DataAccessException;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
 import server.service.request.LoginRequest;
 import server.service.request.LogoutRequest;
 import server.service.request.RegisterRequest;
@@ -8,9 +11,17 @@ import server.service.result.LogoutResult;
 import server.service.result.RegisterResult;
 
 public class UserService {
-    public RegisterResult register(RegisterRequest registerRequest) {}
+    MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+    MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
 
-    public LoginResult login(LoginRequest loginRequest) {}
+    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
+        memoryUserDAO.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
+        //return RegisterResult
+        String token = memoryAuthDAO.createAuth(registerRequest.username());
+        return new RegisterResult(registerRequest.username(), token);
+    }
 
-    public LogoutResult logout(LogoutRequest logoutRequest) {}
+//    public LoginResult login(LoginRequest loginRequest) {}
+//
+//    public LogoutResult logout(LogoutRequest logoutRequest) {}
 }

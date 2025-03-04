@@ -2,7 +2,10 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dataaccess.DataAccessException;
+import server.service.UserService;
 import server.service.request.RegisterRequest;
+import server.service.result.RegisterResult;
 import spark.*;
 
 public class Server {
@@ -29,18 +32,22 @@ public class Server {
 
     private static void createRoutes(){
         //TODO: write a before method for authentication
+
+        UserService userService = new UserService();
+
         //register
         Spark.post("/user", (req, res) -> {
             //get and deserialize body
             RegisterRequest registerRequest = deserialize(req.body(), RegisterRequest.class);
-            //send req data to service class
 
-            //receive service class response
-            //serialize service class stuff
-            //put service class stuff into response object
+            //send req data to service class and store it in service response object
+            try{
+                return new Gson().toJson(userService.register(registerRequest));
 
-            //return response object
-            return res;
+            }
+            catch (DataAccessException e){
+                return null;
+            }
         });
 
 
