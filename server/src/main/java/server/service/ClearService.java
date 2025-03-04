@@ -1,7 +1,16 @@
 package server.service;
 
+import server.service.result.ClearResult;
+
 public class ClearService {
-    public void clearUserData(){}
-    public void clearGameData(){}
-    public void clearAuthData(){}
+    private void clearUserData(){}
+    private void clearGameData(){}
+    private void clearAuthData(){}
+    public ClearResult clearAllData(){
+        clearUserData();
+        clearGameData();
+        clearAuthData();
+
+        return new ClearResult();
+    }
 }
