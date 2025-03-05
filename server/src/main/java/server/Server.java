@@ -49,28 +49,29 @@ public class Server {
         //TODO: write a before method for authentication
 
         //authenticate  filter
-        before((req, res) -> {
-
-        });
+        before(this::handleAuthentication);
 
         //user routes
-        Spark.post("/user", this::handleRegister);  //register
-        Spark.delete("/db", (req, res) -> new Gson().toJson(clearService.clearAllData(userService, gameService)));  //clear
-        //
+        //clear
+        Spark.delete("/db", (req, res) -> new Gson().toJson(clearService.clearAllData(userService, gameService)));
+        //register
+        Spark.post("/user", this::handleRegister);
+        //login
+
 
 
     }
 
-//    private Object handleAuthentication(Request req, Response res) {
-//        boolean authenticated = false;
-//
-//        //authenticate
-//
-//        if(!authenticated){
-//            halt(401, "not authorized");
-//        }
-//
-//    }
+    private void handleAuthentication(Request req, Response res) {
+        boolean authenticated = false;
+
+        //authenticate
+
+
+        if(!authenticated){
+            halt(401, "not authorized");
+        }
+    }
 
     public Object errorHandler(Exception e, Request req, Response res) {
         HashMap<String, Integer> errorMessageToCode = new HashMap<String, Integer>();
@@ -122,6 +123,7 @@ public class Server {
             try{
                 Object value = field.get(record);
                 if(value == null || (value instanceof String && ((String)value).isBlank())){
+                //if the object value is null or is a string and blank
                     hasBlankField = true;
                     break;
                 }
@@ -140,6 +142,14 @@ public class Server {
         T object = gson.fromJson(json, yourClass);
 
         return object;
+    }
+
+    private static <T extends Record> String serialize(String json, Class<T> yourClass){
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        String newjson = gson.toJson(yourClass);
+
+        return newjson;
     }
 
 }
