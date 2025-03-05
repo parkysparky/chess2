@@ -11,6 +11,7 @@ import server.service.request.RegisterRequest;
 import server.service.result.RegisterResult;
 import spark.*;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,25 +95,43 @@ public class Server {
     private Object handleRegister(Request req, Response res){
         //get and deserialize body
         RegisterRequest registerRequest = deserialize(req.body(), RegisterRequest.class);
-        if(registerRequest.email()==null || registerRequest.email().isBlank() ||
-                registerRequest.username()==null || registerRequest.username().isBlank() ||
-                registerRequest.password()==null || registerRequest.password().isBlank()){
-            res.status(400);
-            return new Gson().toJson(Map.of("message", "Error: bad request"));
+        if(anyFieldBlank(registerRequest)){
+            return errorHandler(new DataAccessException("bad request"), req, res);
         }
 
-        //send req data to service class, operate on it, return res object
+        //send req data to service class, operate on it, return serialized Json response
         try{
             return new Gson().toJson(userService.register(registerRequest));
         }
         catch (DataAccessException e){
-                ErrorData errorData = new ErrorData(e.getMessage());
-                if(errorData.errorMessage().equals("already taken")){
-                    res.status(403);
-                    res.body("already taken");
-                }
-            return new Gson().toJson(Map.of("message", String.format("Error: %s", errorData.errorMessage())));
+            return errorHandler(e, req, res);
         }
+    }
+
+    private <T extends Record> boolean anyFieldBlank(T record){
+        boolean hasBlankField = false;
+
+        if(record == null){ //if entire record is null then consider a field to be blank
+            hasBlankField = true;
+            return hasBlankField;
+        }
+
+        Field[] fields = record.getClass().getDeclaredFields();
+        for(var field : fields){
+            field.setAccessible(true);
+            try{
+                Object value = field.get(record);
+                if(value == null || (value instanceof String && ((String)value).isBlank())){
+                    hasBlankField = true;
+                    break;
+                }
+            }
+            catch(IllegalAccessException e){
+                hasBlankField = true;
+                break;
+            }
+        }
+        return hasBlankField;
     }
 
     private static <T extends Record> T deserialize(String json, Class<T> yourClass){
