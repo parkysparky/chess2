@@ -3,12 +3,11 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dataaccess.DataAccessException;
-import model.ErrorData;
 import server.service.ClearService;
 import server.service.GameService;
 import server.service.UserService;
+import server.service.request.LoginRequest;
 import server.service.request.RegisterRequest;
-import server.service.result.RegisterResult;
 import spark.*;
 
 import java.lang.reflect.Field;
@@ -17,7 +16,6 @@ import java.util.Map;
 
 import static spark.Spark.before;
 import static spark.Spark.halt;
-import static spark.route.HttpMethod.before;
 
 public class Server {
 
@@ -55,9 +53,9 @@ public class Server {
         //clear
         Spark.delete("/db", (req, res) -> new Gson().toJson(clearService.clearAllData(userService, gameService)));
         //register
-        Spark.post("/user", this::handleRegister);
+        Spark.post("/user", this::registerHandler);
         //login
-
+        Spark.post("/session", this::loginHandler);
 
 
     }
@@ -66,7 +64,7 @@ public class Server {
         boolean authenticated = false;
 
         //authenticate
-
+        //TODO: finish authentication
 
         if(!authenticated){
             halt(401, "not authorized");
@@ -93,7 +91,7 @@ public class Server {
         return body;
     }
 
-    private Object handleRegister(Request req, Response res){
+    private Object registerHandler(Request req, Response res){
         //get and deserialize body
         RegisterRequest registerRequest = deserialize(req.body(), RegisterRequest.class);
         if(anyFieldBlank(registerRequest)){
@@ -108,6 +106,24 @@ public class Server {
             return errorHandler(e, req, res);
         }
     }
+
+    private Object loginHandler(Request req, Response res){
+        //get and deserialize body
+        LoginRequest loginRequest = deserialize(req.body(), LoginRequest.class);
+        if(anyFieldBlank(loginRequest)){
+            return errorHandler(new DataAccessException("bad request"), req, res);
+        }
+
+        //send req data to service class, operate on it, return serialized Json response
+        try{
+            return new Gson().toJson(userService.login(loginRequest));//TODO: write this at the service level
+        }
+        catch (DataAccessException e){
+            return errorHandler(e, req, res);
+        }
+    }
+
+
 
     private <T extends Record> boolean anyFieldBlank(T record){
         boolean hasBlankField = false;
@@ -142,14 +158,6 @@ public class Server {
         T object = gson.fromJson(json, yourClass);
 
         return object;
-    }
-
-    private static <T extends Record> String serialize(String json, Class<T> yourClass){
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        String newjson = gson.toJson(yourClass);
-
-        return newjson;
     }
 
 }
