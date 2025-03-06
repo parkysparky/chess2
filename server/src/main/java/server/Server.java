@@ -115,12 +115,13 @@ public class Server {
         }
 
         //send req data to service class, operate on it, return serialized Json response
-        try{
-            return new Gson().toJson(userService.login(loginRequest));//TODO: write this at the service level
-        }
-        catch (DataAccessException e){
-            return errorHandler(e, req, res);
-        }
+//        try{
+////            return new Gson().toJson(userService.login(loginRequest));//TODO: write this at the service level
+//        }
+//        catch (DataAccessException e){
+//            return errorHandler(e, req, res);
+//        }
+        return null;
     }
 
 
