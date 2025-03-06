@@ -50,6 +50,12 @@ public class Server {
         Spark.post("/session", this::loginHandler);
         //logout
         Spark.delete("/session", this::logoutHandler);
+        //game routes
+        //listGames
+
+        //createGame
+
+        //joinGame
 
     }
 
