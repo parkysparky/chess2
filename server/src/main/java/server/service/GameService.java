@@ -20,7 +20,7 @@ public class GameService {
     public CreateGameResult createGame(CreateGameRequest loginRequest) {
         //plan how this method should work
 
-        return null;
+        return null; ////Will need to correct this to pass tests
     }
 
     public JoinGameResult joinGame(JoinGameRequest logoutRequest) {
