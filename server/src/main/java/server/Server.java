@@ -47,7 +47,7 @@ public class Server {
         //TODO: write a before method for authentication
 
         //authenticate  filter
-        before(this::handleAuthentication);
+//        before(this::handleAuthentication); //this isn't finished yet
 
         //user routes
         //clear
@@ -95,7 +95,7 @@ public class Server {
         //get and deserialize body
         RegisterRequest registerRequest = deserialize(req.body(), RegisterRequest.class);
         if(anyFieldBlank(registerRequest)){
-            return errorHandler(new DataAccessException("bad request"), req, res);
+            return errorHandler(new DataInputException("bad request"), req, res);
         }
 
         //send req data to service class, operate on it, return serialized Json response
@@ -111,7 +111,7 @@ public class Server {
         //get and deserialize body
         LoginRequest loginRequest = deserialize(req.body(), LoginRequest.class);
         if(anyFieldBlank(loginRequest)){
-            return errorHandler(new DataAccessException("bad request"), req, res);
+            return errorHandler(new DataInputException("bad request"), req, res);
         }
 
         //send req data to service class, operate on it, return serialized Json response
