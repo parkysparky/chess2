@@ -27,8 +27,7 @@ public class MemoryAuthDAO implements AuthDAO{
     }
 
     @Override
-    public void deleteUser(String username) throws DataAccessException {
-        authData.removeIf(authorization -> authorization.username().equals(username)); //remove all sessions upon a single logout
-        throw new DataAccessException("unauthorized");
+    public void deleteAuth(AuthData authRecord) throws DataAccessException {
+        authData.remove(authRecord);
     }
 }

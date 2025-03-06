@@ -7,6 +7,7 @@ import server.service.ClearService;
 import server.service.GameService;
 import server.service.UserService;
 import server.service.request.LoginRequest;
+import server.service.request.LogoutRequest;
 import server.service.request.RegisterRequest;
 import spark.*;
 
@@ -44,11 +45,6 @@ public class Server {
     }
 
     private void createRoutes(){
-        //TODO: write a before method for authentication
-
-        //authenticate  filter
-//        before(this::handleAuthentication); //this isn't finished yet
-
         //user routes
         //clear
         Spark.delete("/db", (req, res) -> new Gson().toJson(clearService.clearAllData(userService, gameService)));
@@ -56,25 +52,32 @@ public class Server {
         Spark.post("/user", this::registerHandler);
         //login
         Spark.post("/session", this::loginHandler);
-
+        //logout
+        Spark.delete("/session", this::logoutHandler);
 
     }
 
-    private void handleAuthentication(Request req, Response res) {
-        boolean authenticated = false;
-
-        //authenticate
-        //TODO: finish authentication
+    private void authenticateHandler(Request req, Response res) {//return type might need to be Object
+        String authToken = req.headers("authorization");
+        boolean authenticated = userService.authenticate(authToken);
 
         if(!authenticated){
             halt(401, "not authorized");
         }
     }
 
-    public Object errorHandler(Exception e, Request req, Response res) {
+    public Object errorHandler(Exception e, Request req, Response res) throws RuntimeException {
+        //pass runtime exceptions up
+        if(e instanceof RuntimeException){
+            throw (RuntimeException)e;
+        }
+
+        //map checked exception messages to their respective error codes
         HashMap<String, Integer> errorMessageToCode = new HashMap<String, Integer>();
         errorMessageToCode.put("bad request", 400);
+        errorMessageToCode.put("Some required fields are missing", 400);
         errorMessageToCode.put("unauthorized", 401);
+        errorMessageToCode.put("User Not Found", 401);
         errorMessageToCode.put("already taken", 403);
 
         var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage()), "success", false));
@@ -94,15 +97,12 @@ public class Server {
     private Object registerHandler(Request req, Response res){
         //get and deserialize body
         RegisterRequest registerRequest = deserialize(req.body(), RegisterRequest.class);
-        if(anyFieldBlank(registerRequest)){
-            return errorHandler(new DataInputException("bad request"), req, res);
-        }
-
-        //send req data to service class, operate on it, return serialized Json response
-        try{
+                //send req data to service class, operate on it, return serialized Json response
+        try {
+            anyFieldBlank(registerRequest);
             return new Gson().toJson(userService.register(registerRequest));
         }
-        catch (DataAccessException e){
+        catch (Exception e){
             return errorHandler(e, req, res);
         }
     }
@@ -110,28 +110,36 @@ public class Server {
     private Object loginHandler(Request req, Response res){
         //get and deserialize body
         LoginRequest loginRequest = deserialize(req.body(), LoginRequest.class);
-        if(anyFieldBlank(loginRequest)){
-            return errorHandler(new DataInputException("bad request"), req, res);
+        //send req data to service class, operate on it, return serialized Json response
+        try{
+            anyFieldBlank(loginRequest);
+            return new Gson().toJson(userService.login(loginRequest));
+        }
+        catch (Exception e){
+            return errorHandler(e, req, res);
+        }
+    }
+
+    private Object logoutHandler(Request req, Response res){
+        LogoutRequest logoutRequest = deserialize((req.body()), LogoutRequest.class);
+        try{
+            anyFieldBlank(logoutRequest);
+            authenticateHandler(req, res);
+
+
+        } catch (Exception e) {
+            return errorHandler(e, req, res);
         }
 
-        //send req data to service class, operate on it, return serialized Json response
-//        try{
-////            return new Gson().toJson(userService.login(loginRequest));//TODO: write this at the service level
-//        }
-//        catch (DataAccessException e){
-//            return errorHandler(e, req, res);
-//        }
         return null;
     }
 
-
-
-    private <T extends Record> boolean anyFieldBlank(T record){
+    private <T extends Record> void anyFieldBlank(T record) throws DataInputException{
         boolean hasBlankField = false;
 
         if(record == null){ //if entire record is null then consider a field to be blank
             hasBlankField = true;
-            return hasBlankField;
+            throw new DataInputException("Some required fields are missing");
         }
 
         Field[] fields = record.getClass().getDeclaredFields();
@@ -150,7 +158,9 @@ public class Server {
                 break;
             }
         }
-        return hasBlankField;
+        if(hasBlankField){
+            throw new DataInputException("Some required fields are missing");
+        }
     }
 
     private static <T extends Record> T deserialize(String json, Class<T> yourClass){

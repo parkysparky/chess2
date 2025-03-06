@@ -20,17 +20,17 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public String getUser(String username) throws DataAccessException{
+    public UserData getUser(String username) throws DataAccessException{
         for(var user : userData){
             if (user.username().equals(username)){
-                return username;
+                return user;
             }
         }
         throw new DataAccessException("User Not Found");
     }
 
     @Override
-    public void deleteUser(String username) throws DataAccessException {
-        userData.remove(getUser(username));
+    public void deleteUser(UserData user) throws DataAccessException {
+        userData.remove(user);
     }
 }
