@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import server.service.ClearService;
 import server.service.GameService;
 import server.service.UserService;
+import server.service.request.CreateGameRequest;
 import server.service.request.LoginRequest;
 import server.service.request.LogoutRequest;
 import server.service.request.RegisterRequest;
@@ -54,7 +55,7 @@ public class Server {
         //listGames
 
         //createGame
-
+        Spark.post("/game", this::createGameHandler);
         //joinGame
 
     }
@@ -128,6 +129,20 @@ public class Server {
             return new Gson().toJson(userService.logout(logoutRequest));
         }
         catch (Exception e) {
+            return errorHandler(e, req, res);
+        }
+    }
+
+    private Object createGameHandler(Request req, Response res){
+        //get and deserialize body
+        CreateGameRequest createGameRequest = deserialize(req.body(), CreateGameRequest.class);
+        //send req data to service class, operate on it, return serialized Json response
+        try{
+            anyFieldBlank(createGameRequest);
+            authenticateHandler(req.headers("authorization"));
+            return new Gson().toJson(gameService.createGame(createGameRequest));////actually implement this method
+        }
+        catch (Exception e){
             return errorHandler(e, req, res);
         }
     }
