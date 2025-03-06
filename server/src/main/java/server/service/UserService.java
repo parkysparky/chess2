@@ -44,7 +44,11 @@ public class UserService {
         }
     }
 
-//    public LogoutResult logout(LogoutRequest logoutRequest) {}
+    public LogoutResult logout(LogoutRequest logoutRequest) throws DataAccessException{
+        memoryAuthDAO.deleteAuth(memoryAuthDAO.getAuth(logoutRequest.authToken()));
+
+        return new LogoutResult();
+    }
 
     public void clearUserData(){
         memoryUserDAO = new MemoryUserDAO();

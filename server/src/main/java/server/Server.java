@@ -2,7 +2,6 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dataaccess.DataAccessException;
 import server.service.ClearService;
 import server.service.GameService;
 import server.service.UserService;
@@ -14,9 +13,6 @@ import spark.*;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-
-import static spark.Spark.before;
-import static spark.Spark.halt;
 
 public class Server {
 
@@ -57,12 +53,11 @@ public class Server {
 
     }
 
-    private void authenticateHandler(Request req, Response res) {//return type might need to be Object
-        String authToken = req.headers("authorization");
+    private void authenticateHandler(String authToken) throws DataInputException{//return type might need to be Object
         boolean authenticated = userService.authenticate(authToken);
 
         if(!authenticated){
-            halt(401, "not authorized");
+            throw new DataInputException("unauthorized");
         }
     }
 
@@ -73,7 +68,7 @@ public class Server {
         }
 
         //map checked exception messages to their respective error codes
-        HashMap<String, Integer> errorMessageToCode = new HashMap<String, Integer>();
+        HashMap<String, Integer> errorMessageToCode = new HashMap<>();
         errorMessageToCode.put("bad request", 400);
         errorMessageToCode.put("Some required fields are missing", 400);
         errorMessageToCode.put("unauthorized", 401);
@@ -121,24 +116,19 @@ public class Server {
     }
 
     private Object logoutHandler(Request req, Response res){
-        LogoutRequest logoutRequest = deserialize((req.body()), LogoutRequest.class);
+        LogoutRequest logoutRequest = new LogoutRequest(req.headers("authorization"));
         try{
-            anyFieldBlank(logoutRequest);
-            authenticateHandler(req, res);
-
-
-        } catch (Exception e) {
+            authenticateHandler(logoutRequest.authToken());
+            return new Gson().toJson(userService.logout(logoutRequest));
+        }
+        catch (Exception e) {
             return errorHandler(e, req, res);
         }
-
-        return null;
     }
 
     private <T extends Record> void anyFieldBlank(T record) throws DataInputException{
         boolean hasBlankField = false;
-
         if(record == null){ //if entire record is null then consider a field to be blank
-            hasBlankField = true;
             throw new DataInputException("Some required fields are missing");
         }
 
@@ -166,9 +156,8 @@ public class Server {
     private static <T extends Record> T deserialize(String json, Class<T> yourClass){
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        T object = gson.fromJson(json, yourClass);
 
-        return object;
+        return gson.fromJson(json, yourClass);
     }
 
 }
