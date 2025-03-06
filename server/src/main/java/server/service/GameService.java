@@ -7,7 +7,7 @@ import server.service.request.ListGamesRequest;
 
 import java.util.HashSet;
 
-public class GameService {//TODO create these
+public class GameService {
     HashSet<GameData> gameData = new HashSet<>();
 //    public ListGamesResult register(ListGamesRequest registerRequest) {}
 //
