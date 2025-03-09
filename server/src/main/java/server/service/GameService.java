@@ -1,5 +1,7 @@
 package server.service;
 
+import chess.ChessGame;
+import dataaccess.MemoryGameDAO;
 import model.GameData;
 import server.service.request.CreateGameRequest;
 import server.service.request.JoinGameRequest;
@@ -11,16 +13,17 @@ import server.service.result.ListGamesResult;
 import java.util.HashSet;
 
 public class GameService {
-    HashSet<GameData> gameData = new HashSet<>();
-    public ListGamesResult listGames(ListGamesRequest registerRequest) {
+    MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+
+    public ListGamesResult listGames(ListGamesRequest ListGamesRequest) {
 
         return null; ////Will need to correct this to pass tests
     }
 
-    public CreateGameResult createGame(CreateGameRequest loginRequest) {
-        //plan how this method should work
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) {
+        int gameID = memoryGameDAO.createGame(createGameRequest.gameName());
 
-        return null; ////Will need to correct this to pass tests
+        return new CreateGameResult(gameID);
     }
 
     public JoinGameResult joinGame(JoinGameRequest logoutRequest) {
@@ -29,6 +32,6 @@ public class GameService {
     }
 
     void resetGameData(){
-        gameData = new HashSet<>();
+        memoryGameDAO = new MemoryGameDAO();
     }
 }
