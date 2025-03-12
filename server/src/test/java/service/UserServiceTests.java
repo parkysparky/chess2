@@ -100,7 +100,8 @@ class UserServiceTests {
 
     @Test
     void clear() {
-//        Assertions.assertTrue(userService.memoryUserDAO.isEmpty() && userService.memoryAuthDAO.isEmpty(), "database not cleared");
+        userService.clear();
+        Assertions.assertTrue(userService.userDAO.isEmpty() && userService.authDAO.isEmpty(), "database not cleared");
     }
 
 }

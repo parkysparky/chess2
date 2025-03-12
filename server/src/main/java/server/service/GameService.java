@@ -2,6 +2,7 @@ package server.service;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
 import dataaccess.MemoryGameDAO;
 import model.GameData;
 import model.GameInfo;
@@ -16,14 +17,14 @@ import server.service.result.ListGamesResult;
 import static chess.ChessGame.TeamColor.BLACK;
 
 public class GameService {
-    MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+    GameDAO gameDAO = new MemoryGameDAO();
 
-    public ListGamesResult listGames(ListGamesRequest ListGamesRequest) {
-        return new ListGamesResult(memoryGameDAO.listGames());
+    public ListGamesResult listGames(ListGamesRequest ListGamesRequest) throws DataAccessException {
+        return new ListGamesResult(gameDAO.listGames());
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) {
-        int gameID = memoryGameDAO.createGame(createGameRequest.gameName());
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
+        int gameID = gameDAO.createGame(createGameRequest.gameName());
 
         return new CreateGameResult(gameID);
     }
@@ -32,11 +33,11 @@ public class GameService {
         ChessGame.TeamColor playerColor = joinGameRequest.playerColor();
         int gameID = joinGameRequest.gameID();
         try{
-            GameData gameToJoin = memoryGameDAO.getGame(gameID);
+            GameData gameToJoin = gameDAO.getGame(gameID);
             if(playerColor == BLACK){
                 if(gameToJoin.blackUsername() == null){  //check spot is open, add user if it is
                     GameInfo newGameInfo = new GameInfo(gameID, gameToJoin.whiteUsername(), joinGameRequest.username(), gameToJoin.gameName());
-                    memoryGameDAO.updateGameInfo(gameID, newGameInfo);
+                    gameDAO.updateGameInfo(gameID, newGameInfo);
                 }
                 else {
                     throw new DataInputException("already taken");
@@ -45,7 +46,7 @@ public class GameService {
             else{
                 if(gameToJoin.whiteUsername() == null){  //check spot is open, add user if it is
                     GameInfo newGameInfo = new GameInfo(gameID, joinGameRequest.username(), gameToJoin.blackUsername(), gameToJoin.gameName());
-                    memoryGameDAO.updateGameInfo(gameID, newGameInfo);
+                    gameDAO.updateGameInfo(gameID, newGameInfo);
                 }
                 else {
                     throw new DataInputException("already taken");
@@ -60,6 +61,6 @@ public class GameService {
     }
 
     public void clear(){
-        memoryGameDAO.clear();
+        gameDAO.clear();
     }
 }

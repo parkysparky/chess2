@@ -1,8 +1,6 @@
 package server.service;
 
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import server.DataInputException;
@@ -14,14 +12,15 @@ import server.service.result.LogoutResult;
 import server.service.result.RegisterResult;
 
 public class UserService {
-    MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-    MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+    //these are public so that the unit tests can call to them. find a better solution
+    public UserDAO userDAO = new MemoryUserDAO();
+    public AuthDAO authDAO = new MemoryAuthDAO();
 
     public RegisterResult register(RegisterRequest registerRequest) throws DataInputException {
         try{
-            memoryUserDAO.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            userDAO.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
             //return RegisterResult
-            String token = memoryAuthDAO.createAuth(registerRequest.username());
+            String token = authDAO.createAuth(registerRequest.username());
             return new RegisterResult(registerRequest.username(), token);
         }
         catch (DataAccessException e){
@@ -31,19 +30,19 @@ public class UserService {
 
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException, DataInputException {
         //verify credentials
-        UserData userData = memoryUserDAO.getUser(loginRequest.username()); //throws DataAccessException if user doesn't exist
+        UserData userData = userDAO.getUser(loginRequest.username()); //throws DataAccessException if user doesn't exist
         if(!userData.password().equals(loginRequest.password())){ //if password doesn't match throw exception
             throw new DataInputException("unauthorized");
         }
         //create new authData for valid login
-        String authToken = memoryAuthDAO.createAuth(userData.username());
+        String authToken = authDAO.createAuth(userData.username());
 
         return new LoginResult(userData.username(), authToken);
     }
 
     public String authenticate(String authToken){
         try{
-            AuthData authData = memoryAuthDAO.getAuth(authToken);
+            AuthData authData = authDAO.getAuth(authToken);
             return authData.username();
         } catch (DataAccessException e) {
             return null;
@@ -51,17 +50,17 @@ public class UserService {
     }
 
     public LogoutResult logout(LogoutRequest logoutRequest) throws DataAccessException{
-        memoryAuthDAO.deleteAuth(memoryAuthDAO.getAuth(logoutRequest.authToken()));
+        authDAO.deleteAuth(authDAO.getAuth(logoutRequest.authToken()));
 
         return new LogoutResult();
     }
 
     private void clearUserData(){
-        memoryUserDAO.clear();
+        userDAO.clear();
     }
 
     private void clearAuthData(){
-        memoryAuthDAO.clear();
+        authDAO.clear();
     }
 
     public void clear(){
