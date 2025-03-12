@@ -23,7 +23,10 @@ public class GameService {
         return new ListGamesResult(gameDAO.listGames());
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataInputException {
+        if(createGameRequest.gameName() == null || createGameRequest.gameName().isBlank()){
+            throw new DataInputException("Game must have a name");
+        }
         int gameID = gameDAO.createGame(createGameRequest.gameName());
 
         return new CreateGameResult(gameID);
