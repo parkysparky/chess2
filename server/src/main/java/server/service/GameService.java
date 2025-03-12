@@ -17,7 +17,7 @@ import server.service.result.ListGamesResult;
 import static chess.ChessGame.TeamColor.BLACK;
 
 public class GameService {
-    GameDAO gameDAO = new MemoryGameDAO();
+    public GameDAO gameDAO = new MemoryGameDAO();
 
     public ListGamesResult listGames(ListGamesRequest ListGamesRequest) throws DataAccessException {
         return new ListGamesResult(gameDAO.listGames());

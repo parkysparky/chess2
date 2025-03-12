@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.DataAccessException;
 import org.junit.jupiter.api.*;
-import passoff.model.TestAuthResult;
 import server.DataInputException;
 import server.service.UserService;
 import server.service.request.LoginRequest;
@@ -94,7 +93,8 @@ class UserServiceTests {
 
     @Test
     @DisplayName("Logout User not Logged in")
-    void logoutBadAuthToken() {
+    void logoutBadAuthToken() throws DataAccessException {
+        userService.logout(new LogoutRequest(testAuthToken));
         Assertions.assertThrows(DataAccessException.class, () -> userService.logout(new LogoutRequest(testAuthToken)));
     }
 
