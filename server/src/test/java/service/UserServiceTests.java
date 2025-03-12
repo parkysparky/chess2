@@ -1,44 +1,106 @@
 package service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import server.service.GameService;
+import dataaccess.DataAccessException;
+import org.junit.jupiter.api.*;
+import passoff.model.TestAuthResult;
+import server.DataInputException;
 import server.service.UserService;
+import server.service.request.LoginRequest;
+import server.service.request.LogoutRequest;
+import server.service.request.RegisterRequest;
+import server.service.result.LoginResult;
+import server.service.result.LogoutResult;
+import server.service.result.RegisterResult;
 
 class UserServiceTests {
-    UserService userService = new UserService();
-    GameService gameService = new GameService();
+    /// add a case for incomplete input for each endpoint
+    /// create a class for it maybe? check how it is handled in the api tests
 
+    UserService userService = new UserService();
+
+    String testAuthToken;
+    final String testUser = "testUser";
+    final String password = "password";
+    final String email = "example@email.com";
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws DataInputException{
+        //reset database
         userService.clear();
-        gameService.clear();
+
+        //get authToken for sample user
+        RegisterRequest registerRequest = new RegisterRequest(testUser, password, email);
+        RegisterResult registerResult = userService.register(registerRequest);
+        testAuthToken = registerResult.authToken();
     }
 
     @Test
     @DisplayName("Normal User Registration")
-    void successRegister() {
+    void successRegister() throws DataInputException{
+        String newUser = "testUser2";
+        RegisterRequest registerRequest = new RegisterRequest(newUser, "password", "example@email.com");
+        RegisterResult registerResult = userService.register(registerRequest);
+
+        Assertions.assertEquals(newUser, registerResult.username(),
+                "Response did not have the same username as was registered");
+        Assertions.assertNotNull(registerResult.authToken(), "Response did not contain an authentication string");
+    }
+
+    @Test
+    @DisplayName("Register Existing User")
+    public void registerTwice() {
+        Assertions.assertThrows(DataInputException.class, () -> userService.register(new RegisterRequest(testUser, password, email)));
     }
 
     @Test
     @DisplayName("Normal User Login")
-    void successLogin() {
+    void successLogin() throws DataInputException, DataAccessException {
+        LoginResult loginResult = userService.login(new LoginRequest(testUser, password));
+
+        Assertions.assertEquals(testUser, loginResult.username(),
+                "Response did not have the same username as was registered");
+        Assertions.assertNotNull(loginResult.authToken(), "Response did not contain an authentication string");
     }
 
     @Test
-    @DisplayName("Normal User Authentication")
+    @DisplayName("Wrong Password Login")
+    void loginWrongPassword() {
+        Assertions.assertThrows(DataInputException.class, () -> userService.login(new LoginRequest(testUser, "wrongPassword")));
+    }
+
+    @Test
+    @DisplayName("Wrong Username Login")
+    void loginWrongUsername() {
+        Assertions.assertThrows(DataAccessException.class, () -> userService.login(new LoginRequest("wrongUser", password)));
+    }
+
+    @Test
+    @DisplayName("Normal Authentication")
     void successAuthenticate() {
+        Assertions.assertEquals(testUser, userService.authenticate(testAuthToken), "authTokens are not equal");
+    }
+
+    @Test
+    @DisplayName("Bad Token Authentication")
+    void authenticateWrongToken() {
+        Assertions.assertNull(userService.authenticate("badAuthToken"));
     }
 
     @Test
     @DisplayName("Normal User Logout")
-    void successLogout() {
+    void successLogout() throws DataAccessException {
+        Assertions.assertEquals(new LogoutResult(), userService.logout(new LogoutRequest(testAuthToken)), "did not logout properly");
+    }
+
+    @Test
+    @DisplayName("Logout User not Logged in")
+    void logoutBadAuthToken() {
+        Assertions.assertThrows(DataAccessException.class, () -> userService.logout(new LogoutRequest(testAuthToken)));
     }
 
     @Test
     void clear() {
+//        Assertions.assertTrue(userService.memoryUserDAO.isEmpty() && userService.memoryAuthDAO.isEmpty(), "database not cleared");
     }
 
 }

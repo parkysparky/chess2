@@ -67,4 +67,9 @@ public class MemoryGameDAO implements GameDAO{
         gameCount = 0;
         gameData = new HashSet<>();
     }
+
+    @Override
+    public boolean isEmpty() {
+        return gameData.isEmpty();
+    }
 }

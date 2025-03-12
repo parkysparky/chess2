@@ -11,4 +11,5 @@ public interface GameDAO {
     HashSet<GameInfo> listGames() throws DataAccessException;
     void updateGameInfo(int gameID, GameInfo newGame) throws DataAccessException;
     void clear();
+    boolean isEmpty();
 }

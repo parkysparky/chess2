@@ -17,11 +17,16 @@ public class UserService {
     MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
     MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
 
-    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
-        memoryUserDAO.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
-        //return RegisterResult
-        String token = memoryAuthDAO.createAuth(registerRequest.username());
-        return new RegisterResult(registerRequest.username(), token);
+    public RegisterResult register(RegisterRequest registerRequest) throws DataInputException {
+        try{
+            memoryUserDAO.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            //return RegisterResult
+            String token = memoryAuthDAO.createAuth(registerRequest.username());
+            return new RegisterResult(registerRequest.username(), token);
+        }
+        catch (DataAccessException e){
+            throw new DataInputException(e.getMessage());
+        }
     }
 
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException, DataInputException {

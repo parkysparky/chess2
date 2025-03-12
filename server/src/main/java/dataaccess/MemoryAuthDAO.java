@@ -35,4 +35,9 @@ public class MemoryAuthDAO implements AuthDAO{
     public void clear() {
         authData = new HashSet<>();
     }
+
+    @Override
+    public boolean isEmpty() {
+        return authData.isEmpty();
+    }
 }
