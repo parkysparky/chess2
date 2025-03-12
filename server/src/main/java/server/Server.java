@@ -1,14 +1,10 @@
 package server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import server.service.ClearService;
 import server.service.GameService;
 import server.service.UserService;
-import server.service.request.CreateGameRequest;
-import server.service.request.LoginRequest;
-import server.service.request.LogoutRequest;
-import server.service.request.RegisterRequest;
+import server.service.request.*;
 import spark.*;
 
 import java.lang.reflect.Field;
@@ -41,7 +37,7 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private void createRoutes(){
+    private void createRoutes() {
         //user routes
         //clear
         Spark.delete("/db", (req, res) -> new Gson().toJson(clearService.clearAllData(userService, gameService)));
@@ -53,25 +49,26 @@ public class Server {
         Spark.delete("/session", this::logoutHandler);
         //game routes
         //listGames
-
+        Spark.get("/game", this::listGamesHandler);
         //createGame
         Spark.post("/game", this::createGameHandler);
         //joinGame
+        Spark.put("/game", this::joinGameHandler);
 
     }
 
-    private void authenticateHandler(String authToken) throws DataInputException{//return type might need to be Object
-        boolean authenticated = userService.authenticate(authToken);
+    private void authenticateHandler(String authToken) throws DataInputException {//return type might need to be Object
+        boolean authenticated = userService.authenticate(authToken) != null;
 
-        if(!authenticated){
+        if (!authenticated) {
             throw new DataInputException("unauthorized");
         }
     }
 
     public Object errorHandler(Exception e, Request req, Response res) throws RuntimeException {
         //pass runtime exceptions up
-        if(e instanceof RuntimeException){
-            throw (RuntimeException)e;
+        if (e instanceof RuntimeException) {
+            throw (RuntimeException) e;
         }
 
         //map checked exception messages to their respective error codes
@@ -86,8 +83,8 @@ public class Server {
         res.type("application/json");
 
         int errorCode = 500;
-        for(String errorMessage : errorMessageToCode.keySet()){
-            if(errorMessage.equals(e.getMessage())){
+        for (String errorMessage : errorMessageToCode.keySet()) {
+            if (errorMessage.equals(e.getMessage())) {
                 errorCode = errorMessageToCode.get(errorMessage);
             }
         }
@@ -96,85 +93,112 @@ public class Server {
         return body;
     }
 
-    private Object registerHandler(Request req, Response res){
+    private Object registerHandler(Request req, Response res) {
         //get and deserialize body
         RegisterRequest registerRequest = deserialize(req.body(), RegisterRequest.class);
-                //send req data to service class, operate on it, return serialized Json response
+        //send req data to service class, operate on it, return serialized Json response
         try {
             anyFieldBlank(registerRequest);
             return new Gson().toJson(userService.register(registerRequest));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return errorHandler(e, req, res);
         }
     }
 
-    private Object loginHandler(Request req, Response res){
+    private Object loginHandler(Request req, Response res) {
         //get and deserialize body
         LoginRequest loginRequest = deserialize(req.body(), LoginRequest.class);
         //send req data to service class, operate on it, return serialized Json response
-        try{
+        try {
             anyFieldBlank(loginRequest);
             return new Gson().toJson(userService.login(loginRequest));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return errorHandler(e, req, res);
         }
     }
 
-    private Object logoutHandler(Request req, Response res){
+    private Object logoutHandler(Request req, Response res) {
         LogoutRequest logoutRequest = new LogoutRequest(req.headers("authorization"));
-        try{
+        try {
             authenticateHandler(logoutRequest.authToken());
             return new Gson().toJson(userService.logout(logoutRequest));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return errorHandler(e, req, res);
         }
     }
 
-    private Object createGameHandler(Request req, Response res){
+    private Object listGamesHandler(Request req, Response res) {
+        //send req data to service class, operate on it, return serialized Json response
+        try {
+            authenticateHandler(req.headers("authorization"));
+            return new Gson().toJson(gameService.listGames(new ListGamesRequest()));
+        } catch (Exception e) {
+            return errorHandler(e, req, res);
+        }
+    }
+
+    private Object createGameHandler(Request req, Response res) {
         //get and deserialize body
         CreateGameRequest createGameRequest = deserialize(req.body(), CreateGameRequest.class);
         //send req data to service class, operate on it, return serialized Json response
-        try{
+        try {
             anyFieldBlank(createGameRequest);
             authenticateHandler(req.headers("authorization"));
             return new Gson().toJson(gameService.createGame(createGameRequest));////actually implement this method
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return errorHandler(e, req, res);
         }
     }
 
-    private <T extends Record> void anyFieldBlank(T record) throws DataInputException{
+    private Object joinGameHandler(Request req, Response res) {
+        //get and deserialize body
+
+        //send req data to service class, operate on it, return serialized Json response
+        try {
+            authenticateHandler(req.headers("authorization"));
+
+            //populate joinGameRequest
+            String username = userService.authenticate(req.headers("authorization"));
+            JoinGameRequestBody joinGameRequestBody = deserialize(req.body(), JoinGameRequestBody.class);
+//            var joinGameRequestBody = new Gson().toJson(req.body(), JoinGameRequestBody.class);
+            JoinGameRequest joinGameRequest = new JoinGameRequest(username, joinGameRequestBody.playerColor(), joinGameRequestBody.gameID());
+
+            //input validation
+            anyFieldBlank(joinGameRequestBody);
+
+            return new Gson().toJson(gameService.joinGame(joinGameRequest));
+        } catch (Exception e) {
+            return errorHandler(e, req, res);
+        }
+    }
+
+    private <T extends Record> void anyFieldBlank(T record) throws DataInputException {
         boolean hasBlankField = false;
-        if(record == null){ //if entire record is null then consider a field to be blank
+        if (record == null) { //if entire record is null then consider a field to be blank
             throw new DataInputException("Some required fields are missing");
         }
 
         Field[] fields = record.getClass().getDeclaredFields();
-        for(var field : fields){
+        for (var field : fields) {
             field.setAccessible(true);
-            try{
+            try {
                 Object value = field.get(record);
-                if(value == null || (value instanceof String && ((String)value).isBlank())){
-                //if the object value is null or is a string and blank
+                if (value == null || (value instanceof String && ((String) value).isBlank())) {
+                    //if the object value is null or is a string and blank
                     hasBlankField = true;
                     break;
                 }
-            }
-            catch(IllegalAccessException e){
+            } catch (IllegalAccessException e) {
                 hasBlankField = true;
                 break;
             }
         }
-        if(hasBlankField){
+        if (hasBlankField) {
             throw new DataInputException("Some required fields are missing");
         }
     }
 
-    private static <T extends Record> T deserialize(String json, Class<T> yourClass){
+    private static <T extends Record> T deserialize(String json, Class<T> yourClass) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 

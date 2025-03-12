@@ -3,6 +3,7 @@ package server.service;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
+import model.AuthData;
 import model.UserData;
 import server.DataInputException;
 import server.service.request.LoginRequest;
@@ -35,12 +36,12 @@ public class UserService {
         return new LoginResult(userData.username(), authToken);
     }
 
-    public boolean authenticate(String authToken){
+    public String authenticate(String authToken){
         try{
-            memoryAuthDAO.getAuth(authToken);
-            return true;
+            AuthData authData = memoryAuthDAO.getAuth(authToken);
+            return authData.username();
         } catch (DataAccessException e) {
-            return false;
+            return null;
         }
     }
 
