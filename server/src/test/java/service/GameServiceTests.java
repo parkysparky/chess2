@@ -2,13 +2,18 @@ package service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.service.GameService;
+import server.service.UserService;
 
-import static org.junit.jupiter.api.Assertions.*;
+class GameServiceTests {
+    UserService userService = new UserService();
+    GameService gameService = new GameService();
 
-class GameServiceTest {
 
     @BeforeEach
     void setUp() {
+        userService.clear();
+        gameService.clear();
     }
 
     @Test
@@ -24,6 +29,6 @@ class GameServiceTest {
     }
 
     @Test
-    void resetGameData() {
+    void clear() {
     }
 }

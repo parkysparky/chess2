@@ -51,11 +51,16 @@ public class UserService {
         return new LogoutResult();
     }
 
-    public void clearUserData(){
-        memoryUserDAO = new MemoryUserDAO();
+    private void clearUserData(){
+        memoryUserDAO.clear();
     }
 
-    public void clearAuthData(){
-        memoryAuthDAO = new MemoryAuthDAO();
+    private void clearAuthData(){
+        memoryAuthDAO.clear();
+    }
+
+    public void clear(){
+        clearUserData();
+        clearAuthData();
     }
 }

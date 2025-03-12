@@ -61,4 +61,10 @@ public class MemoryGameDAO implements GameDAO{
                                         oldGame.game());
         gameData.add(newGame);
     }
+
+    @Override
+    public void clear() {
+        gameCount = 0;
+        gameData = new HashSet<>();
+    }
 }

@@ -59,7 +59,7 @@ public class GameService {
         return null;
     }
 
-    void resetGameData(){
-        memoryGameDAO = new MemoryGameDAO();
+    public void clear(){
+        memoryGameDAO.clear();
     }
 }

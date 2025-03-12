@@ -1,7 +1,6 @@
 package server;
 
 import com.google.gson.*;
-import server.service.ClearService;
 import server.service.GameService;
 import server.service.UserService;
 import server.service.request.*;
@@ -15,8 +14,6 @@ public class Server {
 
     UserService userService = new UserService();
     GameService gameService = new GameService();
-    ClearService clearService = new ClearService();
-
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -40,7 +37,7 @@ public class Server {
     private void createRoutes() {
         //user routes
         //clear
-        Spark.delete("/db", (req, res) -> new Gson().toJson(clearService.clearAllData(userService, gameService)));
+        Spark.delete("/db", this::clearHandler);
         //register
         Spark.post("/user", this::registerHandler);
         //login
@@ -91,6 +88,12 @@ public class Server {
         res.status(errorCode);
         res.body(body);
         return body;
+    }
+
+    private Object clearHandler(Request req, Response res){
+        userService.clear();
+        gameService.clear();
+        return new Gson().toJson(new clearRequest());
     }
 
     private Object registerHandler(Request req, Response res) {

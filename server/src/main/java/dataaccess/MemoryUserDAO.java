@@ -28,4 +28,9 @@ public class MemoryUserDAO implements UserDAO {
         }
         throw new DataAccessException("User Not Found");
     }
+
+    @Override
+    public void clear() {
+        userData = new HashSet<>();
+    }
 }
