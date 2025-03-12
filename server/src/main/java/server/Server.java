@@ -93,7 +93,7 @@ public class Server {
     private Object clearHandler(Request req, Response res){
         userService.clear();
         gameService.clear();
-        return new Gson().toJson(new clearRequest());
+        return new Gson().toJson(new ClearRequest());
     }
 
     private Object registerHandler(Request req, Response res) {

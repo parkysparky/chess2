@@ -73,19 +73,19 @@ class GameServiceTests {
 
     @Test
     @DisplayName("Create Game With Null Game Name")
-    void CreateGameWithoutName() {
+    void createGameWithoutName() {
         Assertions.assertThrows(DataInputException.class, () -> gameService.createGame(new CreateGameRequest(null)));
     }
 
     @Test
     @DisplayName("Create Game With Empty Game Name")
-    void CreateGameEmptyName() {
+    void createGameEmptyName() {
         Assertions.assertThrows(DataInputException.class, () -> gameService.createGame(new CreateGameRequest("")));
     }
 
     @Test
     @DisplayName("Create Game With Blank Game Name")
-    void CreateGameBlankName() {
+    void createGameBlankName() {
         Assertions.assertThrows(DataInputException.class, () -> gameService.createGame(new CreateGameRequest(" ")));
     }
 

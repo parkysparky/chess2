@@ -1,4 +1,4 @@
 package server.service.request;
 
-public record clearRequest() {
+public record ClearRequest() {
 }

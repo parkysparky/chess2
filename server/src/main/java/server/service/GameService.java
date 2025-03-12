@@ -19,7 +19,7 @@ import static chess.ChessGame.TeamColor.BLACK;
 public class GameService {
     public GameDAO gameDAO = new MemoryGameDAO();
 
-    public ListGamesResult listGames(ListGamesRequest ListGamesRequest) throws DataAccessException {
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException {
         return new ListGamesResult(gameDAO.listGames());
     }
 
