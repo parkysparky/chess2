@@ -49,6 +49,54 @@ public class DatabaseManager {
     }
 
     /**
+     * Creates the tables if they do not already exist.
+     */
+    static private void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createTableStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+        }
+    }
+
+    static private final String[] createTableStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  UserData (
+              `username` varchar(64) NOT NULL,
+              `password` varchar(64) NOT NULL,
+              `email` varchar(128) NOT NULL,
+              PRIMARY KEY (`username`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  AuthData (
+              `authToken` varchar(64) NOT NULL,
+              `username` varchar(64) NOT NULL,
+              PRIMARY KEY (`auth`),
+              INDEX(username)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  GameData (
+              `gameID` INT NOT NULL AUTO_INCREMENT,
+              `whiteUsername` varchar(64),
+              `blackUsername` varchar(64),
+              `gameName` varchar(64) NOT NULL,
+              `game` TEXT, NOT NULL,
+              PRIMARY KEY (`id`),
+              FOREIGN KEY (`whiteUsername`)
+              INDEX(name)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
+
+
+    /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should
      * be short-lived, and you must close the connection when you are done with it.

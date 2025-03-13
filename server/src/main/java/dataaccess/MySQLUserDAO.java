@@ -3,6 +3,9 @@ package dataaccess;
 import model.UserData;
 
 public class MySQLUserDAO implements UserDAO{
+
+    DatabaseManager.configureDatabase();/// why no work?
+
     @Override
     public void createUser(String username, String password, String email) throws DataAccessException {
 
@@ -22,4 +25,6 @@ public class MySQLUserDAO implements UserDAO{
     public boolean isEmpty() {
         return false;
     }
+
+
 }

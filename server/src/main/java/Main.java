@@ -12,7 +12,7 @@ public class Main {
                 System.out.println("Invalid port number. Using default port: 8080");
             }
             if(1 < args.length) {
-                String dbFormat = (String)args[1];
+                String dbFormat = args[1];
                 if(dbFormat.equalsIgnoreCase("memory")){
                     useMySQL = false;
                 }
