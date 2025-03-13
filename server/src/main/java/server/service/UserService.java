@@ -16,13 +16,13 @@ public class UserService {
     public UserDAO userDAO;
     public AuthDAO authDAO;
 
-    public UserService(){ //change default to MySQL
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
+    public UserService(){
+        userDAO = new MySQLUserDAO();
+        authDAO = new MySQLAuthDAO();
     }
 
     public UserService(boolean useMySQL){
-        if(useMySQL){//create userDAO and authDAO with MySQL implementation
+        if(useMySQL){
             userDAO = new MySQLUserDAO();
             authDAO = new MySQLAuthDAO();
         }

@@ -18,10 +18,11 @@ import server.service.result.ListGamesResult;
 import static chess.ChessGame.TeamColor.BLACK;
 
 public class GameService {
+    //this is public so that the unit tests can call to it. find a better solution
     public GameDAO gameDAO;
 
-    public GameService(){//change default to MySQL
-        gameDAO = new MemoryGameDAO();
+    public GameService(){
+        gameDAO = new MySQLGameDAO();
     }
 
     public GameService(boolean useMySQL){
