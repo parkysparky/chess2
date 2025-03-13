@@ -13,8 +13,24 @@ import server.service.result.RegisterResult;
 
 public class UserService {
     //these are public so that the unit tests can call to them. find a better solution
-    public UserDAO userDAO = new MemoryUserDAO();
-    public AuthDAO authDAO = new MemoryAuthDAO();
+    public UserDAO userDAO;
+    public AuthDAO authDAO;
+
+    public UserService(){ //change default to MySQL
+        userDAO = new MemoryUserDAO();
+        authDAO = new MemoryAuthDAO();
+    }
+
+    public UserService(boolean useMySQL){
+        if(useMySQL){//create userDAO and authDAO with MySQL implementation
+            userDAO = new MySQLUserDAO();
+            authDAO = new MySQLAuthDAO();
+        }
+        else{
+            userDAO = new MemoryUserDAO();
+            authDAO = new MemoryAuthDAO();
+        }
+    }
 
     public RegisterResult register(RegisterRequest registerRequest) throws DataInputException {
         try{

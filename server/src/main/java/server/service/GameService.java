@@ -4,6 +4,7 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.MemoryGameDAO;
+import dataaccess.MySQLGameDAO;
 import model.GameData;
 import model.GameInfo;
 import server.DataInputException;
@@ -17,7 +18,20 @@ import server.service.result.ListGamesResult;
 import static chess.ChessGame.TeamColor.BLACK;
 
 public class GameService {
-    public GameDAO gameDAO = new MemoryGameDAO();
+    public GameDAO gameDAO;
+
+    public GameService(){//change default to MySQL
+        gameDAO = new MemoryGameDAO();
+    }
+
+    public GameService(boolean useMySQL){
+        if(useMySQL){
+            gameDAO = new MySQLGameDAO();
+        }
+        else{
+            gameDAO = new MemoryGameDAO();
+        }
+    }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException {
         return new ListGamesResult(gameDAO.listGames());

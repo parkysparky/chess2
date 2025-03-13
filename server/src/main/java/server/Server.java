@@ -11,9 +11,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
+    UserService userService;
+    GameService gameService;
 
-    UserService userService = new UserService();
-    GameService gameService = new GameService();
+    public Server(){
+        gameService = new GameService();
+        userService = new UserService();
+    }
+
+    public Server(boolean useMySQL) {
+        gameService = new GameService(useMySQL);
+        userService = new UserService(useMySQL);
+    }
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
