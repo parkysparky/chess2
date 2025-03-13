@@ -34,6 +34,10 @@ class UserServiceTests {
         RegisterRequest registerRequest = new RegisterRequest(testUser, password, email);
         RegisterResult registerResult = userService.register(registerRequest);
         testAuthToken = registerResult.authToken();
+
+        //verify sample user is added to database correctly
+        Assertions.assertFalse(userService.userDAO.isEmpty(), "New user was not created");
+        Assertions.assertFalse(userService.authDAO.isEmpty(), "User was not logged into session properly");
     }
 
     @Test
@@ -46,6 +50,7 @@ class UserServiceTests {
         Assertions.assertEquals(newUser, registerResult.username(),
                 "Response did not have the same username as was registered");
         Assertions.assertNotNull(registerResult.authToken(), "Response did not contain an authentication string");
+        Assertions.assertFalse(registerResult.authToken().isBlank(), "Response contained an empty or blank auth token");
     }
 
     @Test
@@ -92,6 +97,7 @@ class UserServiceTests {
     @DisplayName("Normal User Logout")
     void successLogout() throws DataAccessException {
         Assertions.assertEquals(new LogoutResult(), userService.logout(new LogoutRequest(testAuthToken)), "did not logout properly");
+        Assertions.assertTrue(userService.authDAO.isEmpty(), "User login session not removed from database");
     }
 
     @Test

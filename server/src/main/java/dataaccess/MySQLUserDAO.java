@@ -27,7 +27,7 @@ public class MySQLUserDAO implements UserDAO{
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return true;
     }
 
 

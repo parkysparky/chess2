@@ -32,6 +32,6 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return true;
     }
 }
