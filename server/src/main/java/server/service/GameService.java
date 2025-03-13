@@ -21,11 +21,11 @@ public class GameService {
     //this is public so that the unit tests can call to it. find a better solution
     public GameDAO gameDAO;
 
-    public GameService(){
+    public GameService() throws DataAccessException {
         gameDAO = new MySQLGameDAO();
     }
 
-    public GameService(boolean useMySQL){
+    public GameService(boolean useMySQL) throws DataAccessException {
         if(useMySQL){
             gameDAO = new MySQLGameDAO();
         }

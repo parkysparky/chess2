@@ -1,4 +1,4 @@
-import chess.*;
+import dataaccess.DataAccessException;
 import server.Server;
 
 public class Main {
@@ -18,7 +18,11 @@ public class Main {
                 }
             }
         }
-        Server server = new Server(useMySQL);
-        server.run(portNumber);
+        try{
+            Server server = new Server(useMySQL);
+            server.run(portNumber);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

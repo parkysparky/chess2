@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.*;
+import dataaccess.DataAccessException;
 import server.service.GameService;
 import server.service.UserService;
 import server.service.request.*;
@@ -14,12 +15,12 @@ public class Server {
     UserService userService;
     GameService gameService;
 
-    public Server(){
+    public Server() throws DataAccessException {
         gameService = new GameService();
         userService = new UserService();
     }
 
-    public Server(boolean useMySQL) {
+    public Server(boolean useMySQL) throws DataAccessException {
         gameService = new GameService(useMySQL);
         userService = new UserService(useMySQL);
     }

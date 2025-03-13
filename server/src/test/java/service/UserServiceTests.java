@@ -22,6 +22,9 @@ class UserServiceTests {
     final String password = "password";
     final String email = "example@email.com";
 
+    UserServiceTests() throws DataAccessException {
+    }
+
     @BeforeEach
     void setUp() throws DataInputException{
         //reset database

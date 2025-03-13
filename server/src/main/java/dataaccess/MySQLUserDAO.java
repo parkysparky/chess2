@@ -2,9 +2,13 @@ package dataaccess;
 
 import model.UserData;
 
-public class MySQLUserDAO implements UserDAO{
+import static dataaccess.DatabaseManager.configureDatabase;
 
-    DatabaseManager.configureDatabase();/// why no work?
+public class MySQLUserDAO implements UserDAO{
+    public MySQLUserDAO() throws DataAccessException {
+        configureDatabase();
+
+    }
 
     @Override
     public void createUser(String username, String password, String email) throws DataAccessException {

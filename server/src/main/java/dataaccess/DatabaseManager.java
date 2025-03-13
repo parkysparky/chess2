@@ -51,7 +51,7 @@ public class DatabaseManager {
     /**
      * Creates the tables if they do not already exist.
      */
-    static private void configureDatabase() throws DataAccessException {
+    static public void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createTableStatements) {

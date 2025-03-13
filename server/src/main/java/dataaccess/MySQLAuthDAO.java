@@ -2,7 +2,14 @@ package dataaccess;
 
 import model.AuthData;
 
+import static dataaccess.DatabaseManager.configureDatabase;
+
 public class MySQLAuthDAO implements AuthDAO{
+
+    public MySQLAuthDAO() throws DataAccessException {
+        configureDatabase();
+    }
+
     @Override
     public String createAuth(String username) throws DataAccessException {
         return "";

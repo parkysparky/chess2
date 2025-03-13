@@ -5,7 +5,14 @@ import model.GameInfo;
 
 import java.util.HashSet;
 
+import static dataaccess.DatabaseManager.configureDatabase;
+
 public class MySQLGameDAO implements GameDAO{
+
+    public MySQLGameDAO() throws DataAccessException {
+        configureDatabase();
+    }
+
     @Override
     public int createGame(String gameName) {
         return 0;

@@ -16,12 +16,12 @@ public class UserService {
     public UserDAO userDAO;
     public AuthDAO authDAO;
 
-    public UserService(){
+    public UserService() throws DataAccessException {
         userDAO = new MySQLUserDAO();
         authDAO = new MySQLAuthDAO();
     }
 
-    public UserService(boolean useMySQL){
+    public UserService(boolean useMySQL) throws DataAccessException {
         if(useMySQL){
             userDAO = new MySQLUserDAO();
             authDAO = new MySQLAuthDAO();

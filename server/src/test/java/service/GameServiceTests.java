@@ -31,6 +31,8 @@ class GameServiceTests {
     final String password = "password";
     final String email = "example@email.com";
 
+    GameServiceTests() throws DataAccessException {
+    }
 
 
     @BeforeEach
