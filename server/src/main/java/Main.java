@@ -18,11 +18,7 @@ public class Main {
                 }
             }
         }
-        try{
-            Server server = new Server(useMySQL);
-            server.run(portNumber);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        Server server = new Server(useMySQL);
+        server.run(portNumber);
     }
 }

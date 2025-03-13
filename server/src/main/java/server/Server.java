@@ -15,14 +15,22 @@ public class Server {
     UserService userService;
     GameService gameService;
 
-    public Server() throws DataAccessException {
-        gameService = new GameService();
-        userService = new UserService();
+    public Server() {
+        try{
+            gameService = new GameService();
+            userService = new UserService();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public Server(boolean useMySQL) throws DataAccessException {
-        gameService = new GameService(useMySQL);
-        userService = new UserService(useMySQL);
+    public Server(boolean useMySQL) {
+        try {
+            gameService = new GameService(useMySQL);
+            userService = new UserService(useMySQL);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int run(int desiredPort) {
