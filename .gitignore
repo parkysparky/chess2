@@ -11,6 +11,3 @@ out/
 
 ### Chess project ###
 server/**/db.properties
-
-### any file called db.properties - do not include my password and crap ###
-**/db.properties
