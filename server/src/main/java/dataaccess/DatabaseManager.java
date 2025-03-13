@@ -78,7 +78,7 @@ public class DatabaseManager {
               `authToken` varchar(64) NOT NULL,
               `username` varchar(64) NOT NULL,
               PRIMARY KEY (`authToken`),
-              INDEX(username)
+              FOREIGN KEY(`username`) REFERENCES UserData(username) ON DELETE CASCADE,
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
             """
@@ -89,8 +89,8 @@ public class DatabaseManager {
               `gameName` varchar(64) NOT NULL,
               `game` TEXT, NOT NULL,
               PRIMARY KEY (`id`),
-              FOREIGN KEY (`whiteUsername`)
-              INDEX(name)
+              FOREIGN KEY (`whiteUsername`) REFERENCES UserData(username) ON DELETE CASCADE,
+              FOREIGN KEY(`blackUsername`) REFERENCES UserData(username) ON DELETE CASCADE,
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
