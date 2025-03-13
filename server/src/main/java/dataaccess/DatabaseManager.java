@@ -65,34 +65,36 @@ public class DatabaseManager {
     }
 
     static private final String[] createTableStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  UserData (
-              `username` varchar(64) NOT NULL,
-              `password` varchar(64) NOT NULL,
-              `email` varchar(128) NOT NULL,
-              PRIMARY KEY (`username`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS  AuthData (
-              `authToken` varchar(64) NOT NULL,
-              `username` varchar(64) NOT NULL,
-              PRIMARY KEY (`authToken`),
-              FOREIGN KEY(`username`) REFERENCES UserData(username) ON DELETE CASCADE,
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """,
-            """
-            CREATE TABLE IF NOT EXISTS  GameData (
-              `gameID` INT NOT NULL AUTO_INCREMENT,
-              `whiteUsername` varchar(64),
-              `blackUsername` varchar(64),
-              `gameName` varchar(64) NOT NULL,
-              `game` TEXT, NOT NULL,
-              PRIMARY KEY (`id`),
-              FOREIGN KEY (`whiteUsername`) REFERENCES UserData(username) ON DELETE CASCADE,
-              FOREIGN KEY(`blackUsername`) REFERENCES UserData(username) ON DELETE CASCADE,
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
+        //might need the following at the end of each table. I'm not sure
+        //ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+        """
+        CREATE TABLE IF NOT EXISTS  UserData (
+          `username` varchar(64) NOT NULL,
+          `password` varchar(64) NOT NULL,
+          `email` varchar(128) NOT NULL,
+          PRIMARY KEY (`username`))
+          ENGINE=InnoDB
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS  AuthData (
+          `authToken` varchar(64) NOT NULL,
+          `username` varchar(64) NOT NULL,
+          PRIMARY KEY (`authToken`),
+          FOREIGN KEY(`username`) REFERENCES UserData(username) ON DELETE CASCADE)
+          ENGINE=InnoDB
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS  GameData (
+          `gameID` INT NOT NULL AUTO_INCREMENT,
+          `whiteUsername` varchar(64),
+          `blackUsername` varchar(64),
+          `gameName` varchar(64) NOT NULL,
+          `game` TEXT NOT NULL,
+          PRIMARY KEY (`gameID`),
+          FOREIGN KEY (`whiteUsername`) REFERENCES UserData(username) ON DELETE CASCADE,
+          FOREIGN KEY(`blackUsername`) REFERENCES UserData(username) ON DELETE CASCADE)
+          ENGINE=InnoDB
+        """
     };
 
 
