@@ -40,6 +40,6 @@ public class MySQLGameDAO implements GameDAO{
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return true;
     }
 }

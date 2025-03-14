@@ -40,6 +40,7 @@ class GameServiceTests {
         gameService.clear();
 
         gameID = gameService.createGame(new CreateGameRequest(gameName)).gameID();
+
     }
 
     @Test
