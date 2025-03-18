@@ -141,6 +141,25 @@ public class DatabaseManager {
         }
     }
 
+
+    static boolean tableExists(String tableName) throws DataAccessException {
+        String query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ? LIMIT 1";
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(query)) {
+            ps.setString(1, tableName);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        catch(SQLException e){
+            throw new DataAccessException(e.getMessage());
+        }
+
+        return false; //default to false if something goes wrong
+    }
+
     static int executeUpdate(String statement, Object... params) throws DataAccessException {
         configureDatabase();
         try (var conn = DatabaseManager.getConnection()) {

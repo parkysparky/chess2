@@ -52,7 +52,7 @@ public class MySQLAuthDAO implements AuthDAO{
     }
 
     @Override
-    public void deleteAuth(AuthData username) throws DataAccessException {
+    public void deleteAuth(AuthData authData) throws DataAccessException {
 
     }
 
@@ -63,7 +63,10 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public boolean isEmpty() throws DataAccessException {
-        var statement = "SELECT COUNT(*) FROM authdata;";
+        if(!DatabaseManager.tableExists("authdata")){
+            return true;
+        }
+        var statement = "SELECT COUNT(*) FROM authdata LIMIT 1;";
 
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement(statement);

@@ -3,6 +3,7 @@ package dataaccess;
 import model.AuthData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,15 +61,33 @@ class MySQLAuthDAOTests {
     }
 
     @Test
-    void successDeleteAuth() {
+    void successDeleteAuth() throws DataAccessException {
+        mySQLAuthDAO.deleteAuth(new AuthData(testAuthToken, testUser));
+        Assertions.assertTrue(mySQLAuthDAO.isEmpty(), "Record is not properly deleted");
     }
 
     @Test
-    void clear() {
-        Assertions.assertThrows(DataAccessException.class, () -> mySQLAuthDAO.clear());
+    void deleteAuthBadInput() {
+        Assertions.assertThrows(DataAccessException.class,
+                () -> {mySQLAuthDAO.deleteAuth(new AuthData(testAuthToken, testUser));},
+                "Expected DataAccessException \"unauthorized\"");
     }
 
     @Test
-    void isEmpty() {
+    void clear() throws DataAccessException {
+        mySQLAuthDAO.clear();
+        Assertions.assertTrue(mySQLAuthDAO.isEmpty(), "Table is not properly cleared");
+    }
+
+    @Test
+    void successIsEmpty() throws DataAccessException {
+        mySQLAuthDAO.clear();
+        Assertions.assertTrue(mySQLAuthDAO.isEmpty(), "Table is not properly cleared");
+    }
+
+    @Test
+    @DisplayName("Normal is not Empty")
+    void successIsNotEmpty() throws DataAccessException {
+        Assertions.assertFalse(mySQLAuthDAO.isEmpty(), "Table is not properly populated");
     }
 }
