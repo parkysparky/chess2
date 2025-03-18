@@ -93,11 +93,10 @@ class MySQLUserDAOTests {
     @Test
     void successGetUser() throws DataAccessException {
         UserData foundUser = mySQLUserDAO.getUser(testUser);
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
         Assertions.assertEquals(testUser, foundUser.username(),
                 "fetched username does not match expected username");
-        Assertions.assertEquals(hashedPassword, foundUser.password(),
+        Assertions.assertTrue(BCrypt.checkpw(password, foundUser.password()),
                 "fetched hashedPassword does not match expected hashedPassword");
         Assertions.assertEquals(email, foundUser.email(),
                 "fetched email does not match expected email");
