@@ -14,6 +14,9 @@ public class MySQLUserDAO implements UserDAO{
 
     @Override
     public void createUser(String username, String password, String email) throws DataAccessException {
+        if(anyFieldBlank(username, password, email)){
+            throw new DataAccessException("bad request");
+        }
         try{ //check username is available
             getUser(username);
         }
@@ -54,6 +57,18 @@ public class MySQLUserDAO implements UserDAO{
         }
 
         throw new DataAccessException("Error checking table count");
+    }
+
+    private boolean anyFieldBlank(String... params) {
+        boolean returnValue = false;
+        for(var param : params){
+            if(param == null || param.isBlank()) {
+                returnValue = true;
+                break;
+            }
+        }
+
+        return returnValue;
     }
 
 
