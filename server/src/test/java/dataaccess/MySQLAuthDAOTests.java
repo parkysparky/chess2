@@ -69,7 +69,7 @@ class MySQLAuthDAOTests {
     @Test
     void deleteAuthBadInput() {
         Assertions.assertThrows(DataAccessException.class,
-                () -> {mySQLAuthDAO.deleteAuth(new AuthData(testAuthToken, testUser));},
+                () -> {mySQLAuthDAO.deleteAuth(new AuthData("badAuthToken", testUser));},
                 "Expected DataAccessException \"unauthorized\"");
     }
 
