@@ -174,14 +174,14 @@ public class DatabaseManager {
                         }
                     }
                 }
-                ps.executeUpdate();
+                int retVal = ps.executeUpdate();
 
                 var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
+                if (rs.next()) { //if we generate a key, return it
+                    retVal = rs.getInt(1);
                 }
 
-                return 0;
+                return retVal; //otherwise return the number of rows updated
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));

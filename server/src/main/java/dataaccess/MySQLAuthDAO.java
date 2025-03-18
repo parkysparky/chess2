@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 import static dataaccess.DatabaseManager.configureDatabase;
+import static dataaccess.DatabaseManager.executeUpdate;
 
 public class MySQLAuthDAO implements AuthDAO{
 
@@ -53,6 +54,12 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public void deleteAuth(AuthData authData) throws DataAccessException {
+        String authToken = authData.authToken();
+        var statement = "DELETE FROM authdata WHERE authToken = ?";
+
+        if ( DatabaseManager.executeUpdate(statement, authToken) == 0 ){
+            throw new DataAccessException("unauthorized");
+        }
 
     }
 
