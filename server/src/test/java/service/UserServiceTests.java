@@ -26,7 +26,7 @@ class UserServiceTests {
     }
 
     @BeforeEach
-    void setUp() throws DataInputException{
+    void setUp() throws DataInputException, DataAccessException {
         //reset database
         userService.clear();
 
@@ -108,7 +108,7 @@ class UserServiceTests {
     }
 
     @Test
-    void clear() {
+    void clear() throws DataAccessException {
         userService.clear();
         Assertions.assertTrue(userService.userDAO.isEmpty() && userService.authDAO.isEmpty(), "database not cleared");
     }

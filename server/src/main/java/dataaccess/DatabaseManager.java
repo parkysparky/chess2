@@ -1,7 +1,12 @@
 package dataaccess;
 
+import chess.ChessGame;
+
 import java.sql.*;
 import java.util.Properties;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 
 public class DatabaseManager {
     private static final String DATABASE_NAME;
@@ -68,7 +73,7 @@ public class DatabaseManager {
         //might need the following at the end of each table. I'm not sure
         //ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         """
-        CREATE TABLE IF NOT EXISTS  UserData (
+        CREATE TABLE IF NOT EXISTS  userdata (
           `username` varchar(64) NOT NULL,
           `password` varchar(64) NOT NULL,
           `email` varchar(128) NOT NULL,
@@ -76,7 +81,7 @@ public class DatabaseManager {
           ENGINE=InnoDB
         """,
         """
-        CREATE TABLE IF NOT EXISTS  AuthData (
+        CREATE TABLE IF NOT EXISTS  authdata (
           `authToken` varchar(64) NOT NULL,
           `username` varchar(64) NOT NULL,
           PRIMARY KEY (`authToken`),
@@ -84,7 +89,7 @@ public class DatabaseManager {
           ENGINE=InnoDB
         """,
         """
-        CREATE TABLE IF NOT EXISTS  GameData (
+        CREATE TABLE IF NOT EXISTS  gamedata (
           `gameID` INT NOT NULL AUTO_INCREMENT,
           `whiteUsername` varchar(64),
           `blackUsername` varchar(64),
@@ -117,6 +122,30 @@ public class DatabaseManager {
             return conn;
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    static int executeUpdate(String statement, Object... params) throws DataAccessException {
+        configureDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                    else if (param == null) ps.setNull(i + 1, NULL);
+                }
+                ps.executeUpdate();
+
+                var rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 }

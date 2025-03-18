@@ -109,7 +109,7 @@ public class Server {
         return body;
     }
 
-    private Object clearHandler(Request req, Response res){
+    private Object clearHandler(Request req, Response res) throws DataAccessException {
         userService.clear();
         gameService.clear();
         return new Gson().toJson(new ClearRequest());

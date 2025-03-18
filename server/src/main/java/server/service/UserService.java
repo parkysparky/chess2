@@ -3,6 +3,7 @@ package server.service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import server.DataInputException;
 import server.service.request.LoginRequest;
 import server.service.request.LogoutRequest;
@@ -47,7 +48,8 @@ public class UserService {
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException, DataInputException {
         //verify credentials
         UserData userData = userDAO.getUser(loginRequest.username()); //throws DataAccessException if user doesn't exist
-        if(!userData.password().equals(loginRequest.password())){ //if password doesn't match throw exception
+        String hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+        if(!hashedPassword.equals(loginRequest.password())){ //if password doesn't match throw exception
             throw new DataInputException("unauthorized");
         }
         //create new authData for valid login
@@ -75,11 +77,11 @@ public class UserService {
         userDAO.clear();
     }
 
-    private void clearAuthData(){
+    private void clearAuthData() throws DataAccessException {
         authDAO.clear();
     }
 
-    public void clear(){
+    public void clear() throws DataAccessException {
         clearUserData();
         clearAuthData();
     }

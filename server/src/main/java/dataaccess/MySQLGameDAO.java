@@ -15,6 +15,7 @@ public class MySQLGameDAO implements GameDAO{
 
     @Override
     public int createGame(String gameName) {
+        //TODO: create a Json serializer for ChessGame so that I can pass that into the executeUpdate() function
         return 0;
     }
 
