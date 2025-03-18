@@ -32,7 +32,59 @@ class MySQLUserDAOTests {
     }
 
     @Test
-    void createUser() {
+    void successCreateUser() throws DataAccessException {//depends on clear and get
+        Assertions.assertNotNull(mySQLAuthDAO.getAuth(testAuthToken), "Token in database is null");
+        Assertions.assertEquals(testAuthToken, mySQLAuthDAO.getAuth(testAuthToken).authToken(),
+                "Authtoken stored in database does not equal generated auth token");
+    }
+
+    @Test
+    void createUserBlankUsername() {
+        Assertions.assertThrows(DataAccessException.class,
+                () -> mySQLUserDAO.createUser(" ", password, email),
+                "Expected DataAccessException \"bad request\"");
+    }
+
+    @Test
+    void createUserBlankPassword() {
+        Assertions.assertThrows(DataAccessException.class,
+                () -> mySQLUserDAO.createUser(testUser, " ", email),
+                "Expected DataAccessException \"bad request\"");
+    }
+
+    @Test
+    void createUserBlankEmail() {
+        Assertions.assertThrows(DataAccessException.class,
+                () -> mySQLUserDAO.createUser(testUser, password, " "),
+                "Expected DataAccessException \"bad request\"");
+    }
+
+    @Test
+    void createUserNullUsername() {
+        Assertions.assertThrows(DataAccessException.class,
+                () -> mySQLUserDAO.createUser(null, password, email),
+                "Expected DataAccessException \"unauthorized\"");
+    }
+
+    @Test
+    void createUserNullPassword() {
+        Assertions.assertThrows(DataAccessException.class,
+                () -> mySQLUserDAO.createUser(testUser, null, email),
+                "Expected DataAccessException \"bad request\"");
+    }
+
+    @Test
+    void createUserNullEmail() {
+        Assertions.assertThrows(DataAccessException.class,
+                () -> mySQLUserDAO.createUser(testUser, password, null),
+                "Expected DataAccessException \"bad request\"");
+    }
+
+    @Test
+    void createUserUsernameTaken() {
+        Assertions.assertThrows(DataAccessException.class,
+                () -> mySQLUserDAO.createUser(testUser, password, email),
+                "Expected DataAccessException \"unauthorized\"");
     }
 
     @Test
@@ -40,8 +92,11 @@ class MySQLUserDAOTests {
     }
 
     @Test
-    void clear() {
-        Assertions.assertThrows(DataAccessException.class, () -> mySQLUserDAO.clear());
+    void clear() throws DataAccessException {
+        mySQLAuthDAO.clear();
+        mySQLGameDAO.clear();
+        mySQLUserDAO.clear();
+        Assertions.assertTrue(mySQLUserDAO.isEmpty(), "Table is not properly cleared");
     }
 
     @Test
