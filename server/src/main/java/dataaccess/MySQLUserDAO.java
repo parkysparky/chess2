@@ -33,9 +33,7 @@ public class MySQLUserDAO implements UserDAO{
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "DROP TABLE userdata;";
-
-        DatabaseManager.executeUpdate(statement);
+        DatabaseManager.dropTable("userdata");
     }
 
     @Override

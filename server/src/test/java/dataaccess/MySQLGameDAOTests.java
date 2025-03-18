@@ -28,7 +28,8 @@ class MySQLGameDAOTests {
     }
 
     @Test
-    void clear() {
+    void clear() throws DataAccessException {
+        DatabaseManager.dropTable("gamedata");
     }
 
     @Test
