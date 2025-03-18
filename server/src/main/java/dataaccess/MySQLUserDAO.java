@@ -20,7 +20,7 @@ public class MySQLUserDAO implements UserDAO{
         try{ //check username is available
             getUser(username);
         }
-        catch (DataAccessException e) {
+        catch (DataAccessException e) {//if available, create user
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
             var statement = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
