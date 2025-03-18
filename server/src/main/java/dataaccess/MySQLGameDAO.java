@@ -35,8 +35,10 @@ public class MySQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
+        var statement = "DROP TABLE gamedata;";
 
+        DatabaseManager.executeUpdate(statement);
     }
 
     @Override

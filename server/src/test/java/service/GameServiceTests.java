@@ -36,7 +36,7 @@ class GameServiceTests {
 
 
     @BeforeEach
-    void beforeEach() throws DataInputException {
+    void beforeEach() throws DataInputException, DataAccessException {
         gameService.clear();
 
         gameID = gameService.createGame(new CreateGameRequest(gameName)).gameID();
@@ -188,7 +188,7 @@ class GameServiceTests {
     }
 
     @Test
-    void clear() {
+    void clear() throws DataAccessException {
         gameService.clear();
         Assertions.assertTrue(gameService.gameDAO.isEmpty(), "database not cleared");
     }

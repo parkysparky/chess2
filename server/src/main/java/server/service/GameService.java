@@ -78,7 +78,7 @@ public class GameService {
         return null;
     }
 
-    public void clear(){
+    public void clear() throws DataAccessException {
         gameDAO.clear();
     }
 }

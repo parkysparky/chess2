@@ -73,7 +73,7 @@ public class UserService {
         return new LogoutResult();
     }
 
-    private void clearUserData(){
+    private void clearUserData() throws DataAccessException {
         userDAO.clear();
     }
 

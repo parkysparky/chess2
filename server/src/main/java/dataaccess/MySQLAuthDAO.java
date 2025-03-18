@@ -16,6 +16,10 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public String createAuth(String username) throws DataAccessException {
+        //input validation
+        if(username == null || username.isBlank()){
+            throw new DataAccessException("Username cannot be null or blank");
+        }
         //generate auth token
         String token = UUID.randomUUID().toString();
         AuthData authData = new AuthData(token, username);

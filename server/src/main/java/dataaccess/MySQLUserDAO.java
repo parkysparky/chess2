@@ -20,21 +20,22 @@ public class MySQLUserDAO implements UserDAO{
         catch (DataAccessException e) {
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-            var statement = "INSERT INTO userdata (username, hashedPassword, email) VALUES (?, ?, ?)";
+            var statement = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
 
             DatabaseManager.executeUpdate(statement, username, hashedPassword, email);
-
         }
     }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        throw new DataAccessException("Cannot find user");
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
+        var statement = "DROP TABLE userdata;";
 
+        DatabaseManager.executeUpdate(statement);
     }
 
     @Override
