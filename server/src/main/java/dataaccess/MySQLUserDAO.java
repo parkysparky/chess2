@@ -1,6 +1,5 @@
 package dataaccess;
 
-import com.google.gson.Gson;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -31,7 +30,25 @@ public class MySQLUserDAO implements UserDAO{
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        throw new DataAccessException("Cannot find user");
+        if (anyFieldBlank(username)) { throw new DataAccessException("bad request"); }
+
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM userdata WHERE username=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        String password = rs.getString("password");
+                        String email = rs.getString("email");
+                        return new UserData(username, password, email);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
+        throw new DataAccessException("unauthorized");
     }
 
     @Override
