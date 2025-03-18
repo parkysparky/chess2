@@ -62,7 +62,19 @@ public class MySQLAuthDAO implements AuthDAO{
     }
 
     @Override
-    public boolean isEmpty() {
-        return true;
+    public boolean isEmpty() throws DataAccessException {
+        var statement = "SELECT COUNT(*) FROM authdata;";
+
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement);
+             var rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) == 0; // Returns true if count is 0 (empty table)
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
+        throw new DataAccessException("Error checking table count");
     }
 }

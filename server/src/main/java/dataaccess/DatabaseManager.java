@@ -124,7 +124,7 @@ public class DatabaseManager {
     }
 
     static int dropTable(String tableName) throws DataAccessException {
-        var statement = "DROP TABLE " + tableName + ";";
+        var statement = "DROP TABLE IF EXISTS " + tableName + ";";
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 ps.executeUpdate();
