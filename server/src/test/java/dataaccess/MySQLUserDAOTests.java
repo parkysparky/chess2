@@ -1,9 +1,12 @@
 package dataaccess;
 
+import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 class MySQLUserDAOTests {
     MySQLAuthDAO mySQLAuthDAO;
@@ -63,7 +66,7 @@ class MySQLUserDAOTests {
     void createUserNullUsername() {
         Assertions.assertThrows(DataAccessException.class,
                 () -> mySQLUserDAO.createUser(null, password, email),
-                "Expected DataAccessException \"unauthorized\"");
+                "Expected DataAccessException \"bad request\"");
     }
 
     @Test
@@ -88,7 +91,34 @@ class MySQLUserDAOTests {
     }
 
     @Test
-    void getUser() {
+    void successGetUser() throws DataAccessException {
+        UserData foundUser = mySQLUserDAO.getUser(testUser);
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+        Assertions.assertEquals(testUser, foundUser.username(),
+                "fetched username does not match expected username");
+        Assertions.assertEquals(hashedPassword, foundUser.password(),
+                "fetched hashedPassword does not match expected hashedPassword");
+        Assertions.assertEquals(email, foundUser.email(),
+                "fetched email does not match expected email");
+    }
+
+    @Test
+    void getInvalidUsername() {
+        Assertions.assertThrows(DataAccessException.class, () -> mySQLUserDAO.getUser("badUsername"),
+                "Expected DataAccessException \"unauthorized\"");
+    }
+
+    @Test
+    void getNullUsername() {
+        Assertions.assertThrows(DataAccessException.class, () -> mySQLUserDAO.getUser(null),
+                "Expected DataAccessException \"bad request\"");
+    }
+
+    @Test
+    void getBlankUsername() {
+        Assertions.assertThrows(DataAccessException.class, () -> mySQLUserDAO.getUser(" "),
+                "Expected DataAccessException \"bad request\"");
     }
 
     @Test
