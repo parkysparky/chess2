@@ -54,8 +54,8 @@ class MySQLAuthDAOTests {
     }
 
     @Test
-    void getInvalidAuth(){
-        Assertions.assertThrows(DataAccessException.class, () -> mySQLAuthDAO.getAuth(testAuthToken),
+    void getInvalidAuth() {
+        Assertions.assertThrows(DataAccessException.class, () -> mySQLAuthDAO.getAuth("badToken"),
                 "Expected DataAccessException \"unauthorized\"");
     }
 
