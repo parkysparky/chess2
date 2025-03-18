@@ -27,7 +27,10 @@ public class MySQLUserDAO implements UserDAO{
             var statement = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
 
             DatabaseManager.executeUpdate(statement, username, hashedPassword, email);
+
+            return;
         }
+        throw new DataAccessException("already taken");
     }
 
     @Override

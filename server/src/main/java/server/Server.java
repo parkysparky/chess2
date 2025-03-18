@@ -92,6 +92,7 @@ public class Server {
         errorMessageToCode.put("bad request", 400);
         errorMessageToCode.put("Some required fields are missing", 400);
         errorMessageToCode.put("Username cannot be null or blank", 400);
+        errorMessageToCode.put("forbidden", 401);
         errorMessageToCode.put("unauthorized", 401);
         errorMessageToCode.put("User Not Found", 401);
         errorMessageToCode.put("already taken", 403);
