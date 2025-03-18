@@ -3,6 +3,8 @@ package dataaccess;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.sql.SQLException;
+
 import static dataaccess.DatabaseManager.configureDatabase;
 
 public class MySQLUserDAO implements UserDAO{
@@ -44,7 +46,7 @@ public class MySQLUserDAO implements UserDAO{
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
 
