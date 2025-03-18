@@ -111,8 +111,8 @@ public class Server {
     }
 
     private Object clearHandler(Request req, Response res) throws DataAccessException {
-        userService.clear();
         gameService.clear();
+        userService.clear();
         return new Gson().toJson(new ClearRequest());
     }
 

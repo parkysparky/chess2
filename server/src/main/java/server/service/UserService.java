@@ -82,7 +82,7 @@ public class UserService {
     }
 
     public void clear() throws DataAccessException {
-        clearUserData();
         clearAuthData();
+        clearUserData();
     }
 }
