@@ -126,15 +126,14 @@ public class DatabaseManager {
     static int dropTable(String tableName) throws DataAccessException {
         var statement = "DROP TABLE IF EXISTS " + tableName + ";";
         try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
+            try (var ps = conn.prepareStatement(statement)) {
+                int numTablesDropped = ps.executeUpdate();
+                if (numTablesDropped == 0){
+                    return 1; //error response if no table dropped
                 }
-
-                return 0;
+                else {
+                    return 0; //happy response if at least one table dropped
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
