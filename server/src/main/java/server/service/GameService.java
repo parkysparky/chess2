@@ -6,7 +6,6 @@ import dataaccess.GameDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MySQLGameDAO;
 import model.GameData;
-import model.GameInfo;
 import server.DataInputException;
 import server.service.request.CreateGameRequest;
 import server.service.request.JoinGameRequest;
@@ -54,8 +53,8 @@ public class GameService {
             GameData gameToJoin = gameDAO.getGame(gameID);
             if(playerColor == BLACK){
                 if(gameToJoin.blackUsername() == null){  //check spot is open, add user if it is
-                    GameInfo newGameInfo = new GameInfo(gameID, gameToJoin.whiteUsername(), joinGameRequest.username(), gameToJoin.gameName());
-                    gameDAO.updateGameInfo(gameID, newGameInfo);
+                    GameData updatedGameData = new GameData(gameID, gameToJoin.whiteUsername(), joinGameRequest.username(), gameToJoin.gameName(), gameToJoin.game());
+                    gameDAO.updateGame(gameID, updatedGameData);
                 }
                 else {
                     throw new DataInputException("already taken");
@@ -63,8 +62,8 @@ public class GameService {
             }
             else{
                 if(gameToJoin.whiteUsername() == null){  //check spot is open, add user if it is
-                    GameInfo newGameInfo = new GameInfo(gameID, joinGameRequest.username(), gameToJoin.blackUsername(), gameToJoin.gameName());
-                    gameDAO.updateGameInfo(gameID, newGameInfo);
+                    GameData updatedGameData = new GameData(gameID, joinGameRequest.username(), gameToJoin.blackUsername(), gameToJoin.gameName(), gameToJoin.game());
+                    gameDAO.updateGame(gameID, updatedGameData);
                 }
                 else {
                     throw new DataInputException("already taken");

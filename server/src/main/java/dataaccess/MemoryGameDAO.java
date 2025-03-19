@@ -49,16 +49,16 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGameInfo(int gameID, GameInfo newGameInfo) throws DataAccessException {
+    public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
         //cannot update chess game, only the other data and the old game is passed along
         //to update a chess game use updateGame(int gameID, GameData newGameData)
         GameData oldGame = getGame(gameID);
         gameData.remove(oldGame);
         GameData newGame = new GameData(gameID,
-                                        newGameInfo.whiteUsername(),
-                                        newGameInfo.blackUsername(),
-                                        newGameInfo.gameName(),
-                                        oldGame.game());
+                updatedGame.whiteUsername(),
+                updatedGame.blackUsername(),
+                updatedGame.gameName(),
+                updatedGame.game());
         gameData.add(newGame);
     }
 

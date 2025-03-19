@@ -30,7 +30,7 @@ public class MySQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGameInfo(int gameID, GameInfo newGame) throws DataAccessException {
+    public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
 
     }
 
