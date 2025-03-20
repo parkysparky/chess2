@@ -55,7 +55,8 @@ class MySQLGameDAOTests {
 
     @Test
     void clear() throws DataAccessException {
-        DatabaseManager.dropTable("gamedata");
+        mySQLGameDAO.clear();
+        Assertions.assertTrue(mySQLGameDAO.isEmpty(), "Table is not properly cleared");
     }
 
     @Test

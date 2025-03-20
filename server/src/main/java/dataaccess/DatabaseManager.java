@@ -123,23 +123,6 @@ public class DatabaseManager {
         }
     }
 
-    static int dropTable(String tableName) throws DataAccessException {
-        var statement = "DROP TABLE IF EXISTS " + tableName + ";";
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                int numTablesDropped = ps.executeUpdate();
-                if (numTablesDropped == 0){
-                    return 1; //error response if no table dropped
-                }
-                else {
-                    return 0; //happy response if at least one table dropped
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        }
-    }
-
 
     static boolean tableExists(String tableName) throws DataAccessException {
         String query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ? LIMIT 1";
@@ -159,8 +142,20 @@ public class DatabaseManager {
         return false; //default to false if something goes wrong
     }
 
+    static public void executeUpdates(String... statements) throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : statements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+        }
+    }
+
     static int executeUpdate(String statement, Object... params) throws DataAccessException {
-        configureDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {

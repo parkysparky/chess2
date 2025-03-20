@@ -65,7 +65,8 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public void clear() throws DataAccessException {
-        DatabaseManager.dropTable("authdata");
+        var statement = "TRUNCATE TABLE authdata";
+        DatabaseManager.executeUpdate(statement);
     }
 
     @Override

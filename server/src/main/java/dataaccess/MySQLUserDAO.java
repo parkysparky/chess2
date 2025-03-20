@@ -5,7 +5,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 
-import static dataaccess.DatabaseManager.configureDatabase;
+import static dataaccess.DatabaseManager.*;
 
 public class MySQLUserDAO implements UserDAO{
     public MySQLUserDAO() throws DataAccessException {
@@ -58,7 +58,14 @@ public class MySQLUserDAO implements UserDAO{
 
     @Override
     public void clear() throws DataAccessException {
-        DatabaseManager.dropTable("userdata");
+        String[] clearUserDataStatements = {
+            "SET FOREIGN_KEY_CHECKS = 0;",
+            "TRUNCATE TABLE authdata;",
+            "TRUNCATE TABLE gamedata;",
+            "TRUNCATE TABLE userdata;",
+            "SET FOREIGN_KEY_CHECKS = 1;"
+        };
+        executeUpdates(clearUserDataStatements);
     }
 
     @Override
