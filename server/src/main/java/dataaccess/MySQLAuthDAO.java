@@ -1,9 +1,7 @@
 package dataaccess;
 
-import com.google.gson.Gson;
 import model.AuthData;
 
-import java.sql.SQLException;
 import java.util.UUID;
 
 import static dataaccess.DatabaseManager.configureDatabase;
@@ -71,9 +69,6 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public boolean isEmpty() throws DataAccessException {
-        if(!DatabaseManager.tableExists("authdata")){
-            return true;
-        }
         var statement = "SELECT COUNT(*) FROM authdata LIMIT 1;";
 
         try (var conn = DatabaseManager.getConnection();

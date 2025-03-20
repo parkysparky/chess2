@@ -70,9 +70,6 @@ public class MySQLUserDAO implements UserDAO{
 
     @Override
     public boolean isEmpty() throws DataAccessException {
-        if(!DatabaseManager.tableExists("userdata")){
-            return true;
-        }
         var statement = "SELECT COUNT(*) FROM authdata LIMIT 1;";
 
         try (var conn = DatabaseManager.getConnection();
