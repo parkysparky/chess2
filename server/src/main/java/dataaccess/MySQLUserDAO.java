@@ -3,7 +3,7 @@ package dataaccess;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.SQLException;
+import java.util.List;
 
 import static dataaccess.DatabaseManager.*;
 
@@ -23,9 +23,7 @@ public class MySQLUserDAO implements UserDAO{
         }
         catch (DataAccessException e) {//if available, create user
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-
             var statement = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
-
             DatabaseManager.executeUpdate(statement, username, hashedPassword, email);
 
             return;
@@ -37,23 +35,18 @@ public class MySQLUserDAO implements UserDAO{
     public UserData getUser(String username) throws DataAccessException {
         if (anyFieldBlank(username)) { throw new DataAccessException("bad request"); }
 
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM userdata WHERE username=?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, username);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String password = rs.getString("password");
-                        String email = rs.getString("email");
-                        return new UserData(username, password, email);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+        var statement = "SELECT * FROM userdata WHERE username=?";
+        List<UserData> userDataList = executeQuery(statement,
+                                            rs -> ( new UserData(rs.getString("username"),
+                                                                        rs.getString("password"),
+                                                                        rs.getString("email")) ),
+                                                    username);
+
+        if(userDataList.isEmpty()){//this condition might be wrong
+            throw new DataAccessException("User Not Found");
         }
 
-        throw new DataAccessException("unauthorized");
+        return userDataList.getFirst();
     }
 
     @Override
@@ -72,17 +65,12 @@ public class MySQLUserDAO implements UserDAO{
     public boolean isEmpty() throws DataAccessException {
         var statement = "SELECT COUNT(*) FROM authdata LIMIT 1;";
 
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(statement);
-             var rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1) == 0; // Returns true if count is 0 (empty table)
-            }
-        } catch (Exception e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        //count number of entries in authData, LIMIT 1 means if any entries stop, not empty
+        List<Integer> authCount = executeQuery(statement,
+                rs -> (rs.getInt(1)) );
 
-        throw new DataAccessException("Error checking table count");
+        //return whether any entries were counted. if count == 0 then isEmpty = true
+        return authCount.getFirst() == 0;
     }
 
     private boolean anyFieldBlank(String... params) {

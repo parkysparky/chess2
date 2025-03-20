@@ -121,16 +121,12 @@ class MySQLUserDAOTests {
 
     @Test
     void clear() throws DataAccessException {
-        mySQLAuthDAO.clear();
-        mySQLGameDAO.clear();
         mySQLUserDAO.clear();
         Assertions.assertTrue(mySQLUserDAO.isEmpty(), "Table is not properly cleared");
     }
 
     @Test
     void successIsEmpty() throws DataAccessException {
-        mySQLAuthDAO.clear();
-        mySQLGameDAO.clear();
         mySQLUserDAO.clear();
         Assertions.assertTrue(mySQLUserDAO.isEmpty(), "Table is not properly cleared");
     }
