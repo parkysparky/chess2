@@ -1,6 +1,8 @@
 package dataaccess;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -172,7 +174,9 @@ public class DatabaseManager {
     /**
      * Prepares and executes a get SQL statement with an arbitrary number of parameters
      */
-    static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
+    static <T> List<T> executeQuery(String statement, ResultSetMapper<T> mapper, Object... params) throws DataAccessException {
+        List<T> results = new ArrayList<>();
+
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
                 for (var i = 0; i < params.length; i++) {
@@ -181,23 +185,22 @@ public class DatabaseManager {
                         case String p -> ps.setString(i + 1, p);
                         case Integer p -> ps.setInt(i + 1, p);
                         case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
+                        default -> throw new IllegalArgumentException("Unsupported parameter type: " + param.getClass().getSimpleName());
                     }
                 }
 
-                var resultSet = ps.executeQuery();
-
-                if(resultSet.next()){
-                    return resultSet;
+                try(var resultSet = ps.executeQuery();) {
+                    while (resultSet.next()) {
+                        results.add(mapper.map(resultSet));
+                    }
                 }
-
-                return null;
             }
         }
         catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
+
+        return results;
     }
 
 }

@@ -3,6 +3,7 @@ package dataaccess;
 import model.GameData;
 import model.GameInfo;
 
+import java.sql.SQLException;
 import java.util.HashSet;
 
 public interface GameDAO {

@@ -1,5 +1,8 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.GsonBuilder;
+import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,17 +39,45 @@ class MySQLGameDAOTests {
     }
 
     @Test
-    void createGameNoName() throws DataAccessException { //depends on clear() and getGame()
-        Assertions.assertEquals(gameID, mySQLGameDAO.getGame(gameID).gameID(),
-                "generated and found gameIDs do not match");
+    void createGameBlankName() { //depends on clear() and getGame()\
+        Assertions.assertThrows(DataAccessException.class, () -> { mySQLGameDAO.createGame(" "); });
     }
 
     @Test
-    void getGame() {
+    void createGameNameNull() { //depends on clear() and getGame()
+        Assertions.assertThrows(DataAccessException.class, () -> { mySQLGameDAO.createGame(null); });
+    }
+
+    @Test
+    void successGetGame() throws DataAccessException { //depends on clear() and createGame()
+        ChessGame newGame = new ChessGame();
+        GameData expectedGame = new GameData(gameID, null, null, gameName, newGame);
+        GameData returnedGame = mySQLGameDAO.getGame(gameID);
+
+        Assertions.assertEquals(expectedGame,
+                                returnedGame,
+                                String.format(  """
+                                                Actual gameData did not match expected gameData
+                                                Expected gameData:
+                                                %s
+                                                Actual gameData:
+                                                %s
+                                                """, expectedGame.toString(), returnedGame.toString()));
+    }
+
+    @Test
+    void getGameNoGameID() { //depends on clear() and createGame()
+        Assertions.assertThrows(DataAccessException.class, () -> { mySQLGameDAO.createGame(null); });
+    }
+
+    @Test
+    void successListGames() {
+
     }
 
     @Test
     void listGames() {
+
     }
 
     @Test
