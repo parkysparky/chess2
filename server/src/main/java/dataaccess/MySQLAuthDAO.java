@@ -16,9 +16,8 @@ public class MySQLAuthDAO implements AuthDAO{
     @Override
     public String createAuth(String username) throws DataAccessException {
         //input validation
-        if(username == null || username.isBlank()){
-            throw new DataAccessException("Username cannot be null or blank");
-        }
+        if(anyFieldBlank(username)){ throw new DataAccessException("Some required fields are missing"); }
+
         //generate auth token
         String token = UUID.randomUUID().toString();
         AuthData authData = new AuthData(token, username);
@@ -32,8 +31,13 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        //input validation
+        if(anyFieldBlank(authToken)){ throw new DataAccessException("Some required fields are missing"); }
+
+        var statement = "SELECT * FROM authdata WHERE authToken=?";
+
+
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM authdata WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
@@ -52,6 +56,9 @@ public class MySQLAuthDAO implements AuthDAO{
 
     @Override
     public void deleteAuth(AuthData authData) throws DataAccessException {
+        //input validation
+        if(anyFieldBlank(authData)){ throw new DataAccessException("Some required fields are missing"); }
+
         String authToken = authData.authToken();
         var statement = "DELETE FROM authdata WHERE authToken = ?";
 
@@ -83,4 +90,22 @@ public class MySQLAuthDAO implements AuthDAO{
 
         throw new DataAccessException("Error checking table count");
     }
+
+    private boolean anyFieldBlank(Object... params) {
+        boolean hasBlankField = false;
+        for(var param : params){
+            if (param == null){
+                hasBlankField = true;
+                break;
+            }
+            switch(param) {
+                case String s -> { if (s.isBlank()) { hasBlankField = true; } }
+                case AuthData a -> {hasBlankField = anyFieldBlank(a.authToken(), a.username());}
+                default -> {  }
+                }
+            if(hasBlankField) {break;}
+        }
+        return hasBlankField;
+    }
+
 }
