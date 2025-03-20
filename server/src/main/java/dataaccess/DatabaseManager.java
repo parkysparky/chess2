@@ -140,7 +140,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Prepares and executes a SQL statement with an arbitrary number of parameters
+     * Prepares and executes an update SQL statement with an arbitrary number of parameters
      */
     static int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -168,4 +168,36 @@ public class DatabaseManager {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
+
+    /**
+     * Prepares and executes a get SQL statement with an arbitrary number of parameters
+     */
+    static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    switch (param) {
+                        case String p -> ps.setString(i + 1, p);
+                        case Integer p -> ps.setInt(i + 1, p);
+                        case null -> ps.setNull(i + 1, NULL);
+                        default -> {
+                        }
+                    }
+                }
+
+                var resultSet = ps.executeQuery();
+
+                if(resultSet.next()){
+                    return resultSet;
+                }
+
+                return null;
+            }
+        }
+        catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
+
 }
