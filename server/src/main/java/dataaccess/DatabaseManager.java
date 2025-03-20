@@ -147,13 +147,15 @@ public class DatabaseManager {
     static int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    switch (param) {
-                        case String p -> ps.setString(i + 1, p);
-                        case Integer p -> ps.setInt(i + 1, p);
-                        case null -> ps.setNull(i + 1, NULL);
-                        default -> {
+                if(params != null) {
+                    for (var i = 0; i < params.length; i++) {
+                        var param = params[i];
+                        switch (param) {
+                            case String p -> ps.setString(i + 1, p);
+                            case Integer p -> ps.setInt(i + 1, p);
+                            case null -> ps.setNull(i + 1, NULL);
+                            default -> {
+                            }
                         }
                     }
                 }
@@ -184,12 +186,12 @@ public class DatabaseManager {
                     switch (param) {
                         case String p -> ps.setString(i + 1, p);
                         case Integer p -> ps.setInt(i + 1, p);
-                        case null -> ps.setNull(i + 1, NULL);
+                        case null -> ps.setNull(i + 1, Types.NULL);
                         default -> throw new IllegalArgumentException("Unsupported parameter type: " + param.getClass().getSimpleName());
                     }
                 }
 
-                try(var resultSet = ps.executeQuery();) {
+                try(var resultSet = ps.executeQuery()) {
                     while (resultSet.next()) {
                         results.add(mapper.map(resultSet));
                     }
