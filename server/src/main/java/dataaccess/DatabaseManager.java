@@ -142,7 +142,7 @@ public class DatabaseManager {
     }
 
     /**
-     * Prepares and executes an update SQL statement with an arbitrary number of parameters
+     * Prepares and executes an update SQL statement with an arbitrary number of parameters.
      */
     static int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -175,6 +175,10 @@ public class DatabaseManager {
 
     /**
      * Prepares and executes a get SQL statement with an arbitrary number of parameters
+     * ResultSetMapper is a functional interface. To write this parameter, use a lambda expression.
+     * The lambda should be in the following form: resultSet -> (element of list)
+     * generate the element of the list as necessary from the resultSet data members
+     * ex. rs -> ( new UserData(rs.getString("username"), rs.getString("password"),  rs.getString("email")) )
      */
     static <T> List<T> executeQuery(String statement, ResultSetMapper<T> mapper, Object... params) throws DataAccessException {
         List<T> results = new ArrayList<>();
