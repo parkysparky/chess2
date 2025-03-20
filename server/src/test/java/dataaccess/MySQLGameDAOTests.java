@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MySQLGameDAOTests {
-    MySQLAuthDAO mySQLAuthDAO;
     MySQLUserDAO mySQLUserDAO;
     MySQLGameDAO mySQLGameDAO;
 
@@ -18,14 +17,12 @@ class MySQLGameDAOTests {
     final String gameName = "newGame";
 
     public MySQLGameDAOTests() throws DataAccessException {
-        mySQLAuthDAO = new MySQLAuthDAO();
         mySQLGameDAO = new MySQLGameDAO();
         mySQLUserDAO = new MySQLUserDAO();
     }
 
     @BeforeEach
     void setUp() throws DataAccessException {
-        mySQLAuthDAO.clear();
         mySQLGameDAO.clear();
         mySQLUserDAO.clear();
 

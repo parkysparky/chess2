@@ -63,14 +63,14 @@ public class MySQLUserDAO implements UserDAO{
 
     @Override
     public boolean isEmpty() throws DataAccessException {
-        var statement = "SELECT COUNT(*) FROM authdata LIMIT 1;";
+        var statement = "SELECT COUNT(*) FROM userdata LIMIT 1;";
 
-        //count number of entries in authData, LIMIT 1 means if any entries stop, not empty
-        List<Integer> authCount = executeQuery(statement,
+        //count number of entries in userData, LIMIT 1 means if any entries stop, not empty
+        List<Integer> userCount = executeQuery(statement,
                 rs -> (rs.getInt(1)) );
 
         //return whether any entries were counted. if count == 0 then isEmpty = true
-        return authCount.getFirst() == 0;
+        return userCount.getFirst() == 0;
     }
 
     private boolean anyFieldBlank(String... params) {

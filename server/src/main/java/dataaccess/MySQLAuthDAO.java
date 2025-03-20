@@ -2,10 +2,10 @@ package dataaccess;
 
 import model.AuthData;
 
+import java.util.List;
 import java.util.UUID;
 
-import static dataaccess.DatabaseManager.configureDatabase;
-import static dataaccess.DatabaseManager.executeUpdate;
+import static dataaccess.DatabaseManager.*;
 
 public class MySQLAuthDAO implements AuthDAO{
 
@@ -34,24 +34,19 @@ public class MySQLAuthDAO implements AuthDAO{
         //input validation
         if(anyFieldBlank(authToken)){ throw new DataAccessException("Some required fields are missing"); }
 
+        //generate list of data returned by query
         var statement = "SELECT * FROM authdata WHERE authToken=?";
+        List<AuthData> authDataList = executeQuery(statement,
+                                            rs -> ( new AuthData(authToken,
+                                                                        rs.getString("username")) ),
+                                                    authToken);
 
-
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, authToken);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        String username = rs.getString("username");
-                        return new AuthData(authToken, username);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new DataAccessException(e.getMessage());
+        if(authDataList.isEmpty()){
+            throw new DataAccessException("unauthorized");
         }
 
-        throw new DataAccessException("unauthorized");
+        //return AuthData if found
+        return authDataList.getFirst();
     }
 
     @Override
@@ -77,18 +72,12 @@ public class MySQLAuthDAO implements AuthDAO{
     @Override
     public boolean isEmpty() throws DataAccessException {
         var statement = "SELECT COUNT(*) FROM authdata LIMIT 1;";
+        //count number of entries in authData, LIMIT 1 means if any entries stop, not empty
+        List<Integer> authCount = executeQuery(statement,
+                rs -> (rs.getInt(1)) );
 
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(statement);
-             var rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1) == 0; // Returns true if count is 0 (empty table)
-            }
-        } catch (Exception e) {
-            throw new DataAccessException(e.getMessage());
-        }
-
-        throw new DataAccessException("Error checking table count");
+        //return whether any entries were counted. if count == 0 then isEmpty = true
+        return authCount.getFirst() == 0;
     }
 
     private boolean anyFieldBlank(Object... params) {

@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class MySQLAuthDAOTests {
     MySQLAuthDAO mySQLAuthDAO;
     MySQLUserDAO mySQLUserDAO;
-    MySQLGameDAO mySQLGameDAO;
 
     String testAuthToken;
     final String testUser = "testUser";
@@ -20,14 +19,12 @@ class MySQLAuthDAOTests {
 
     MySQLAuthDAOTests() throws DataAccessException {
         mySQLAuthDAO = new MySQLAuthDAO();
-        mySQLGameDAO = new MySQLGameDAO();
         mySQLUserDAO = new MySQLUserDAO();
     }
 
     @BeforeEach
     void setUp() throws DataAccessException {
         mySQLAuthDAO.clear();
-        mySQLGameDAO.clear();
         mySQLUserDAO.clear();
 
         mySQLUserDAO.createUser(testUser, password, email);
@@ -51,7 +48,7 @@ class MySQLAuthDAOTests {
         AuthData foundAuth = mySQLAuthDAO.getAuth(testAuthToken);
 
         Assertions.assertEquals(testUser, foundAuth.username(), "fetched username for AuthData, does not match expected username");
-        Assertions.assertEquals(testUser, foundAuth.username(), "fetched authToken for AuthData, does not match expected authToken");
+        Assertions.assertEquals(testAuthToken, foundAuth.authToken(), "fetched authToken for AuthData, does not match expected authToken");
     }
 
     @Test
