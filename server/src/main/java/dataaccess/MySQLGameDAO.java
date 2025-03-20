@@ -52,11 +52,22 @@ public class MySQLGameDAO implements GameDAO{
 
     @Override
     public HashSet<GameInfo> listGames() throws DataAccessException {
-        return null;
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName  FROM gamedata";
+
+        List<GameInfo> gameDataList = executeQuery(statement,
+                rs -> (new GameInfo(rs.getInt("gameID"),
+                        rs.getString("whiteUsername"),
+                        rs.getString("blackUsername"),
+                        rs.getString("gameName"))));
+
+        return new HashSet<>(gameDataList);
     }
 
     @Override
     public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
+        //validate input
+        if(anyFieldBlank(gameID, updatedGame)) { throw new DataAccessException("bad request"); }
+        if(gameID != updatedGame.gameID()) { throw new DataAccessException("bad request"); }
 
     }
 

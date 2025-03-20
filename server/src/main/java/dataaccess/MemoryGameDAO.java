@@ -42,7 +42,7 @@ public class MemoryGameDAO implements GameDAO{
     public HashSet<GameInfo> listGames() {
         HashSet<GameInfo> gameInfo = new HashSet<>();
         for(var game : gameData){
-            gameInfo.add(new GameInfo(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+            gameInfo.add(new GameInfo(game));
         }
 
         return gameInfo;
@@ -50,8 +50,10 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
-        //cannot update chess game, only the other data and the old game is passed along
-        //to update a chess game use updateGame(int gameID, GameData newGameData)
+        //validate input
+        if(anyFieldBlank(gameID, updatedGame)) { throw new DataAccessException("bad request"); }
+        if(gameID != updatedGame.gameID()) { throw new DataAccessException("bad request"); }
+
         GameData oldGame = getGame(gameID);
         gameData.remove(oldGame);
         GameData newGame = new GameData(gameID,
@@ -71,5 +73,26 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public boolean isEmpty() {
         return gameData.isEmpty();
+    }
+
+    private boolean anyFieldBlank(Object... params) {
+        boolean returnValue = false;
+        for(var param : params){
+            if (param == null){
+                returnValue = true;
+                break;
+            }
+            switch(param) {
+                case String s -> { if (s.isBlank()) { returnValue = true; } }
+                case GameData g -> {returnValue = anyFieldBlank(g.gameID(),
+                        g.gameName(),
+                        g.game());}
+                case ChessGame cG -> { if(cG == null) {returnValue = true;} }
+                default -> returnValue = false;
+            }
+            if(returnValue) {break;}
+        }
+
+        return returnValue;
     }
 }
