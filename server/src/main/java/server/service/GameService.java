@@ -52,7 +52,8 @@ public class GameService {
         try{
             GameData gameToJoin = gameDAO.getGame(gameID);
             if(playerColor == BLACK){
-                if(gameToJoin.blackUsername() == null){  //check spot is open, add user if it is
+                //check desired spot is open, and opponent does not match player to add. add user if all true
+                if(gameToJoin.blackUsername() == null && (gameToJoin.whiteUsername() == null || !gameToJoin.whiteUsername().equals(joinGameRequest.username()))){
                     GameData updatedGameData = new GameData(gameID, gameToJoin.whiteUsername(), joinGameRequest.username(), gameToJoin.gameName(), gameToJoin.game());
                     gameDAO.updateGame(gameID, updatedGameData);
                 }
@@ -61,7 +62,8 @@ public class GameService {
                 }
             }
             else{
-                if(gameToJoin.whiteUsername() == null){  //check spot is open, add user if it is
+                //check desired spot is open, and opponent does not match player to add. add user if all true
+                if(gameToJoin.whiteUsername() == null && (gameToJoin.blackUsername() == null || !gameToJoin.blackUsername().equals(joinGameRequest.username()))){  //check spot is open, add user if it is
                     GameData updatedGameData = new GameData(gameID, joinGameRequest.username(), gameToJoin.blackUsername(), gameToJoin.gameName(), gameToJoin.game());
                     gameDAO.updateGame(gameID, updatedGameData);
                 }

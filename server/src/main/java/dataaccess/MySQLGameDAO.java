@@ -78,8 +78,15 @@ public class MySQLGameDAO implements GameDAO{
     }
 
     @Override
-    public boolean isEmpty() {
-        return true;
+    public boolean isEmpty() throws DataAccessException {
+        var statement = "SELECT COUNT(*) FROM gamedata LIMIT 1;";
+
+        //count number of entries in userData, LIMIT 1 means if any entries stop, not empty
+        List<Integer> gameCount = executeQuery(statement,
+                rs -> (rs.getInt(1)) );
+
+        //return whether any entries were counted. if count == 0 then isEmpty = true
+        return gameCount.getFirst() == 0;
     }
 
     private boolean anyFieldBlank(Object... params) {

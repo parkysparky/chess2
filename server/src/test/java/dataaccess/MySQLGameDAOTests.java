@@ -18,6 +18,11 @@ class MySQLGameDAOTests {
     int gameID;
     final String gameName = "newGame";
 
+    final String testUser = "testUser";
+    final String testUser2 = "testUser2";
+    final String password = "password";
+    final String email = "example@email.com";
+
     public MySQLGameDAOTests() throws DataAccessException {
         mySQLGameDAO = new MySQLGameDAO();
         mySQLUserDAO = new MySQLUserDAO();
@@ -125,28 +130,83 @@ class MySQLGameDAOTests {
 
     @Test
     @DisplayName("White Joins Game Alone")
-    void updateGameInfoWhiteOnly() {
+    void updateGameInfoWhiteOnly() throws DataAccessException {
+        HashSet<GameInfo> expectedGameList = new HashSet<>();
+        GameData expectedGameData = new GameData(gameID, testUser, null, gameName, new ChessGame());
+        expectedGameList.add(new GameInfo(expectedGameData));
+        String expected = expectedGameList.toString();
 
+        mySQLGameDAO.updateGame(gameID, expectedGameData);
+        String actual = mySQLGameDAO.listGames().toString();
+        Assertions.assertEquals(expected, actual, String.format("""
+                                                Actual game list did not match expected game list
+                                                Expected game list:
+                                                %s
+                                                Actual game list:
+                                                %s
+                                                """, expected, actual));
     }
 
     @Test
     @DisplayName("Black Joins Game Alone")
-    void updateGameInfoBlackOnly() {
+    void updateGameInfoBlackOnly() throws DataAccessException {
+        HashSet<GameInfo> expectedGameList = new HashSet<>();
+        GameData expectedGameData = new GameData(gameID, null, testUser, gameName, new ChessGame());
+        expectedGameList.add(new GameInfo(expectedGameData));
+        String expected = expectedGameList.toString();
 
+        mySQLGameDAO.updateGame(gameID, expectedGameData);
+        String actual = mySQLGameDAO.listGames().toString();
+        Assertions.assertEquals(expected, actual, String.format("""
+                                                Actual game list did not match expected game list
+                                                Expected game list:
+                                                %s
+                                                Actual game list:
+                                                %s
+                                                """, expected, actual));
     }
 
     @Test
     @DisplayName("White then Black Join Game")
-    void updateGameInfoWhiteFirst() {
+    void updateGameInfoWhiteFirst() throws DataAccessException {
+        HashSet<GameInfo> expectedGameList = new HashSet<>();
+        GameData expectedGameData = new GameData(gameID, testUser, testUser2, gameName, new ChessGame());
+        expectedGameList.add(new GameInfo(expectedGameData));
+        String expected = expectedGameList.toString();
+
+        mySQLGameDAO.updateGame(gameID, new GameData(gameID, testUser, null, gameName, new ChessGame()));
+        mySQLGameDAO.updateGame(gameID, expectedGameData);
+        String actual = mySQLGameDAO.listGames().toString();
+        Assertions.assertEquals(expected, actual, String.format("""
+                                                Actual game list did not match expected game list
+                                                Expected game list:
+                                                %s
+                                                Actual game list:
+                                                %s
+                                                """, expected, actual));
+
 
     }
 
     @Test
     @DisplayName("Black then White Join Game")
-    void updateGameInfoBlackFirst() {
+    void updateGameInfoBlackFirst() throws DataAccessException {
+        HashSet<GameInfo> expectedGameList = new HashSet<>();
+        GameData expectedGameData = new GameData(gameID, testUser2, testUser, gameName, new ChessGame());
+        expectedGameList.add(new GameInfo(expectedGameData));
+        String expected = expectedGameList.toString();
 
+        mySQLGameDAO.updateGame(gameID, new GameData(gameID, null, testUser, gameName, new ChessGame()));
+        mySQLGameDAO.updateGame(gameID, expectedGameData);
+        String actual = mySQLGameDAO.listGames().toString();
+        Assertions.assertEquals(expected, actual, String.format("""
+                                                Actual game list did not match expected game list
+                                                Expected game list:
+                                                %s
+                                                Actual game list:
+                                                %s
+                                                """, expected, actual));
     }
-
 
     @Test
     void clear() throws DataAccessException {
@@ -155,6 +215,14 @@ class MySQLGameDAOTests {
     }
 
     @Test
-    void isEmpty() {
+    void successIsEmpty() throws DataAccessException {
+        mySQLGameDAO.clear();
+        Assertions.assertTrue(mySQLUserDAO.isEmpty(), "Table is not properly cleared");
+    }
+
+    @Test
+    @DisplayName("Normal is not Empty")
+    void successIsNotEmpty() throws DataAccessException {
+        Assertions.assertFalse(mySQLUserDAO.isEmpty(), "Table is not properly populated");
     }
 }
