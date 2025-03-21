@@ -1,10 +1,12 @@
 package dataaccess;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import model.GameData;
 import model.GameInfo;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -69,6 +71,58 @@ public class MySQLGameDAO implements GameDAO{
         if(anyFieldBlank(gameID, updatedGame)) { throw new DataAccessException("bad request"); }
         if(gameID != updatedGame.gameID()) { throw new DataAccessException("bad request"); }
 
+        /// PROBLEM: cannot pass NULL vals into executeQuery
+        /// TODO: create method here or in DatabaseManager that dynamically creates SQL query
+        /// I got help starting one. I added it below. I want to read into it and probably adjust it
+        var statement = "UPDATE gamedata SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
+        executeUpdate(statement, updatedGame.whiteUsername(), updatedGame.blackUsername(), updatedGame.gameName(), updatedGame.game(), gameID);
+    }
+
+    @Override
+    public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
+        // Validate input
+        if (anyFieldBlank(gameID, updatedGame)) {
+            throw new DataAccessException("bad request");
+        }
+        if (gameID != updatedGame.gameID()) {
+            throw new DataAccessException("bad request");
+        }
+
+        // Prepare the SQL query dynamically
+        StringBuilder queryBuilder = new StringBuilder("UPDATE gamedata SET ");
+        List<Object> parameters = new ArrayList<>();
+
+        if (updatedGame.whiteUsername() != null) {
+            queryBuilder.append("whiteUsername = ?, ");
+            parameters.add(updatedGame.whiteUsername());
+        }
+        if (updatedGame.blackUsername() != null) {
+            queryBuilder.append("blackUsername = ?, ");
+            parameters.add(updatedGame.blackUsername());
+        }
+        if (updatedGame.gameName() != null) {
+            queryBuilder.append("gameName = ?, ");
+            parameters.add(updatedGame.gameName());
+        }
+        if (updatedGame.game() != null) {
+            queryBuilder.append("game = ?, ");
+            parameters.add(new Gson().toJson(updatedGame.game())); // Convert game to JSON string
+        }
+
+        // If no fields need to be updated, return early
+        if (parameters.isEmpty()) {
+            throw new DataAccessException("Nothing to update");
+        }
+
+        // Remove the last comma and space
+        queryBuilder.setLength(queryBuilder.length() - 2);
+
+        // Add the WHERE clause
+        queryBuilder.append(" WHERE gameID = ?");
+        parameters.add(gameID);
+
+        // Execute the dynamically built update statement
+        executeUpdate(queryBuilder.toString(), parameters.toArray());
     }
 
     @Override

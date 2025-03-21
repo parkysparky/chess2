@@ -129,7 +129,6 @@ public class DatabaseManager {
      * Executes an arbitrary number of prepared SQL statements
      */
     static public void executeUpdates(String... statements) throws DataAccessException {
-        DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : statements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
