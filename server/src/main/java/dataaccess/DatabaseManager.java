@@ -59,7 +59,7 @@ public class DatabaseManager {
     static public void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createTableStatements) {
+            for (var statement : CREATE_TABLE_STATEMENTS) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
@@ -69,7 +69,7 @@ public class DatabaseManager {
         }
     }
 
-    static private final String[] createTableStatements = {
+    static private final String[] CREATE_TABLE_STATEMENTS = {
         //might need the following at the end of each table. I'm not sure
         //ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         """
