@@ -35,7 +35,7 @@ public class MySQLAuthDAO implements AuthDAO{
         if(anyFieldBlank(authToken)){ throw new DataAccessException("Some required fields are missing"); }
 
         //generate list of data returned by query
-        var statement = "SELECT * FROM authdata WHERE authToken=?";
+        var statement = "SELECT * FROM authdata WHERE authToken = ?";
         List<AuthData> authDataList = executeQuery(statement,
                                             rs -> ( new AuthData(authToken,
                                                                         rs.getString("username")) ),
