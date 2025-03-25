@@ -17,8 +17,8 @@ public class Server {
 
     public Server() {
         try{
-            gameService = new GameService();
             userService = new UserService();
+            gameService = new GameService();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -26,8 +26,8 @@ public class Server {
 
     public Server(boolean useMySQL) {
         try {
-            gameService = new GameService(useMySQL);
             userService = new UserService(useMySQL);
+            gameService = new GameService(useMySQL);
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -54,15 +54,17 @@ public class Server {
     }
 
     private void createRoutes() {
-        //user routes
         //clear
         Spark.delete("/db", this::clearHandler);
+
+        //user routes
         //register
         Spark.post("/user", this::registerHandler);
         //login
         Spark.post("/session", this::loginHandler);
         //logout
         Spark.delete("/session", this::logoutHandler);
+
         //game routes
         //listGames
         Spark.get("/game", this::listGamesHandler);
