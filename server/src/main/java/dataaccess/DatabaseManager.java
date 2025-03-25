@@ -85,7 +85,7 @@ public class DatabaseManager {
           `authToken` varchar(64) NOT NULL,
           `username` varchar(64) NOT NULL,
           PRIMARY KEY (`authToken`),
-          FOREIGN KEY(`username`) REFERENCES UserData(username) ON DELETE CASCADE)
+          FOREIGN KEY(`username`) REFERENCES userdata(username) ON DELETE CASCADE)
           ENGINE=InnoDB
         """,
         """
@@ -96,8 +96,8 @@ public class DatabaseManager {
           `gameName` varchar(64) NOT NULL,
           `game` TEXT NOT NULL,
           PRIMARY KEY (`gameID`),
-          FOREIGN KEY (`whiteUsername`) REFERENCES UserData(username) ON DELETE CASCADE,
-          FOREIGN KEY(`blackUsername`) REFERENCES UserData(username) ON DELETE CASCADE)
+          FOREIGN KEY (`whiteUsername`) REFERENCES userdata(username) ON DELETE CASCADE,
+          FOREIGN KEY(`blackUsername`) REFERENCES userdata(username) ON DELETE CASCADE)
           ENGINE=InnoDB
         """
     };
