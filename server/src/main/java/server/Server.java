@@ -90,6 +90,7 @@ public class Server {
         //map checked exception messages to their respective error codes
         HashMap<String, Integer> errorMessageToCode = new HashMap<>();
         errorMessageToCode.put("bad request", 400);
+        errorMessageToCode.put("Nothing to update", 400);
         errorMessageToCode.put("Some required fields are missing", 400);
         errorMessageToCode.put("Username cannot be null or blank", 400);
         errorMessageToCode.put("forbidden", 401);

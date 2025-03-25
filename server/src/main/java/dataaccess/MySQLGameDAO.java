@@ -67,19 +67,6 @@ public class MySQLGameDAO implements GameDAO{
 
     @Override
     public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
-        //validate input
-        if(anyFieldBlank(gameID, updatedGame)) { throw new DataAccessException("bad request"); }
-        if(gameID != updatedGame.gameID()) { throw new DataAccessException("bad request"); }
-
-        /// PROBLEM: cannot pass NULL vals into executeQuery
-        /// TODO: create method here or in DatabaseManager that dynamically creates SQL query
-        /// I got help starting one. I added it below. I want to read into it and probably adjust it
-        var statement = "UPDATE gamedata SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
-        executeUpdate(statement, updatedGame.whiteUsername(), updatedGame.blackUsername(), updatedGame.gameName(), updatedGame.game(), gameID);
-    }
-
-    @Override
-    public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
         // Validate input
         if (anyFieldBlank(gameID, updatedGame)) {
             throw new DataAccessException("bad request");

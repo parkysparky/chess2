@@ -136,6 +136,7 @@ class MySQLGameDAOTests {
         expectedGameList.add(new GameInfo(expectedGameData));
         String expected = expectedGameList.toString();
 
+        mySQLUserDAO.createUser(testUser, password, email);
         mySQLGameDAO.updateGame(gameID, expectedGameData);
         String actual = mySQLGameDAO.listGames().toString();
         Assertions.assertEquals(expected, actual, String.format("""
@@ -155,6 +156,7 @@ class MySQLGameDAOTests {
         expectedGameList.add(new GameInfo(expectedGameData));
         String expected = expectedGameList.toString();
 
+        mySQLUserDAO.createUser(testUser, password, email);
         mySQLGameDAO.updateGame(gameID, expectedGameData);
         String actual = mySQLGameDAO.listGames().toString();
         Assertions.assertEquals(expected, actual, String.format("""
@@ -174,6 +176,8 @@ class MySQLGameDAOTests {
         expectedGameList.add(new GameInfo(expectedGameData));
         String expected = expectedGameList.toString();
 
+        mySQLUserDAO.createUser(testUser, password, email);
+        mySQLUserDAO.createUser(testUser2, password, email);
         mySQLGameDAO.updateGame(gameID, new GameData(gameID, testUser, null, gameName, new ChessGame()));
         mySQLGameDAO.updateGame(gameID, expectedGameData);
         String actual = mySQLGameDAO.listGames().toString();
@@ -196,6 +200,8 @@ class MySQLGameDAOTests {
         expectedGameList.add(new GameInfo(expectedGameData));
         String expected = expectedGameList.toString();
 
+        mySQLUserDAO.createUser(testUser, password, email);
+        mySQLUserDAO.createUser(testUser2, password, email);
         mySQLGameDAO.updateGame(gameID, new GameData(gameID, null, testUser, gameName, new ChessGame()));
         mySQLGameDAO.updateGame(gameID, expectedGameData);
         String actual = mySQLGameDAO.listGames().toString();
@@ -217,12 +223,11 @@ class MySQLGameDAOTests {
     @Test
     void successIsEmpty() throws DataAccessException {
         mySQLGameDAO.clear();
-        Assertions.assertTrue(mySQLUserDAO.isEmpty(), "Table is not properly cleared");
+        Assertions.assertTrue(mySQLGameDAO.isEmpty(), "Table is not properly cleared");
     }
 
     @Test
-    @DisplayName("Normal is not Empty")
     void successIsNotEmpty() throws DataAccessException {
-        Assertions.assertFalse(mySQLUserDAO.isEmpty(), "Table is not properly populated");
+        Assertions.assertFalse(mySQLGameDAO.isEmpty(), "Table is not properly populated");
     }
 }
