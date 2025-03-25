@@ -149,13 +149,7 @@ public class DatabaseManager {
                 if(params != null) {
                     for (var i = 0; i < params.length; i++) {
                         var param = params[i];
-                        switch (param) {
-                            case String p -> ps.setString(i + 1, p);
-                            case Integer p -> ps.setInt(i + 1, p);
-                            case null -> ps.setNull(i + 1, NULL);
-                            default -> {
-                            }
-                        }
+                        preparedStatementTypeHandler(param, ps, i);
                     }
                 }
                 int retVal = ps.executeUpdate();
@@ -169,6 +163,16 @@ public class DatabaseManager {
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
+
+    private static void preparedStatementTypeHandler(Object param, PreparedStatement ps, int i) throws SQLException {
+        switch (param) {
+            case String p -> ps.setString(i + 1, p);
+            case Integer p -> ps.setInt(i + 1, p);
+            case null -> ps.setNull(i + 1, NULL);
+            default -> {
+            }
         }
     }
 
