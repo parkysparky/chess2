@@ -53,9 +53,9 @@ public class GameService {
             GameData gameToJoin = gameDAO.getGame(gameID);
             if(playerColor == BLACK){
                 //check desired spot is open, and opponent does not match player to add. add user if all true
-                if(gameToJoin.blackUsername() == null && (gameToJoin.whiteUsername() == null || !gameToJoin.whiteUsername().equals(joinGameRequest.username()))){
-                    GameData updatedGameData = new GameData(gameID, gameToJoin.whiteUsername(), joinGameRequest.username(), gameToJoin.gameName(), gameToJoin.game());
-                    gameDAO.updateGame(gameID, updatedGameData);
+                if(gameToJoin.blackUsername() == null && (gameToJoin.whiteUsername() == null
+                        || !gameToJoin.whiteUsername().equals(joinGameRequest.username()))){
+                    gameDAO.updateGame(gameID, updateGamePlayer(gameToJoin.whiteUsername(), joinGameRequest.username(), gameToJoin));
                 }
                 else {
                     throw new DataInputException("already taken");
@@ -63,9 +63,9 @@ public class GameService {
             }
             else{
                 //check desired spot is open, and opponent does not match player to add. add user if all true
-                if(gameToJoin.whiteUsername() == null && (gameToJoin.blackUsername() == null || !gameToJoin.blackUsername().equals(joinGameRequest.username()))){  //check spot is open, add user if it is
-                    GameData updatedGameData = new GameData(gameID, joinGameRequest.username(), gameToJoin.blackUsername(), gameToJoin.gameName(), gameToJoin.game());
-                    gameDAO.updateGame(gameID, updatedGameData);
+                if(gameToJoin.whiteUsername() == null && (gameToJoin.blackUsername() == null
+                        || !gameToJoin.blackUsername().equals(joinGameRequest.username()))){
+                    gameDAO.updateGame(gameID, updateGamePlayer(joinGameRequest.username(), gameToJoin.blackUsername(), gameToJoin));
                 }
                 else {
                     throw new DataInputException("already taken");
@@ -77,6 +77,10 @@ public class GameService {
         }
 
         return null;
+    }
+
+    private GameData updateGamePlayer(String whiteUsername, String blackUsername, GameData oldGame){
+        return new GameData(oldGame.gameID(), whiteUsername, blackUsername, oldGame.gameName(), oldGame.game());
     }
 
     public void clear() throws DataAccessException {
