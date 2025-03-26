@@ -3,6 +3,10 @@ package server;
 import com.google.gson.Gson;
 import exception.ErrorResponse;
 import exception.ResponseException;
+import server.request.ClearRequest;
+import server.request.RegisterRequest;
+import server.result.ClearResult;
+import server.result.RegisterResult;
 
 import java.io.*;
 import java.net.*;
@@ -17,7 +21,7 @@ public class ServerFacade {
 
 
     /// Create endpoints here
-    /*  Ex.
+    /*  Example implementation
      public Pet addPet(Pet pet) throws ResponseException {
         var path = "/pet";
         return this.makeRequest("POST", path, pet, Pet.class);
@@ -33,6 +37,42 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null);
     }
      */
+    ///endpoints to implement
+    /*
+        //clear
+        Spark.delete("/db", this::clearHandler);
+
+        //user routes
+        //register
+        Spark.post("/user", this::registerHandler);
+        //login
+        Spark.post("/session", this::loginHandler);
+        //logout
+        Spark.delete("/session", this::logoutHandler);
+
+        //game routes
+        //listGames
+        Spark.get("/game", this::listGamesHandler);
+        //createGame
+        Spark.post("/game", this::createGameHandler);
+        //joinGame
+        Spark.put("/game", this::joinGameHandler);
+     */
+
+    public void clear() throws ResponseException {
+        var path = "/clear";
+        makeRequest("DELETE", path, new ClearRequest(), ClearResult.class);
+    }
+
+    //user routes
+    public RegisterResult register(String username, String password, String email) throws ResponseException {
+        var path = "/user";
+        var request = new RegisterRequest(username, password, email);
+        return makeRequest("POST", path, request, RegisterResult.class);
+    }
+
+
+
 
 
 
@@ -53,7 +93,6 @@ public class ServerFacade {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
@@ -90,7 +129,6 @@ public class ServerFacade {
         }
         return response;
     }
-
 
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
