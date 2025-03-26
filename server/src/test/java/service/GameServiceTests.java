@@ -12,11 +12,11 @@ import org.junit.jupiter.api.Test;
 import server.DataInputException;
 import server.service.GameService;
 import server.service.UserService;
-import server.service.request.CreateGameRequest;
-import server.service.request.JoinGameRequest;
-import server.service.request.ListGamesRequest;
-import server.service.request.RegisterRequest;
-import server.service.result.ListGamesResult;
+import server.request.CreateGameRequest;
+import server.request.JoinGameRequest;
+import server.request.ListGamesRequest;
+import server.request.RegisterRequest;
+import server.result.ListGamesResult;
 
 import java.util.HashSet;
 

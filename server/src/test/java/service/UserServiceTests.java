@@ -4,12 +4,12 @@ import dataaccess.DataAccessException;
 import org.junit.jupiter.api.*;
 import server.DataInputException;
 import server.service.UserService;
-import server.service.request.LoginRequest;
-import server.service.request.LogoutRequest;
-import server.service.request.RegisterRequest;
-import server.service.result.LoginResult;
-import server.service.result.LogoutResult;
-import server.service.result.RegisterResult;
+import server.request.LoginRequest;
+import server.request.LogoutRequest;
+import server.request.RegisterRequest;
+import server.result.LoginResult;
+import server.result.LogoutResult;
+import server.result.RegisterResult;
 
 class UserServiceTests {
     /// add a case for incomplete input for each endpoint

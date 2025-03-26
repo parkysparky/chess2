@@ -5,12 +5,12 @@ import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 import server.DataInputException;
-import server.service.request.LoginRequest;
-import server.service.request.LogoutRequest;
-import server.service.request.RegisterRequest;
-import server.service.result.LoginResult;
-import server.service.result.LogoutResult;
-import server.service.result.RegisterResult;
+import server.request.LoginRequest;
+import server.request.LogoutRequest;
+import server.request.RegisterRequest;
+import server.result.LoginResult;
+import server.result.LogoutResult;
+import server.result.RegisterResult;
 
 public class UserService {
     //these are public so that the unit tests can call to them. find a better solution

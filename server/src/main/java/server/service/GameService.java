@@ -7,12 +7,12 @@ import dataaccess.MemoryGameDAO;
 import dataaccess.MySQLGameDAO;
 import model.GameData;
 import server.DataInputException;
-import server.service.request.CreateGameRequest;
-import server.service.request.JoinGameRequest;
-import server.service.request.ListGamesRequest;
-import server.service.result.CreateGameResult;
-import server.service.result.JoinGameResult;
-import server.service.result.ListGamesResult;
+import server.request.CreateGameRequest;
+import server.request.JoinGameRequest;
+import server.request.ListGamesRequest;
+import server.result.CreateGameResult;
+import server.result.JoinGameResult;
+import server.result.ListGamesResult;
 
 import static chess.ChessGame.TeamColor.BLACK;
 

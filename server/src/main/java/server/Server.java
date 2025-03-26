@@ -2,9 +2,9 @@ package server;
 
 import com.google.gson.*;
 import dataaccess.DataAccessException;
+import server.request.*;
 import server.service.GameService;
 import server.service.UserService;
-import server.service.request.*;
 import spark.*;
 
 import java.lang.reflect.Field;
