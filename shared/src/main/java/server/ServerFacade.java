@@ -5,9 +5,11 @@ import exception.ErrorResponse;
 import exception.ResponseException;
 import server.request.ClearRequest;
 import server.request.LoginRequest;
+import server.request.LogoutRequest;
 import server.request.RegisterRequest;
 import server.result.ClearResult;
 import server.result.LoginResult;
+import server.result.LogoutResult;
 import server.result.RegisterResult;
 
 import java.io.*;
@@ -63,20 +65,26 @@ public class ServerFacade {
 
     public void clear() throws ResponseException {
         var path = "/db";
-        makeRequest("DELETE", path, new ClearRequest(), ClearResult.class);
+        makeRequest("DELETE", path, null, new ClearRequest(), ClearResult.class);
     }
 
     //user routes
     public RegisterResult register(String username, String password, String email) throws ResponseException {
         var path = "/user";
         var request = new RegisterRequest(username, password, email);
-        return makeRequest("POST", path, request, RegisterResult.class);
+        return makeRequest("POST", path, null, request, RegisterResult.class);
     }
 
     public LoginResult login(String username, String password) throws ResponseException {
         var path = "/session";
         var request = new LoginRequest(username, password);
-        return makeRequest("POST", path, request, LoginResult.class);
+        return makeRequest("POST", path, null, request, LoginResult.class);
+    }
+
+    public LogoutResult logout(String authToken) throws ResponseException {
+        var path = "/session";
+        var request = new LogoutRequest(authToken);
+        return makeRequest("DELETE", path, authToken, request, LogoutResult.class);
     }
 
 
@@ -86,13 +94,17 @@ public class ServerFacade {
 
 
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+
+    private <T> T makeRequest(String method, String path, String authToken, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
+            if(authToken !=null){
+                http.setRequestProperty("Authorization", authToken);
+            }
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);

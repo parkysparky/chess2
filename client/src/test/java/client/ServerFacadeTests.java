@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import server.Server;
 import server.ServerFacade;
 import server.result.LoginResult;
+import server.result.LogoutResult;
 import server.result.RegisterResult;
 
 import java.util.stream.Stream;
@@ -84,9 +85,22 @@ public class ServerFacadeTests {
         Assertions.assertEquals(testUser1, loginResult.username(), "serverFacade.login returned unexpected username");
     }
 
+    @Test
+    public void loginBadPassword() throws ResponseException {
+        RegisterResult registerResult = serverFacade.register(testUser1, password, email);
+        Assertions.assertThrows( ResponseException.class, () -> serverFacade.login(testUser1, "badPassword") );
+    }
+
+    @Test
+    public void loginUserNoExist() {
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.login(testUser1, password));
+    }
+
     @ParameterizedTest()
     @MethodSource("loginMissingDataTestCases")
     public void loginUserDataMissing(String username, String password) throws ResponseException {
+        RegisterResult registerResult = serverFacade.register(testUser1, password, email);
+
         Assertions.assertThrows(ResponseException.class, () -> serverFacade.login(username, password));
     }
 
@@ -98,5 +112,31 @@ public class ServerFacadeTests {
                 Arguments.of(testUser1, " ")
         );
     }
+
+
+    @Test
+    public void normalUserLogout() throws ResponseException {
+        RegisterResult registerResult = serverFacade.register(testUser1, password, email);
+        Assertions.assertEquals(new LogoutResult(), serverFacade.logout(registerResult.authToken()), "User not successfully logged out");
+    }
+
+    @ParameterizedTest
+    @MethodSource("logoutBadInputCases")
+    public void logoutBadInput(String authToken) throws ResponseException {
+        serverFacade.register(testUser1, password, email);
+        Assertions.assertThrows( ResponseException.class, () -> serverFacade.logout(authToken) );
+    }
+
+    private static Stream<Arguments> logoutBadInputCases() {
+        return Stream.of(
+                Arguments.of("bad auth token"),
+                Arguments.of((String) null), //Junit can't handle a pure null argument, needs to know argument is a null string
+                Arguments.of(" ")
+        );
+    }
+
+
+
+
 
 }
