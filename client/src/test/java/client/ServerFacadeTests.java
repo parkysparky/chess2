@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import server.Server;
 import server.ServerFacade;
+import server.result.LoginResult;
 import server.result.RegisterResult;
 
 import java.util.stream.Stream;
@@ -30,6 +31,11 @@ public class ServerFacadeTests {
 
     }
 
+    @AfterEach
+    void afterEach() throws ResponseException {
+        serverFacade.clear();
+    }
+
     @AfterAll
     static void stopServer() {
         server.stop();
@@ -40,6 +46,7 @@ public class ServerFacadeTests {
     public void normalClear() {
         Assertions.assertDoesNotThrow(() -> serverFacade.clear(), "clear() throws an exception");
     }
+
 
     @Test
     public void normalRegisterUser() throws ResponseException {
@@ -66,5 +73,30 @@ public class ServerFacadeTests {
         );
     }
 
+
+    @Test
+    public void normalUserLogin() throws ResponseException {
+        serverFacade.register(testUser1, password, email);
+        LoginResult loginResult = serverFacade.login(testUser1, password);
+
+        Assertions.assertNotNull(loginResult, "serverFacade.login returned null");
+        Assertions.assertNotNull(loginResult.authToken(), "serverFacade.login returned null authToken");
+        Assertions.assertEquals(testUser1, loginResult.username(), "serverFacade.login returned unexpected username");
+    }
+
+    @ParameterizedTest()
+    @MethodSource("loginMissingDataTestCases")
+    public void loginUserDataMissing(String username, String password) throws ResponseException {
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.login(username, password));
+    }
+
+    private static Stream loginMissingDataTestCases(){
+        return Stream.of(
+                Arguments.of(null, password),
+                Arguments.of(testUser1, null),
+                Arguments.of(" ", password),
+                Arguments.of(testUser1, " ")
+        );
+    }
 
 }

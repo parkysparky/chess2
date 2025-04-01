@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import exception.ErrorResponse;
 import exception.ResponseException;
 import server.request.ClearRequest;
+import server.request.LoginRequest;
 import server.request.RegisterRequest;
 import server.result.ClearResult;
+import server.result.LoginResult;
 import server.result.RegisterResult;
 
 import java.io.*;
@@ -70,6 +72,13 @@ public class ServerFacade {
         var request = new RegisterRequest(username, password, email);
         return makeRequest("POST", path, request, RegisterResult.class);
     }
+
+    public LoginResult login(String username, String password) throws ResponseException {
+        var path = "/session";
+        var request = new LoginRequest(username, password);
+        return makeRequest("POST", path, request, LoginResult.class);
+    }
+
 
 
 
