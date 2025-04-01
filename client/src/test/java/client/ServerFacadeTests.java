@@ -5,12 +5,15 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import server.Server;
 import server.ServerFacade;
+import server.result.ListGamesResult;
 import server.result.LoginResult;
 import server.result.LogoutResult;
 import server.result.RegisterResult;
 
+import java.util.HashSet;
 import java.util.stream.Stream;
 
 
@@ -22,6 +25,8 @@ public class ServerFacadeTests {
     private static final String testUser1 = "testUser1";
     private static final String password = "password";
     private static final String email = "example@email.com";
+
+    private static final String gameName = "testGame";
 
     @BeforeAll
     public static void init() throws ResponseException {
@@ -49,6 +54,7 @@ public class ServerFacadeTests {
     }
 
 
+
     @Test
     public void normalRegisterUser() throws ResponseException {
         RegisterResult registerResult = serverFacade.register(testUser1, password, email);
@@ -73,6 +79,7 @@ public class ServerFacadeTests {
                 Arguments.of(testUser1, password, " ")
         );
     }
+
 
 
     @Test
@@ -114,6 +121,7 @@ public class ServerFacadeTests {
     }
 
 
+
     @Test
     public void normalUserLogout() throws ResponseException {
         RegisterResult registerResult = serverFacade.register(testUser1, password, email);
@@ -121,13 +129,13 @@ public class ServerFacadeTests {
     }
 
     @ParameterizedTest
-    @MethodSource("logoutBadInputCases")
+    @MethodSource("badAuthInputCases")
     public void logoutBadInput(String authToken) throws ResponseException {
         serverFacade.register(testUser1, password, email);
         Assertions.assertThrows( ResponseException.class, () -> serverFacade.logout(authToken) );
     }
 
-    private static Stream<Arguments> logoutBadInputCases() {
+    private static Stream<Arguments> badAuthInputCases() {
         return Stream.of(
                 Arguments.of("bad auth token"),
                 Arguments.of((String) null), //Junit can't handle a pure null argument, needs to know argument is a null string
@@ -136,7 +144,43 @@ public class ServerFacadeTests {
     }
 
 
+    @Test
+    public void normalListZeroGames() throws ResponseException {
+        String authToken = serverFacade.register(testUser1, password, email).authToken();
+        Assertions.assertNull(serverFacade.listGames(authToken));
+    }
+
+    @Test
+    public void normalListOneGame() throws ResponseException {
+        String authToken = serverFacade.register(testUser1, password, email).authToken();
+        serverFacade.createGame(authToken, gameName);
+        Assertions.assertNotNull(serverFacade.listGames(authToken));
+    }
+
+    @Test
+    public void normalListMultipleGames() throws ResponseException {
+
+    }
 
 
+    @Test
+    public void normalCreateGame() throws ResponseException {
+        String authToken = serverFacade.register(testUser1, password, email).authToken();
+        final int[] gameID = new int[1];
+        Assertions.assertDoesNotThrow(() -> gameID[0] = serverFacade.createGame(authToken, gameName).gameID());
+        Assertions.assertNotNull(gameID[0], "No gameID returned");
+    }
+
+    @ParameterizedTest(name = "{index}: {0} authToken input")
+    @MethodSource("badAuthInputCases")
+    public void createGameBadAuth(String authToken) throws ResponseException {
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, gameName));
+    }
+
+    @ParameterizedTest(name = "{index}: {0} gameName input")
+    @NullAndEmptySource
+    public void createGameBadGameName(String authToken) throws ResponseException {
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, gameName));
+    }
 
 }

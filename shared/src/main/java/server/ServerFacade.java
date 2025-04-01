@@ -1,16 +1,11 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ErrorResponse;
 import exception.ResponseException;
-import server.request.ClearRequest;
-import server.request.LoginRequest;
-import server.request.LogoutRequest;
-import server.request.RegisterRequest;
-import server.result.ClearResult;
-import server.result.LoginResult;
-import server.result.LogoutResult;
-import server.result.RegisterResult;
+import server.request.*;
+import server.result.*;
 
 import java.io.*;
 import java.net.*;
@@ -68,6 +63,7 @@ public class ServerFacade {
         makeRequest("DELETE", path, null, new ClearRequest(), ClearResult.class);
     }
 
+
     //user routes
     public RegisterResult register(String username, String password, String email) throws ResponseException {
         var path = "/user";
@@ -88,7 +84,24 @@ public class ServerFacade {
     }
 
 
+    //game routes
+    public ListGamesResult listGames(String authToken) throws ResponseException {
+        var path = "/game";
+        var request = new ListGamesRequest();
+        return makeRequest("GET", path, authToken, request, ListGamesResult.class);
+    }
 
+    public CreateGameResult createGame(String authToken, String gameName) throws ResponseException {
+        var path = "/game";
+        var request = new CreateGameRequest(gameName);
+        return makeRequest("POST", path, authToken, request, CreateGameResult.class);
+    }
+
+    public JoinGameResult joinGame(String authToken, String username, ChessGame.TeamColor playerColor, int gameID) throws ResponseException {
+        var path = "/game";
+        var request = new JoinGameRequest(username, playerColor, gameID);
+        return makeRequest("PUT", path, authToken, request, JoinGameResult.class);
+    }
 
 
 
