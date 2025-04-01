@@ -60,7 +60,7 @@ public class ServerFacade {
      */
 
     public void clear() throws ResponseException {
-        var path = "/clear";
+        var path = "/db";
         makeRequest("DELETE", path, new ClearRequest(), ClearResult.class);
     }
 
@@ -70,6 +70,7 @@ public class ServerFacade {
         var request = new RegisterRequest(username, password, email);
         return makeRequest("POST", path, request, RegisterResult.class);
     }
+
 
 
 
