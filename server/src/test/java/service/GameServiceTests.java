@@ -21,8 +21,10 @@ import server.result.ListGamesResult;
 import java.util.HashSet;
 
 class GameServiceTests {
-    GameService gameService = new GameService();
-    UserService userService = new UserService();
+    Boolean useMySQL = false;
+
+    GameService gameService = new GameService(useMySQL);
+    UserService userService = new UserService(useMySQL);
 
     final String gameName = "newGame";
     int gameID;
