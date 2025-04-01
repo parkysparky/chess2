@@ -15,7 +15,7 @@ public class ServerFacade {
 
     private final String serverUrl;
 
-    public ServerFacade(String url) {
+    public ServerFacade(String url) throws ResponseException {
         serverUrl = url;
     }
 

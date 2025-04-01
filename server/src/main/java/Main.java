@@ -18,7 +18,7 @@ public class Main {
                 }
             }
         }
-        Server server = new Server(useMySQL);
+        Server server = new Server(useMySQL, portNumber);
         server.run(portNumber);
     }
 }

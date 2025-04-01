@@ -14,8 +14,20 @@ import java.util.Map;
 public class Server {
     UserService userService;
     GameService gameService;
+    final int port;
 
     public Server() {
+        this.port = 8080;
+        try{
+            userService = new UserService();
+            gameService = new GameService();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Server(int port) {
+        this.port = port;
         try{
             userService = new UserService();
             gameService = new GameService();
@@ -25,6 +37,7 @@ public class Server {
     }
 
     public Server(boolean useMySQL) {
+        this.port = 8080;
         try {
             userService = new UserService(useMySQL);
             gameService = new GameService(useMySQL);
@@ -32,6 +45,17 @@ public class Server {
             throw new RuntimeException(e);
         }
     }
+
+    public Server(boolean useMySQL, int port) {
+        this.port = port;
+        try {
+            userService = new UserService(useMySQL);
+            gameService = new GameService(useMySQL);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -46,6 +70,10 @@ public class Server {
 
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    public int getPort(){
+        return port;
     }
 
     public void stop() {
