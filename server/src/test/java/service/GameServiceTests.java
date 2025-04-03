@@ -3,12 +3,10 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
+import exception.ResponseException;
 import model.GameData;
 import model.GameInfo;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import server.DataInputException;
 import server.service.GameService;
 import server.service.UserService;
@@ -39,10 +37,13 @@ class GameServiceTests {
 
     @BeforeEach
     void beforeEach() throws DataInputException, DataAccessException {
-        gameService.clear();
-
         gameID = gameService.createGame(new CreateGameRequest(gameName)).gameID();
+    }
 
+    @AfterEach
+    void clearAfterEach() throws DataAccessException {
+        gameService.clear();
+        userService.clear();
     }
 
     @Test
@@ -98,9 +99,10 @@ class GameServiceTests {
     @Test
     @DisplayName("Normal User Join Game as White") //later rewrite this to remove dependencies as well
     void successJoinGameWhite() throws DataInputException, DataAccessException {
-        userService.register(new RegisterRequest(testUser, password, email));
-
-        gameService.joinGame(new JoinGameRequest(testUser, ChessGame.TeamColor.WHITE, gameID));
+        Assertions.assertDoesNotThrow(() -> {
+            userService.register(new RegisterRequest(testUser, password, email));
+            gameService.joinGame(new JoinGameRequest(testUser, ChessGame.TeamColor.WHITE, gameID));
+        } );
 
         GameData joinGameResult = gameService.gameDAO.getGame(gameID);
         GameData correctResult = new GameData(gameID, testUser, null, gameName, new ChessGame());
