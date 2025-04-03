@@ -88,7 +88,7 @@ public class ServerFacade {
     public ListGamesResult listGames(String authToken) throws ResponseException {
         var path = "/game";
         var request = new ListGamesRequest();
-        return makeRequest("GET", path, authToken, request, ListGamesResult.class);
+        return makeRequest("GET", path, authToken, null, ListGamesResult.class);
     }
 
     public CreateGameResult createGame(String authToken, String gameName) throws ResponseException {

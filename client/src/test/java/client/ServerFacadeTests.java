@@ -1,6 +1,7 @@
 package client;
 
 import exception.ResponseException;
+import model.GameInfo;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -8,10 +9,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import server.Server;
 import server.ServerFacade;
-import server.result.ListGamesResult;
-import server.result.LoginResult;
-import server.result.LogoutResult;
-import server.result.RegisterResult;
+import server.request.ListGamesRequest;
+import server.result.*;
 
 import java.util.HashSet;
 import java.util.stream.Stream;
@@ -28,17 +27,18 @@ public class ServerFacadeTests {
 
     private static final String gameName = "testGame";
 
+
+
     @BeforeAll
     public static void init() throws ResponseException {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         serverFacade = new ServerFacade("http://localhost:" + port);
-
     }
 
     @AfterEach
-    void afterEach() throws ResponseException {
+    void clearAfterEach() throws ResponseException {
         serverFacade.clear();
     }
 
@@ -48,8 +48,15 @@ public class ServerFacadeTests {
     }
 
 
+
     @Test
     public void normalClear() {
+        Assertions.assertDoesNotThrow(() -> serverFacade.clear(), "clear() throws an exception");
+    }
+
+    @Test
+    public void clearEmptyDatabase() throws ResponseException {
+        serverFacade.clear();
         Assertions.assertDoesNotThrow(() -> serverFacade.clear(), "clear() throws an exception");
     }
 
@@ -106,7 +113,7 @@ public class ServerFacadeTests {
     @ParameterizedTest()
     @MethodSource("loginMissingDataTestCases")
     public void loginUserDataMissing(String username, String password) throws ResponseException {
-        RegisterResult registerResult = serverFacade.register(testUser1, password, email);
+        RegisterResult registerResult = serverFacade.register(testUser1, this.password, email);
 
         Assertions.assertThrows(ResponseException.class, () -> serverFacade.login(username, password));
     }
@@ -144,23 +151,75 @@ public class ServerFacadeTests {
     }
 
 
+
     @Test
     public void normalListZeroGames() throws ResponseException {
         String authToken = serverFacade.register(testUser1, password, email).authToken();
-        Assertions.assertNull(serverFacade.listGames(authToken));
+
+        ListGamesResult actualResult = serverFacade.listGames(authToken);
+        ListGamesResult expectedResult = new ListGamesResult(new HashSet<GameInfo>());
+
+        Assertions.assertEquals(expectedResult, actualResult, "Zero games were not listed");
     }
 
     @Test
     public void normalListOneGame() throws ResponseException {
         String authToken = serverFacade.register(testUser1, password, email).authToken();
-        serverFacade.createGame(authToken, gameName);
-        Assertions.assertNotNull(serverFacade.listGames(authToken));
+
+        int gameID = serverFacade.createGame(authToken, gameName).gameID();
+        GameInfo createdGame = new GameInfo(gameID, null, null, gameName);
+        HashSet<GameInfo> gameList = new HashSet<>();
+        gameList.add(createdGame);
+
+        ListGamesResult actualResult = serverFacade.listGames(authToken);
+        ListGamesResult expectedResult = new ListGamesResult(gameList);
+
+        Assertions.assertEquals(expectedResult, actualResult, String.format("""
+                                                Actual game list did not match expected game list
+                                                Expected game list:
+                                                %s
+                                                Actual game list:
+                                                %s
+                                                """, expectedResult, actualResult));
     }
 
     @Test
     public void normalListMultipleGames() throws ResponseException {
+        String authToken = serverFacade.register(testUser1, password, email).authToken();
 
+        int gameID = serverFacade.createGame(authToken, gameName).gameID();
+        String newGameName = gameName;
+        GameInfo newGame = new GameInfo(gameID, null, null, gameName);
+        HashSet<GameInfo> expectedGameList = new HashSet<>();
+        expectedGameList.add(newGame);
+
+        final int numGamesToList = 5;
+
+        for(int i = 2; i <= numGamesToList; i++) {
+            newGameName = gameName + i;
+            gameID = serverFacade.createGame(authToken, newGameName).gameID();
+            newGame = new GameInfo(gameID, null,null , gameName + i);
+            expectedGameList.add(newGame);
+        }
+
+        ListGamesResult actualResult = serverFacade.listGames(authToken);
+        ListGamesResult expectedResult = new ListGamesResult(expectedGameList);
+
+        Assertions.assertEquals(expectedResult, actualResult, String.format("""
+                                                Actual game list did not match expected game list
+                                                Expected game list:
+                                                %s
+                                                Actual game list:
+                                                %s
+                                                """, expectedResult, actualResult));
     }
+
+    @ParameterizedTest(name = "{index}: {0} authToken input")
+    @MethodSource("badAuthInputCases")
+    public void listGamesBadAuth(String authToken) throws ResponseException {
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.listGames(authToken));
+    }
+
 
 
     @Test

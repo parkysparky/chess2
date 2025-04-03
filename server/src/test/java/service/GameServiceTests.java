@@ -21,7 +21,7 @@ import server.result.ListGamesResult;
 import java.util.HashSet;
 
 class GameServiceTests {
-    Boolean useMySQL = false;
+    Boolean useMySQL = true;
 
     GameService gameService = new GameService(useMySQL);
     UserService userService = new UserService(useMySQL);
@@ -50,9 +50,10 @@ class GameServiceTests {
     void successListNoGames() throws DataAccessException {
         gameService.clear();
 
-        ListGamesResult listGamesResult = gameService.listGames(new ListGamesRequest());
+        ListGamesResult actualResult = gameService.listGames(new ListGamesRequest());
+        ListGamesResult expectedResult = new ListGamesResult(new HashSet<GameInfo>());
 
-        Assertions.assertEquals(new ListGamesResult(new HashSet<GameInfo>()), listGamesResult, "Zero games were not listed");
+        Assertions.assertEquals(expectedResult, actualResult, "Zero games were not listed");
     }
 
     @Test
