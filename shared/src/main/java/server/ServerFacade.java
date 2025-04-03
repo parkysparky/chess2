@@ -19,44 +19,6 @@ public class ServerFacade {
     }
 
 
-    /// Create endpoints here
-    /*  Example implementation
-     public Pet addPet(Pet pet) throws ResponseException {
-        var path = "/pet";
-        return this.makeRequest("POST", path, pet, Pet.class);
-     }
-
-    public void deletePet(int id) throws ResponseException {
-        var path = String.format("/pet/%s", id);
-        this.makeRequest("DELETE", path, null, null);
-    }
-
-    public void deleteAllPets() throws ResponseException {
-        var path = "/pet";
-        this.makeRequest("DELETE", path, null, null);
-    }
-     */
-    ///endpoints to implement
-    /*
-        //clear
-        Spark.delete("/db", this::clearHandler);
-
-        //user routes
-        //register
-        Spark.post("/user", this::registerHandler);
-        //login
-        Spark.post("/session", this::loginHandler);
-        //logout
-        Spark.delete("/session", this::logoutHandler);
-
-        //game routes
-        //listGames
-        Spark.get("/game", this::listGamesHandler);
-        //createGame
-        Spark.post("/game", this::createGameHandler);
-        //joinGame
-        Spark.put("/game", this::joinGameHandler);
-     */
 
     public void clear() throws ResponseException {
         var path = "/db";
@@ -102,9 +64,6 @@ public class ServerFacade {
         var request = new JoinGameRequest(username, playerColor, gameID);
         return makeRequest("PUT", path, authToken, request, JoinGameResult.class);
     }
-
-
-
 
 
 

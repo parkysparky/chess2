@@ -242,4 +242,6 @@ public class ServerFacadeTests {
         Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, gameName));
     }
 
+    //TODO:  1. write tests for joinGame  2. debug joinGame on server()
+
 }
