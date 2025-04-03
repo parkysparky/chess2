@@ -3,7 +3,6 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
-import exception.ResponseException;
 import model.GameData;
 import model.GameInfo;
 import org.junit.jupiter.api.*;
@@ -52,7 +51,7 @@ class GameServiceTests {
         gameService.clear();
 
         ListGamesResult actualResult = gameService.listGames(new ListGamesRequest());
-        ListGamesResult expectedResult = new ListGamesResult(new HashSet<GameInfo>());
+        ListGamesResult expectedResult = new ListGamesResult(new HashSet<>());
 
         Assertions.assertEquals(expectedResult, actualResult, "Zero games were not listed");
     }
@@ -98,7 +97,7 @@ class GameServiceTests {
 
     @Test
     @DisplayName("Normal User Join Game as White") //later rewrite this to remove dependencies as well
-    void successJoinGameWhite() throws DataInputException, DataAccessException {
+    void successJoinGameWhite() throws DataAccessException {
         Assertions.assertDoesNotThrow(() -> {
             userService.register(new RegisterRequest(testUser, password, email));
             gameService.joinGame(new JoinGameRequest(testUser, ChessGame.TeamColor.WHITE, gameID));
@@ -126,10 +125,12 @@ class GameServiceTests {
     @Test
     @DisplayName("Normal User Join 2nd player Black") //later rewrite this to remove dependencies as well
     void successJoinGame2ndBlack() throws DataInputException, DataAccessException {
-        //P1 join game
+        //P1 register, create game, and join game
+        userService.register(new RegisterRequest(testUser, password, email));
+        gameService.createGame(new CreateGameRequest(gameName));
         gameService.joinGame(new JoinGameRequest(testUser, ChessGame.TeamColor.WHITE, gameID));
 
-        //P2 created and join game
+        //P2 register and join game
         final String testUser2 = "testUser2";
         final String email2 = "example2@mail.com";
         userService.register(new RegisterRequest(testUser2, password, email2));
@@ -145,10 +146,12 @@ class GameServiceTests {
     @Test
     @DisplayName("Normal User Join 2nd player White") //later rewrite this to remove dependencies as well
     void successJoinGame2ndWhite() throws DataInputException, DataAccessException {
-        //P1 join game
+        //P1 register, create game, and join game
+        userService.register(new RegisterRequest(testUser, password, email));
+        gameService.createGame(new CreateGameRequest(gameName));
         gameService.joinGame(new JoinGameRequest(testUser, ChessGame.TeamColor.BLACK, gameID));
 
-        //P2 created and join game
+        //P2 join game
         final String testUser2 = "testUser2";
         final String email2 = "example2@mail.com";
         userService.register(new RegisterRequest(testUser2, password, email2));
@@ -166,8 +169,10 @@ class GameServiceTests {
     //could add logic to prevent multiple registrations with same email
     @Test
     @DisplayName("Join White Taken")
-    void joinGameWhiteTaken() throws DataInputException {
-
+    void joinGameWhiteTaken() throws DataInputException, DataAccessException {
+        //P1 register, create game, and join game
+        userService.register(new RegisterRequest(testUser, password, email));
+        gameService.createGame(new CreateGameRequest(gameName));
         gameService.joinGame(new JoinGameRequest(testUser, ChessGame.TeamColor.WHITE, gameID));
 
         final String testUser2 = "testUser2";
@@ -180,8 +185,10 @@ class GameServiceTests {
 
     @Test
     @DisplayName("Join Black Taken")
-    void joinGameBlackTaken() throws DataInputException {
-
+    void joinGameBlackTaken() throws DataInputException, DataAccessException {
+        //P1 register, create game, and join game
+        userService.register(new RegisterRequest(testUser, password, email));
+        gameService.createGame(new CreateGameRequest(gameName));
         gameService.joinGame(new JoinGameRequest(testUser, ChessGame.TeamColor.BLACK, gameID));
 
         final String testUser2 = "testUser2";
