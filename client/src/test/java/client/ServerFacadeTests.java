@@ -248,13 +248,15 @@ public class ServerFacadeTests {
     @ParameterizedTest(name = "{index}: 1 Player joins game as {0}")
     @EnumSource(ChessGame.TeamColor.class)
     public void normal1PlayerJoinGame(ChessGame.TeamColor playerColor) throws ResponseException {
-
         final String[] authToken = new String[1];
         final int[] newGameID = new int[1];
+        final GameInfo[] actualResult = new GameInfo[1];
         Assertions.assertDoesNotThrow(() -> {
             authToken[0] = serverFacade.register(testUser1, password, email).authToken();
             newGameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
+
             serverFacade.joinGame(authToken[0], testUser1, playerColor, newGameID[0]);
+            actualResult[0] = serverFacade.listGames(authToken[0]).games().iterator().next();
         } );
 
         GameInfo expectedResult;
@@ -265,9 +267,36 @@ public class ServerFacadeTests {
             expectedResult = new GameInfo(newGameID[0], null, testUser1, gameName);
         }
 
-        GameInfo actualResult = serverFacade.listGames(authToken[0]).games().toArray()[0];
+        Assertions.assertEquals(expectedResult, actualResult[0], "User not added to game");
+    }
 
-        Assertions.assertEquals(expectedResult, actualResult, "User not added to game");
+    @ParameterizedTest(name = "{index}: both players join game as {0}")
+    @MethodSource("playerColorsGoodInput")
+    public void successTwoPlayersJoin(ChessGame.TeamColor player1Color, ChessGame.TeamColor player2Color){
+        final String[] authToken = new String[2];
+        final String testUser2 = "testUser2";
+        final int[] gameID = new int[1];
+        final GameInfo[] actualResult = new GameInfo[1];
+        Assertions.assertDoesNotThrow(() -> {
+            authToken[0] = serverFacade.register(testUser1, password, email).authToken();
+            gameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
+            serverFacade.joinGame(authToken[0], testUser1, player1Color, gameID[0]);
+
+            authToken[1] = serverFacade.register(testUser2, password, email).authToken();
+
+            serverFacade.joinGame(authToken[1], testUser2, player2Color, gameID[0]);
+            actualResult[0] = serverFacade.listGames(authToken[0]).games().iterator().next();
+        } );
+
+        GameInfo expectedResult;
+        if(player1Color == ChessGame.TeamColor.WHITE){
+            expectedResult = new GameInfo(gameID[0], testUser1, testUser2, gameName);
+        }
+        else{
+            expectedResult = new GameInfo(gameID[0], testUser2, testUser1, gameName);
+        }
+
+        Assertions.assertEquals(expectedResult, actualResult[0], "User not added to game");
     }
 
     @ParameterizedTest(name = "{index}: both players join game as {0}")
@@ -287,5 +316,12 @@ public class ServerFacadeTests {
         Assertions.assertThrows(ResponseException.class, () -> {
             serverFacade.joinGame(authToken[1], testUser2, playerColor, gameID[0]);
         });
+    }
+
+    private static Stream<Arguments> playerColorsGoodInput() {
+        return Stream.of(
+                Arguments.of(ChessGame.TeamColor.BLACK, ChessGame.TeamColor.WHITE),
+                Arguments.of(ChessGame.TeamColor.WHITE, ChessGame.TeamColor.BLACK)
+        );
     }
 }
