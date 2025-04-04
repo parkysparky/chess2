@@ -1,15 +1,17 @@
 package client;
 
+import chess.ChessGame;
 import exception.ResponseException;
+import model.GameData;
 import model.GameInfo;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.*;
 import server.Server;
 import server.ServerFacade;
+import server.request.JoinGameRequest;
 import server.request.ListGamesRequest;
+import server.request.RegisterRequest;
 import server.result.*;
 
 import java.util.HashSet;
@@ -242,6 +244,48 @@ public class ServerFacadeTests {
         Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, gameName));
     }
 
-    //TODO:  1. write tests for joinGame  2. debug joinGame on server()
+    //TODO: write tests for joinGame
+    @ParameterizedTest(name = "{index}: 1 Player joins game as {0}")
+    @EnumSource(ChessGame.TeamColor.class)
+    public void normal1PlayerJoinGame(ChessGame.TeamColor playerColor) throws ResponseException {
 
+        final String[] authToken = new String[1];
+        final int[] newGameID = new int[1];
+        Assertions.assertDoesNotThrow(() -> {
+            authToken[0] = serverFacade.register(testUser1, password, email).authToken();
+            newGameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
+            serverFacade.joinGame(authToken[0], testUser1, playerColor, newGameID[0]);
+        } );
+
+        GameInfo expectedResult;
+        if(playerColor == ChessGame.TeamColor.WHITE){
+            expectedResult = new GameInfo(newGameID[0], testUser1, null, gameName);
+        }
+        else{
+            expectedResult = new GameInfo(newGameID[0], null, testUser1, gameName);
+        }
+
+        GameInfo actualResult = serverFacade.listGames(authToken[0]).games().toArray()[0];
+
+        Assertions.assertEquals(expectedResult, actualResult, "User not added to game");
+    }
+
+    @ParameterizedTest(name = "{index}: both players join game as {0}")
+    @EnumSource(ChessGame.TeamColor.class)
+    public void twoPlayersJoinAsSameColor(ChessGame.TeamColor playerColor){
+        final String[] authToken = new String[2];
+        final String testUser2 = "testUser2";
+        final int[] gameID = new int[1];
+        Assertions.assertDoesNotThrow(() -> {
+            authToken[0] = serverFacade.register(testUser1, password, email).authToken();
+            gameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
+            serverFacade.joinGame(authToken[0], testUser1, playerColor, gameID[0]);
+
+            authToken[1] = serverFacade.register(testUser2, password, email).authToken();
+        } );
+
+        Assertions.assertThrows(ResponseException.class, () -> {
+            serverFacade.joinGame(authToken[1], testUser2, playerColor, gameID[0]);
+        });
+    }
 }

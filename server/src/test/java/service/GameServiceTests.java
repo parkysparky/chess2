@@ -165,8 +165,6 @@ class GameServiceTests {
     }
 
 
-    //need to add logic to prevent player from playing self
-    //could add logic to prevent multiple registrations with same email
     @Test
     @DisplayName("Join White Taken")
     void joinGameWhiteTaken() throws DataInputException, DataAccessException {

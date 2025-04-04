@@ -53,6 +53,7 @@ class UserServiceTests {
         Assertions.assertFalse(registerResult.authToken().isBlank(), "Response contained an empty or blank auth token");
     }
 
+    //could add logic to prevent multiple registrations with same email
     @Test
     @DisplayName("Register Existing User")
     public void registerTwice() {
