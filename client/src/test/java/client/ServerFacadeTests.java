@@ -2,16 +2,12 @@ package client;
 
 import chess.ChessGame;
 import exception.ResponseException;
-import model.GameData;
 import model.GameInfo;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 import server.Server;
 import server.ServerFacade;
-import server.request.JoinGameRequest;
-import server.request.ListGamesRequest;
-import server.request.RegisterRequest;
 import server.result.*;
 
 import java.util.HashSet;
@@ -218,7 +214,7 @@ public class ServerFacadeTests {
 
     @ParameterizedTest(name = "{index}: {0} authToken input")
     @MethodSource("badAuthInputCases")
-    public void listGamesBadAuth(String authToken) throws ResponseException {
+    public void listGamesBadAuth(String authToken) {
         Assertions.assertThrows(ResponseException.class, () -> serverFacade.listGames(authToken));
     }
 
@@ -234,20 +230,21 @@ public class ServerFacadeTests {
 
     @ParameterizedTest(name = "{index}: {0} authToken input")
     @MethodSource("badAuthInputCases")
-    public void createGameBadAuth(String authToken) throws ResponseException {
+    public void createGameBadAuth(String authToken) {
         Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, gameName));
     }
 
     @ParameterizedTest(name = "{index}: {0} gameName input")
     @NullAndEmptySource
-    public void createGameBadGameName(String authToken) throws ResponseException {
+    public void createGameBadGameName(String authToken) {
         Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, gameName));
     }
 
-    //TODO: write tests for joinGame
+
+
     @ParameterizedTest(name = "{index}: 1 Player joins game as {0}")
     @EnumSource(ChessGame.TeamColor.class)
-    public void normal1PlayerJoinGame(ChessGame.TeamColor playerColor) throws ResponseException {
+    public void normal1PlayerJoinGame(ChessGame.TeamColor playerColor) {
         final String[] authToken = new String[1];
         final int[] newGameID = new int[1];
         final GameInfo[] actualResult = new GameInfo[1];
