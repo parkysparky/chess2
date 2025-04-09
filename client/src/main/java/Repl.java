@@ -1,21 +1,28 @@
 import exception.ResponseException;
 
 import java.util.Scanner;
-import ui.EscapeSequences;
+import static ui.EscapeSequences.*;
 
 public class Repl {
     private final Client client;
 
     public Repl(String serverUrl) throws ResponseException {
-        client = new Client(serverUrl, this);
+        client = new Client(serverUrl);
     }
 
     public void run() {
-        printWelcomeMessage();
+        System.out.println("Welcome to jank chess");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
+            if(client.getState() == State.LOGGED_OUT){
+                printPreloginMessage();
+            }
+            else{
+                printPostloginMessage();
+            }
+
             String line = scanner.nextLine();
 
             try {
@@ -29,13 +36,17 @@ public class Repl {
         System.out.println();
     }
 
-    private void printWelcomeMessage(){
-        String welcomeMessage = "Welcome to jank chess\nPlease " +
-                EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "login " +
-                EscapeSequences.RESET_FORMATTING + "or type " +
-                EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "help" +
-                EscapeSequences.RESET_FORMATTING;
+    private void printPreloginMessage(){
+        String loopMessage = "Please " +
+                MATCH_CONSOLE_IN + "login " + RESET_FORMATTING + "or type " +
+                MATCH_CONSOLE_IN + "help" + RESET_FORMATTING;
 
-        System.out.println(welcomeMessage);
+        System.out.println(loopMessage);
+    }
+
+    private void printPostloginMessage(){
+        String loopMessage = SET_TEXT_FAINT + "[@" + SET_TEXT_COLOR_BLUE + client.getUsername() + RESET_FORMATTING + "]";
+
+        System.out.println(loopMessage);
     }
 }
