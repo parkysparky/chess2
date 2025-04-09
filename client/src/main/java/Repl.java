@@ -30,14 +30,12 @@ public class Repl {
     }
 
     private void printWelcomeMessage(){
-        StringBuilder messageBuilder = new StringBuilder();
-        messageBuilder.append("Welcome to jank chess\nPlease ");
-        messageBuilder.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "login ");
-        messageBuilder.append(EscapeSequences.RESET_FORMATTING + "or type ");
-        messageBuilder.append(EscapeSequences.SET_TEXT_COLOR_CONSOLE_GREEN + EscapeSequences.SET_TEXT_ITALIC + "help");
+        String welcomeMessage = "Welcome to jank chess\nPlease " +
+                EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "login " +
+                EscapeSequences.RESET_FORMATTING + "or type " +
+                EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "help" +
+                EscapeSequences.RESET_FORMATTING;
 
-        messageBuilder.append(EscapeSequences.RESET_FORMATTING);
-
-        System.out.println(messageBuilder);
+        System.out.println(welcomeMessage);
     }
 }
