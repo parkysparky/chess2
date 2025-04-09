@@ -40,7 +40,7 @@ public class Client {
     }
 
 
-    public String login(String... params) throws ResponseException {
+    public String login(String... params) throws ResponseException { //TODO: fix MySQLUserDAO.login() throwing nullpointerexception when user doesn't exist
         if (params.length == 2) {
             setUsername(params[0]);
             var password = params[1];
