@@ -1,5 +1,6 @@
 import exception.ResponseException;
 import server.ServerFacade;
+import ui.EscapeSequences;
 
 import java.util.Arrays;
 
@@ -54,6 +55,7 @@ public class Client {
     }
 
     public String register(String... params){
+
         return null;
     }
 
@@ -77,27 +79,40 @@ public class Client {
         return null;
     }
 
-    public String quit(){
-        return null;
-    }
-
 
     public String help() {
+        StringBuilder returnString = new StringBuilder();
         if (state == State.LOGGED_OUT) {
-            return """
-                    - logIn <username> <password>
-                    - register <username> <password> <email>
-                    - quit
-                    """;
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "login " + EscapeSequences.RESET_FORMATTING);
+            returnString.append("<" + EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "username" + EscapeSequences.RESET_FORMATTING + "> <");
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "password" + EscapeSequences.RESET_FORMATTING + ">\n");
+
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "register " + EscapeSequences.RESET_FORMATTING);
+            returnString.append("<" + EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "username" + EscapeSequences.RESET_FORMATTING + "> <");
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "password" + EscapeSequences.RESET_FORMATTING + "> <");
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "email" + EscapeSequences.RESET_FORMATTING + ">\n");
+
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "quit\n" + EscapeSequences.RESET_FORMATTING);
         }
-        return """
-                - listGames
-                - createGame <game name>
-                - playGame <gameID> <BLACK|WHITE>
-                - observeGame <game name>
-                - logOut
-                - quit
-                """;
+        else {
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "listGames\n");
+
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "createGame " + EscapeSequences.RESET_FORMATTING);
+            returnString.append("<" + EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "game name" + EscapeSequences.RESET_FORMATTING + ">\n");
+
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "playGame " + EscapeSequences.RESET_FORMATTING);
+            returnString.append("<" + EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "gameNumber" + EscapeSequences.RESET_FORMATTING + "> <");
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "BLACK|WHITE" + EscapeSequences.RESET_FORMATTING + ">\n");
+
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "observeGame " + EscapeSequences.RESET_FORMATTING);
+            returnString.append("<" + EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "game name" + EscapeSequences.RESET_FORMATTING + ">\n");
+
+            returnString.append(EscapeSequences.MATCH_TEXT_TO_CONSOLE_IN + "logout\n");
+
+            returnString.append("quit\n" + EscapeSequences.RESET_FORMATTING);
+        }
+
+        return returnString.toString();
     }
 
 
