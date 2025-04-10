@@ -27,10 +27,14 @@ public class Repl {
 
             try {
                 result = client.eval(line);
-                System.out.println(result);
+                if(result.toLowerCase().contains(("error"))){
+                    printError(result);
+                    continue;
+                }
+                System.out.print(result);
             } catch (Throwable e) {
                 var msg = e.toString();
-                System.out.println(msg);
+                System.out.print(msg);
             }
         }
         System.out.println();
@@ -48,5 +52,23 @@ public class Repl {
         String loopMessage = SET_TEXT_FAINT + "[@" + SET_TEXT_COLOR_BLUE + client.getUsername() + RESET_FORMATTING + "]";
 
         System.out.println(loopMessage);
+    }
+
+    private void printError(String error){
+        StringBuilder msg = new StringBuilder();
+        msg.append(SET_TEXT_COLOR_RED);
+
+        int index = error.toLowerCase().indexOf("error");
+
+        if(index != -1){
+            msg.append(error.substring(index));
+        }
+        else {
+            msg.append(error);
+        }
+
+        msg.append(RESET_FORMATTING);
+
+        System.out.println(msg);
     }
 }

@@ -16,7 +16,7 @@ public class Client {
     }
 
 
-    public String eval(String input) {
+    public String eval(String input) throws ResponseException {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -35,7 +35,8 @@ public class Client {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return ex.getMessage();
+//            return ex.getMessage();
+            throw new ResponseException(ex.StatusCode(), ex.getMessage());
         }
     }
 
