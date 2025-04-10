@@ -7,7 +7,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 import server.Server;
-import server.ServerFacade;
+import server.facade.ServerFacade;
 import server.result.*;
 
 import java.util.HashSet;

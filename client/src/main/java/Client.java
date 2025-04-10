@@ -1,12 +1,15 @@
+import chess.ChessGame;
 import exception.ResponseException;
-import server.ServerFacade;
+import model.GameInfo;
+import server.facade.ServerFacade;
 import static ui.EscapeSequences.*;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class Client {
 
-    private ServerFacade serverFacade;
+    private final ServerFacade serverFacade;
     private State state = State.LOGGED_OUT;
     private String username;
     private String authToken;
@@ -18,25 +21,25 @@ public class Client {
 
     public String eval(String input) throws ResponseException {
         try {
-            var tokens = input.toLowerCase().split(" ");
+            var tokens = input.split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
+            return switch (cmd.toLowerCase()) {
                 //pre login
                 case "login" -> login(params);
                 case "register" -> register(params);
                 //post login
                 case "logout" -> logout();
-                case "createGame" -> createGame(params);
-                case "listGames" -> listGames();
+                case "creategame" -> createGame(params);
+                case "listgames" -> listGames();
                 case "playgame" -> playGame(params);
                 case "observegame" -> observeGame(params);
                 case "quit" -> "quit";
                 default -> help();
             };
         } catch (ResponseException ex) {
-//            return ex.getMessage();
-            throw new ResponseException(ex.StatusCode(), ex.getMessage());
+            return ex.getMessage();
+//            throw new ResponseException(ex.StatusCode(), ex.getMessage());
         }
     }
 
@@ -45,7 +48,7 @@ public class Client {
         if (params.length == 2) {
             setUsername(params[0]);
             var password = params[1];
-            setAuthToken(serverFacade.login(username, password).authToken());
+            setAuthToken(serverFacade.login(getUsername(), password).authToken());
 
             setState(State.LOGGED_IN);
 
@@ -71,10 +74,6 @@ public class Client {
                 MATCH_CONSOLE_IN + "email" + RESET_FORMATTING + ">\n");
     }
 
-    public String listGames(String... params){
-        return null;
-    }
-
     public String logout() throws ResponseException {
         setState(State.LOGGED_OUT);
         setUsername(null);
@@ -90,6 +89,28 @@ public class Client {
 
         return "Game " + SET_TEXT_COLOR_MAGENTA + SET_TEXT_UNDERLINE + gameName + RESET_FORMATTING + " created. ID# " +
                 SET_TEXT_COLOR_MAGENTA + gameID + RESET_FORMATTING + "\n";
+    }
+
+    public String listGames() throws ResponseException {
+        assertLoggedIn();
+
+        HashSet<GameInfo> gameList = serverFacade.listGames(authToken).games();
+
+        StringBuilder output = new StringBuilder();
+
+        int count = 0;
+        for( var gameInfo : gameList){
+            count++;
+
+            String gameName = gameInfo.gameName();
+
+            String whitePlayer = setUsernameByColor(ChessGame.TeamColor.WHITE, gameInfo);
+            String blackPlayer = setUsernameByColor(ChessGame.TeamColor.BLACK, gameInfo);
+
+            output.append(listFormatter(count, gameName, whitePlayer, blackPlayer));
+        }
+
+        return output.toString();
     }
 
     public String playGame(String... params){
@@ -158,6 +179,63 @@ public class Client {
 
     private void setAuthToken(String newAuthToken){
         authToken = newAuthToken;
+    }
+
+
+    private String setUsernameByColor(ChessGame.TeamColor color, GameInfo game){
+        String username = "available";
+        switch (color) {
+            case BLACK -> {
+                if(game.blackUsername() != null){
+                    username = game.blackUsername();
+                }
+            }
+            case WHITE -> {
+                if (game.whiteUsername() != null) {
+                    username = game.whiteUsername();
+                }
+            }
+        }
+
+        return username;
+    }
+
+    private String listFormatter(int gameID, String gameName, String whiteUsername, String blackUsername){
+        StringBuilder output =  new StringBuilder();
+
+        output.append(SET_TEXT_BOLD + "game# " + RESET_FORMATTING);
+        output.append(SET_TEXT_COLOR_ORANGE + gameID + "  " + RESET_FORMATTING);
+
+        output.append(SET_TEXT_BOLD + "gameName: " + RESET_FORMATTING);
+        output.append(SET_TEXT_COLOR_ORANGE + gameName + "  " + RESET_FORMATTING);
+
+        output.append(SET_TEXT_BOLD + "White: " + RESET_FORMATTING);
+        if(getUsername().equals(whiteUsername)){
+            output.append(SET_TEXT_COLOR_BLUE + whiteUsername + RESET_FORMATTING + "  ");
+        } else if (whiteUsername.equals("available")){
+            output.append(SET_TEXT_BOLD + "[" + RESET_FORMATTING);
+            output.append(SET_TEXT_COLOR_LIGHT_GREY + whiteUsername + RESET_FORMATTING);
+            output.append(SET_TEXT_BOLD + "]  " + RESET_FORMATTING);
+        }
+        else{
+            output.append(SET_TEXT_COLOR_PURPLE + whiteUsername + RESET_FORMATTING + "  ");
+        }
+
+        output.append(SET_TEXT_BOLD + "Black: " + RESET_FORMATTING);
+        if(getUsername().equals(blackUsername)){
+            output.append(SET_TEXT_COLOR_BLUE + blackUsername + RESET_FORMATTING + " ");
+        } else if (blackUsername.equals("available")){
+            output.append(SET_TEXT_BOLD + "[" + RESET_FORMATTING);
+            output.append(SET_TEXT_COLOR_LIGHT_GREY + blackUsername + RESET_FORMATTING);
+            output.append(SET_TEXT_BOLD + "] " + RESET_FORMATTING);
+        }
+        else{
+            output.append(SET_TEXT_COLOR_PURPLE + blackUsername + RESET_FORMATTING + " ");
+        }
+
+        output.append("\n");
+
+        return output.toString();
     }
 
 

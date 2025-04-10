@@ -1,8 +1,7 @@
-package server;
+package server.facade;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import exception.ErrorResponse;
 import exception.ResponseException;
 import server.request.*;
 import server.result.*;

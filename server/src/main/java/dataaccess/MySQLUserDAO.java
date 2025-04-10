@@ -42,7 +42,7 @@ public class MySQLUserDAO implements UserDAO{
                                                                         rs.getString("email")) ),
                                                     username);
 
-        if(userDataList.isEmpty() || userDataList.getFirst() == null || userDataList.getFirst().username() == null){//this condition might be wrong
+        if(userDataList.isEmpty() || userDataList.getFirst() == null || userDataList.getFirst().username() == null){
             throw new DataAccessException("User Not Found");
         }
 

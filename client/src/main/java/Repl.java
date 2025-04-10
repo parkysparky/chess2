@@ -16,12 +16,7 @@ public class Repl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
-            if(client.getState() == State.LOGGED_OUT){
-                printPreloginMessage();
-            }
-            else{
-                printPostloginMessage();
-            }
+            printHeader();
 
             String line = scanner.nextLine();
 
@@ -34,10 +29,19 @@ public class Repl {
                 System.out.print(result);
             } catch (Throwable e) {
                 var msg = e.toString();
-                System.out.print(msg);
+                printError(msg);
             }
         }
         System.out.println();
+    }
+
+    private void printHeader(){
+        if(client.getState() == State.LOGGED_OUT){
+            printPreloginMessage();
+        }
+        else{
+            printPostloginMessage();
+        }
     }
 
     private void printPreloginMessage(){
