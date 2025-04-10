@@ -6,20 +6,25 @@ import static ui.EscapeSequences.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Client {
 
     private final ServerFacade serverFacade;
+
     private State state = State.LOGGED_OUT;
+
     private String username;
     private String authToken;
+
+    private Map<Integer, Integer> gameOrder;
 
     public Client(String url) throws ResponseException {
         serverFacade = new ServerFacade(url);
     }
 
 
-    public String eval(String input) throws ResponseException {
+    public String eval(String input){
         try {
             var tokens = input.split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -39,7 +44,6 @@ public class Client {
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
-//            throw new ResponseException(ex.StatusCode(), ex.getMessage());
         }
     }
 
@@ -84,8 +88,20 @@ public class Client {
     }
 
     public String createGame(String... params) throws ResponseException {
-        String gameName = params[0];
-        int gameID = serverFacade.createGame(authToken, gameName).gameID();
+        assertLoggedIn();
+        StringBuilder gameName = new StringBuilder();
+        for(var word : params){
+            gameName.append(word).append(" ");
+        }
+        if (!gameName.isEmpty()) {
+            gameName.deleteCharAt(gameName.length() - 1);
+        }
+        if (gameName.length() > 64){
+            throw new ResponseException(400, "Game name cannot exceed 64 characters\n");
+        }
+
+
+        int gameID = serverFacade.createGame(authToken, gameName.toString()).gameID();
 
         return "Game " + SET_TEXT_COLOR_MAGENTA + SET_TEXT_UNDERLINE + gameName + RESET_FORMATTING + " created. ID# " +
                 SET_TEXT_COLOR_MAGENTA + gameID + RESET_FORMATTING + "\n";
@@ -97,9 +113,10 @@ public class Client {
         HashSet<GameInfo> gameList = serverFacade.listGames(authToken).games();
 
         StringBuilder output = new StringBuilder();
+        gameOrder.clear();
 
         int count = 0;
-        for( var gameInfo : gameList){
+        for(var gameInfo : gameList){
             count++;
 
             String gameName = gameInfo.gameName();
@@ -108,6 +125,7 @@ public class Client {
             String blackPlayer = setUsernameByColor(ChessGame.TeamColor.BLACK, gameInfo);
 
             output.append(listFormatter(count, gameName, whitePlayer, blackPlayer));
+            gameOrder.put(count, gameInfo.gameID());
         }
 
         return output.toString();
@@ -147,7 +165,7 @@ public class Client {
             returnString.append(MATCH_CONSOLE_IN + "BLACK|WHITE" + RESET_FORMATTING + ">\n");
 
             returnString.append(MATCH_CONSOLE_IN + "observeGame " + RESET_FORMATTING);
-            returnString.append("<" + MATCH_CONSOLE_IN + "game name" + RESET_FORMATTING + ">\n");
+            returnString.append("<" + MATCH_CONSOLE_IN + "gameNumber" + RESET_FORMATTING + ">\n");
 
             returnString.append(MATCH_CONSOLE_IN + "logout\n");
 
@@ -204,10 +222,10 @@ public class Client {
         StringBuilder output =  new StringBuilder();
 
         output.append(SET_TEXT_BOLD + "game# " + RESET_FORMATTING);
-        output.append(SET_TEXT_COLOR_ORANGE + gameID + "  " + RESET_FORMATTING);
+        output.append(SET_TEXT_COLOR_MAGENTA + gameID + "  " + RESET_FORMATTING);
 
         output.append(SET_TEXT_BOLD + "gameName: " + RESET_FORMATTING);
-        output.append(SET_TEXT_COLOR_ORANGE + gameName + "  " + RESET_FORMATTING);
+        output.append(SET_TEXT_COLOR_MAGENTA + SET_TEXT_UNDERLINE + gameName + RESET_FORMATTING + "  ");
 
         output.append(SET_TEXT_BOLD + "White: " + RESET_FORMATTING);
         if(getUsername().equals(whiteUsername)){
@@ -241,7 +259,7 @@ public class Client {
 
     private void assertLoggedIn() throws ResponseException {
         if (state == State.LOGGED_OUT) {
-            throw new ResponseException(401, "You must sign in");
+            throw new ResponseException(401, "You must sign in\n");
         }
     }
 }
