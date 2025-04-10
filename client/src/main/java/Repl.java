@@ -27,10 +27,10 @@ public class Repl {
 
             try {
                 result = client.eval(line);
-                System.out.print(result);
+                System.out.println(result);
             } catch (Throwable e) {
                 var msg = e.toString();
-                System.out.print(msg);
+                System.out.println(msg);
             }
         }
         System.out.println();

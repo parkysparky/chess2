@@ -128,15 +128,16 @@ public class Server {
         errorMessageToCode.put("User Not Found", 401);
         errorMessageToCode.put("already taken", 403);
 
-        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage()), "success", false));
-        res.type("application/json");
-
         int errorCode = 500;
         for (String errorMessage : errorMessageToCode.keySet()) {
             if (errorMessage.equals(e.getMessage())) {
                 errorCode = errorMessageToCode.get(errorMessage);
             }
         }
+
+        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage()), "status", errorCode));
+        res.type("application/json");
+
         res.status(errorCode);
         res.body(body);
         return body;
@@ -168,6 +169,7 @@ public class Server {
             anyFieldBlank(loginRequest);
             return new Gson().toJson(userService.login(loginRequest));
         } catch (Exception e) {
+
             return errorHandler(e, req, res);
         }
     }
