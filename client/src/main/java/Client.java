@@ -1,4 +1,6 @@
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ResponseException;
 import model.GameInfo;
 import server.facade.ServerFacade;
@@ -305,12 +307,75 @@ public class Client {
     }
 
     private String whiteBoard(ChessGame game){
-        return null;
+        StringBuilder returnString = new StringBuilder();
+        for(int i = 8; i > 0; i--){
+            returnString.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY).append(i);
+
+            for(int j = 1; j <= 8; j++){
+                returnString.append(SET_TEXT_COLOR_LIGHT_GREY);
+                if((i+j)%2 == 0){
+                    returnString.append(SET_BG_COLOR_WHITE);
+                }
+                else{
+                    returnString.append(SET_BG_COLOR_BLACK);
+                }
+                returnString.append(chessPieceToUnicode(game.getBoard().getPiece(new ChessPosition(i, j))));
+            }
+        }
+        returnString.append(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK);
+        returnString.append(EMPTY + "a" + EMPTY + "b" + EMPTY + "c" + EMPTY + "d" + EMPTY + "e" + EMPTY + "f" + EMPTY + "g" + EMPTY + "h" + EMPTY);
+
+        return returnString.toString();
     }
 
     private String blackBoard(ChessGame game){
-        return null;
+        StringBuilder returnString = new StringBuilder();
+        for(int i = 1; i <= 8; i++){
+            returnString.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY).append(i);
+
+            for(int j = 8; j >= 1; j--){
+                returnString.append(SET_TEXT_COLOR_LIGHT_GREY);
+                if((i+j)%2 == 0){
+                    returnString.append(SET_BG_COLOR_WHITE);
+                }
+                else{
+                    returnString.append(SET_BG_COLOR_BLACK);
+                }
+                returnString.append(chessPieceToUnicode(game.getBoard().getPiece(new ChessPosition(i, j))));
+            }
+        }
+        returnString.append(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK);
+        returnString.append(EMPTY + "a" + EMPTY + "b" + EMPTY + "c" + EMPTY + "d" + EMPTY + "e" + EMPTY + "f" + EMPTY + "g" + EMPTY + "h" + EMPTY);
+
+        return returnString.toString();
     }
+
+    private String chessPieceToUnicode(ChessPiece piece){
+        String returnValue = EMPTY;
+        if(piece == null){
+            return returnValue;
+        }
+
+        Map<String, String> pieceNameToSymbol = new HashMap<>();
+        pieceNameToSymbol.put("BLACK PAWN", BLACK_PAWN);
+        pieceNameToSymbol.put("BLACK BISHOP", BLACK_BISHOP);
+        pieceNameToSymbol.put("BLACK KNIGHT", BLACK_KNIGHT);
+        pieceNameToSymbol.put("BLACK ROOK", BLACK_ROOK);
+        pieceNameToSymbol.put("BLACK QUEEN", BLACK_QUEEN);
+        pieceNameToSymbol.put("BLACK KING", BLACK_KING);
+
+        pieceNameToSymbol.put("WHITE PAWN", WHITE_PAWN);
+        pieceNameToSymbol.put("WHITE BISHOP", WHITE_BISHOP);
+        pieceNameToSymbol.put("WHITE KNIGHT", WHITE_KNIGHT);
+        pieceNameToSymbol.put("WHITE ROOK", WHITE_ROOK);
+        pieceNameToSymbol.put("WHITE QUEEN", WHITE_QUEEN);
+        pieceNameToSymbol.put("WHITE KING", WHITE_KING);
+
+        returnValue = pieceNameToSymbol.get(piece.toString());
+
+        return returnValue;
+    }
+
 
 
     private void assertLoggedIn() throws ResponseException {
