@@ -5,6 +5,7 @@ import server.facade.ServerFacade;
 import static ui.EscapeSequences.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class Client {
     private String username;
     private String authToken;
 
-    private Map<Integer, Integer> gameOrder;
+    private Map<Integer, Integer> gameOrder = new HashMap<>();
 
     public Client(String url) throws ResponseException {
         serverFacade = new ServerFacade(url);
@@ -131,12 +132,31 @@ public class Client {
         return output.toString();
     }
 
-    public String playGame(String... params){
-        return null;
+    public String playGame(String... params) throws ResponseException {
+        assertLoggedIn();
+
+        int gameID = getGameID(params[0]);
+        gameIDValid(gameID);
+
+        if(!params[1].equalsIgnoreCase("white") && !params[1].equalsIgnoreCase("black")){
+            throw new ResponseException(400, "please choose to play as black or white");
+        }
+        ChessGame.TeamColor playerColor = ChessGame.TeamColor.valueOf(params[1]);
+
+        serverFacade.joinGame(authToken, username, playerColor, gameID);
+
+        //TODO write function to get game, or change DAO to return games instead of gameInfo
+
+        return getBoard(game, playerColor);
     }
 
-    public String observeGame(String... params){
-        return null;
+    public String observeGame(String... params) throws ResponseException {
+        assertLoggedIn();
+
+        int gameID = getGameID(params[0]);
+        gameIDValid(gameID);
+
+        return getBoard(game, null);
     }
 
 
@@ -254,6 +274,42 @@ public class Client {
         output.append("\n");
 
         return output.toString();
+    }
+
+
+    private int getGameID(String input) throws ResponseException {
+        int gameID;
+        try{
+            gameID = Integer.parseInt(input);
+        }
+        catch(NumberFormatException e) {
+            throw new ResponseException(400, "please enter a valid game number as a number (like '3')");
+        }
+
+        return gameID;
+    }
+
+    private boolean gameIDValid(int gameID) throws ResponseException {
+        if(gameOrder.isEmpty()){
+            throw new ResponseException(400, "Please list games before attempting to access a game");
+        }
+        return gameID > 0 && gameOrder.size() >= gameID;
+    }
+
+
+    private String getBoard(ChessGame game, ChessGame.TeamColor playerColor){
+        return switch (playerColor) {
+            case BLACK -> blackBoard(game);
+            case null, default -> whiteBoard(game);
+        };
+    }
+
+    private String whiteBoard(ChessGame game){
+        return null;
+    }
+
+    private String blackBoard(ChessGame game){
+        return null;
     }
 
 
