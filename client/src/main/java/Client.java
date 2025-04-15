@@ -136,10 +136,10 @@ public class Client {
 
     public String playGame(String... params) throws ResponseException {
         assertLoggedIn();
-
+        //validate gameID
         int gameID = getGameID(params[0]);
         gameIDValid(gameID);
-
+        //validate color selection
         if(!params[1].equalsIgnoreCase("white") && !params[1].equalsIgnoreCase("black")){
             throw new ResponseException(400, "please choose to play as black or white");
         }
@@ -147,7 +147,7 @@ public class Client {
 
         serverFacade.joinGame(authToken, username, playerColor, gameID);
 
-        //TODO write function to get game, or change DAO to return games instead of gameInfo
+        //TODO write function to get game, or change DAO to return gameData instead of gameInfo
 
         return getBoard(game, playerColor);
     }
@@ -291,11 +291,13 @@ public class Client {
         return gameID;
     }
 
-    private boolean gameIDValid(int gameID) throws ResponseException {
+    private void gameIDValid(int gameID) throws ResponseException {
         if(gameOrder.isEmpty()){
             throw new ResponseException(400, "Please list games before attempting to access a game");
         }
-        return gameID > 0 && gameOrder.size() >= gameID;
+        if(gameID > 0 && gameOrder.size() >= gameID){
+            throw new ResponseException(400, "Please select a valid game#");
+        }
     }
 
 
@@ -324,6 +326,7 @@ public class Client {
         }
         returnString.append(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK);
         returnString.append(EMPTY + "a" + EMPTY + "b" + EMPTY + "c" + EMPTY + "d" + EMPTY + "e" + EMPTY + "f" + EMPTY + "g" + EMPTY + "h" + EMPTY);
+        returnString.append(RESET_FORMATTING);
 
         return returnString.toString();
     }
@@ -345,7 +348,8 @@ public class Client {
             }
         }
         returnString.append(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK);
-        returnString.append(EMPTY + "a" + EMPTY + "b" + EMPTY + "c" + EMPTY + "d" + EMPTY + "e" + EMPTY + "f" + EMPTY + "g" + EMPTY + "h" + EMPTY);
+        returnString.append(EMPTY + "a" + EMPTY + "b" + EMPTY + "c" + EMPTY + "d" + EMPTY + "e" + EMPTY + "f" + EMPTY + "g" + EMPTY + "h");
+        returnString.append(RESET_FORMATTING);
 
         return returnString.toString();
     }
