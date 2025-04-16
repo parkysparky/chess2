@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 
 import java.util.HashSet;
 
@@ -36,6 +37,7 @@ class MySQLGameDAOTests {
         gameID = mySQLGameDAO.createGame(gameName);
     }
 
+
     @Test
     void successCreateGame() throws DataAccessException { //depends on clear() and getGame()
         Assertions.assertEquals(gameID, mySQLGameDAO.getGame(gameID).gameID(),
@@ -51,6 +53,7 @@ class MySQLGameDAOTests {
     void createGameNameNull() { //depends on clear() and getGame()
         Assertions.assertThrows(DataAccessException.class, () -> { mySQLGameDAO.createGame(null); });
     }
+
 
     @Test
     void successGetGame() throws DataAccessException { //depends on clear() and createGame()
@@ -213,6 +216,28 @@ class MySQLGameDAOTests {
                                                 %s
                                                 """, expected, actual));
     }
+
+
+    @Test
+    void successViewNewGame() throws DataAccessException{
+        ChessGame expectedGame = new ChessGame();
+
+        ChessGame actualGame = mySQLGameDAO.getGame(gameID).game();
+        Assertions.assertEquals(expectedGame, actualGame, String.format("""
+                                                Actual game list did not match expected game list
+                                                Expected game list:
+                                                %s
+                                                Actual game list:
+                                                %s
+                                                """, expectedGame, actualGame));
+    }
+
+    @Test
+    void viewGameBadID(){
+        int badGameID = -1;
+        Assertions.assertThrows(DataAccessException.class, () -> mySQLGameDAO.getGame(badGameID).game());
+    }
+
 
     @Test
     void clear() throws DataAccessException {

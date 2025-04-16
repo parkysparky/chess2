@@ -6,8 +6,10 @@ import model.GameInfo;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
+import server.DataInputException;
 import server.Server;
 import server.facade.ServerFacade;
+import server.request.ViewGameRequest;
 import server.result.*;
 
 import java.util.HashSet;
@@ -146,6 +148,45 @@ public class ServerFacadeTests {
                 Arguments.of((String) null), //Junit can't handle a pure null argument, needs to know argument is a null string
                 Arguments.of(" ")
         );
+    }
+
+
+
+    @Test
+    public void normalViewNewGame(){
+        ChessGame expectedGame = new ChessGame();
+
+        final ChessGame[] returnedGame = new ChessGame[1];
+        Assertions.assertDoesNotThrow(() -> {
+            final String authToken = serverFacade.register(testUser1, password, email).authToken();
+            final int gameID = serverFacade.createGame(authToken, gameName).gameID();
+
+            returnedGame[0] = serverFacade.viewGame(authToken, gameID).game();
+
+        });
+
+        ChessGame actualGame = returnedGame[0];
+
+        Assertions.assertEquals(expectedGame, actualGame, String.format("""
+                                                Actual game list did not match expected game list
+                                                Expected game list:
+                                                %s
+                                                Actual game list:
+                                                %s
+                                                """, expectedGame, actualGame));
+    }
+
+    @Test
+    void viewGameBadID(){
+        int badGameID = -1;
+        final String authToken[] = new String[1];
+        final int gameID[] = new int[1];
+        Assertions.assertDoesNotThrow(() -> {
+            authToken[0] = serverFacade.register(testUser1, password, email).authToken();
+            gameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
+        });
+
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.viewGame(authToken[0], gameID[0]).game());
     }
 
 

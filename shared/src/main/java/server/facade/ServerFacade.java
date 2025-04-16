@@ -52,6 +52,12 @@ public class ServerFacade {
         return makeRequest("GET", path, authToken, null, ListGamesResult.class);
     }
 
+    public ViewGameResult viewGame(String authToken, int gameID) throws ResponseException {
+        var path = "/board";
+        var request = new ViewGameRequest(gameID);
+        return makeRequest("GET", path, authToken, null, ViewGameResult.class);
+    }
+
     public CreateGameResult createGame(String authToken, String gameName) throws ResponseException {
         var path = "/game";
         var request = new CreateGameRequest(gameName);

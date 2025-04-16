@@ -7,12 +7,9 @@ import model.GameData;
 import model.GameInfo;
 import org.junit.jupiter.api.*;
 import server.DataInputException;
+import server.request.*;
 import server.service.GameService;
 import server.service.UserService;
-import server.request.CreateGameRequest;
-import server.request.JoinGameRequest;
-import server.request.ListGamesRequest;
-import server.request.RegisterRequest;
 import server.result.ListGamesResult;
 
 import java.util.HashSet;
@@ -45,6 +42,35 @@ class GameServiceTests {
         userService.clear();
     }
 
+
+    @Test
+    void successViewNewGame(){
+        ChessGame expectedGame = new ChessGame();
+        final ChessGame[] returnedGame = new ChessGame[1];
+
+        Assertions.assertDoesNotThrow(() -> {
+            returnedGame[0] = gameService.viewGame(new ViewGameRequest(gameID)).game();
+
+        });
+
+        ChessGame actualGame = returnedGame[0];
+
+        Assertions.assertEquals(expectedGame, actualGame, String.format("""
+                                                Actual game list did not match expected game list
+                                                Expected game list:
+                                                %s
+                                                Actual game list:
+                                                %s
+                                                """, expectedGame, actualGame));
+    }
+
+    @Test
+    void viewGameBadID(){
+        int badGameID = -1;
+        Assertions.assertThrows(DataInputException.class, () -> gameService.viewGame(new ViewGameRequest(badGameID)).game());
+    }
+
+
     @Test
     @DisplayName("List No Games") //later on, fix this text not to have dependency on clear()
     void successListNoGames() throws DataAccessException {
@@ -70,6 +96,7 @@ class GameServiceTests {
         Assertions.assertEquals(correctResult, listGamesResult, "Incorrect game list");
     }
 
+
     @Test
     @DisplayName("Normal User Create Game")
     void successCreateGame() {
@@ -94,6 +121,7 @@ class GameServiceTests {
     void createGameBlankName() {
         Assertions.assertThrows(DataInputException.class, () -> gameService.createGame(new CreateGameRequest(" ")));
     }
+
 
     @Test
     @DisplayName("Normal User Join Game as White") //later rewrite this to remove dependencies as well
@@ -164,7 +192,6 @@ class GameServiceTests {
         Assertions.assertEquals(correctResult, joinGameResult, "User not added to game");
     }
 
-
     @Test
     @DisplayName("Join White Taken")
     void joinGameWhiteTaken() throws DataInputException, DataAccessException {
@@ -196,6 +223,7 @@ class GameServiceTests {
 
         Assertions.assertThrows(DataInputException.class, () -> gameService.joinGame(requestToError));
     }
+
 
     @Test
     void clear() throws DataAccessException {

@@ -149,7 +149,8 @@ public class Client {
 
         //TODO write function to get game, or change DAO to return gameData instead of gameInfo
 
-        return getBoard(game, playerColor);
+//        return getBoard(game, playerColor);
+        return "WIP";
     }
 
     public String observeGame(String... params) throws ResponseException {
@@ -158,7 +159,10 @@ public class Client {
         int gameID = getGameID(params[0]);
         gameIDValid(gameID);
 
-        return getBoard(game, null);
+
+
+//        return getBoard(game, null);
+        return "WIP";
     }
 
 
