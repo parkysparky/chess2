@@ -351,7 +351,7 @@ public class Client {
     private String blackBoard(ChessGame game){
         StringBuilder returnString = new StringBuilder();
         for(int i = 1; i <= 8; i++){
-            returnString.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY).append(i);
+            returnString.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY).append(" ").append(i).append(" ");
 
             for(int j = 8; j >= 1; j--){
                 returnString.append(SET_TEXT_COLOR_LIGHT_GREY);
