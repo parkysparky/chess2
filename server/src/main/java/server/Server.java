@@ -94,15 +94,12 @@ public class Server {
         Spark.delete("/session", this::logoutHandler);
 
         //game routes
-        //viewGame
-        Spark.get("/board", this::viewGameHandler);
         //listGames
         Spark.get("/game", this::listGamesHandler);
         //createGame
         Spark.post("/game", this::createGameHandler);
         //joinGame
         Spark.put("/game", this::joinGameHandler);
-
     }
 
     private void authenticateHandler(String authToken) throws DataInputException {//return type might need to be Object
@@ -224,22 +221,6 @@ public class Server {
             anyFieldBlank(joinGameRequestBody);
 
             return new Gson().toJson(gameService.joinGame(joinGameRequest));
-        } catch (Exception e) {
-            return errorHandler(e, req, res);
-        }
-    }
-
-    private Object viewGameHandler(Request req, Response res) {
-        //get and deserialize body
-        ViewGameRequest viewGameRequest = deserialize(req.body(), ViewGameRequest.class);
-        //send req data to service class, operate on it, return serialized Json response
-        try {
-            authenticateHandler(req.headers("authorization"));
-
-            //input validation
-            anyFieldBlank(viewGameRequest);
-
-            return new Gson().toJson(gameService.viewGame(viewGameRequest));
         } catch (Exception e) {
             return errorHandler(e, req, res);
         }
