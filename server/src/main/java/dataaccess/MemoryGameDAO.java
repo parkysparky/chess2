@@ -2,7 +2,6 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
-import model.GameInfo;
 
 import java.util.HashSet;
 
@@ -39,13 +38,8 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public HashSet<GameInfo> listGames() {
-        HashSet<GameInfo> gameInfo = new HashSet<>();
-        for(var game : gameData){
-            gameInfo.add(new GameInfo(game));
-        }
-
-        return gameInfo;
+    public HashSet<GameData> listGames() {
+        return new HashSet<>(gameData);
     }
 
     @Override

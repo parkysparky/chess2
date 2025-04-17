@@ -4,7 +4,6 @@ package service;
 import chess.ChessGame;
 import dataaccess.DataAccessException;
 import model.GameData;
-import model.GameInfo;
 import org.junit.jupiter.api.*;
 import server.DataInputException;
 import server.service.GameService;
@@ -61,9 +60,9 @@ class GameServiceTests {
     void successListOneGame() throws DataAccessException {
         ListGamesResult listGamesResult = gameService.listGames(new ListGamesRequest());
 
-        GameInfo gameInfo = new GameInfo(gameID, null, null, gameName);
-        HashSet<GameInfo> gamesList = new HashSet<>();
-        gamesList.add(gameInfo);
+        HashSet<GameData> gamesList = new HashSet<>();
+        GameData gameData = new GameData(gameID, null, null, gameName, new ChessGame());
+        gamesList.add(gameData);
 
         ListGamesResult correctResult = new ListGamesResult(gamesList);
 

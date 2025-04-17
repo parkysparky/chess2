@@ -5,7 +5,7 @@ package ui;
  */
 public class EscapeSequences {
 
-    private static final String UNICODE_ESCAPE = "\u001b";
+    public static final String UNICODE_ESCAPE = "\u001b";
     private static final String ANSI_ESCAPE = "\033";
 
     public static final String ERASE_SCREEN = UNICODE_ESCAPE + "[H" + UNICODE_ESCAPE + "[2J";
@@ -66,6 +66,16 @@ public class EscapeSequences {
     public static final String BLACK_ROOK = " ♜ ";
     public static final String BLACK_PAWN = " ♟ ";
     public static final String EMPTY = " \u2003 ";
+
+    public static final String WIDE_LETTER = "\\uFF";
+    public static final String WIDE_A = "\uFF41";
+    public static final String WIDE_B = "\uFF42";
+    public static final String WIDE_C = "\uFF43";
+    public static final String WIDE_D = "\uFF44";
+    public static final String WIDE_E = "\uFF45";
+    public static final String WIDE_F = "\uFF46";
+    public static final String WIDE_G = "\uFF47";
+    public static final String WIDE_H = "\uFF48";
 
     public static String moveCursorToLocation(int x, int y) { return UNICODE_ESCAPE + "[" + y + ";" + x + "H"; }
 }

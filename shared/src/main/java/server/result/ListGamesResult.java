@@ -1,8 +1,6 @@
 package server.result;
 
-import model.GameInfo;
-
 import java.util.HashSet;
 
-public record ListGamesResult(HashSet<GameInfo> games) {
+public record ListGamesResult(HashSet<model.GameData> games) {
 }

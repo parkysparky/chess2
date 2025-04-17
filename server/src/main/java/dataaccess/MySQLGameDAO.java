@@ -4,7 +4,6 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import model.GameData;
-import model.GameInfo;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -53,14 +52,15 @@ public class MySQLGameDAO implements GameDAO{
     }
 
     @Override
-    public HashSet<GameInfo> listGames() throws DataAccessException {
-        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName  FROM gamedata";
+    public HashSet<GameData> listGames() throws DataAccessException {
+        var statement = "SELECT *  FROM gamedata";
 
-        List<GameInfo> gameDataList = executeQuery(statement,
-                rs -> (new GameInfo(rs.getInt("gameID"),
+        List<GameData> gameDataList = executeQuery(statement,
+                rs -> (new GameData(rs.getInt("gameID"),
                         rs.getString("whiteUsername"),
                         rs.getString("blackUsername"),
-                        rs.getString("gameName"))));
+                        rs.getString("gameName"),
+                        new GsonBuilder().create().fromJson(rs.getString("game"), ChessGame.class))));
 
         return new HashSet<>(gameDataList);
     }

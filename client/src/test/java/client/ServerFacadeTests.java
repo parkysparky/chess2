@@ -2,7 +2,7 @@ package client;
 
 import chess.ChessGame;
 import exception.ResponseException;
-import model.GameInfo;
+import model.GameData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
@@ -155,7 +155,7 @@ public class ServerFacadeTests {
         String authToken = serverFacade.register(testUser1, password, email).authToken();
 
         ListGamesResult actualResult = serverFacade.listGames(authToken);
-        ListGamesResult expectedResult = new ListGamesResult(new HashSet<GameInfo>());
+        ListGamesResult expectedResult = new ListGamesResult(new HashSet<GameData>());
 
         Assertions.assertEquals(expectedResult, actualResult, "Zero games were not listed");
     }
@@ -165,8 +165,8 @@ public class ServerFacadeTests {
         String authToken = serverFacade.register(testUser1, password, email).authToken();
 
         int gameID = serverFacade.createGame(authToken, gameName).gameID();
-        GameInfo createdGame = new GameInfo(gameID, null, null, gameName);
-        HashSet<GameInfo> gameList = new HashSet<>();
+        GameData createdGame = new GameData(gameID, null, null, gameName, new ChessGame());
+        HashSet<GameData> gameList = new HashSet<>();
         gameList.add(createdGame);
 
         ListGamesResult actualResult = serverFacade.listGames(authToken);
@@ -187,8 +187,8 @@ public class ServerFacadeTests {
 
         int gameID = serverFacade.createGame(authToken, gameName).gameID();
         String newGameName = gameName;
-        GameInfo newGame = new GameInfo(gameID, null, null, gameName);
-        HashSet<GameInfo> expectedGameList = new HashSet<>();
+        GameData newGame = new GameData(gameID, null, null, gameName, new ChessGame());
+        HashSet<GameData> expectedGameList = new HashSet<>();
         expectedGameList.add(newGame);
 
         final int numGamesToList = 5;
@@ -196,7 +196,7 @@ public class ServerFacadeTests {
         for(int i = 2; i <= numGamesToList; i++) {
             newGameName = gameName + i;
             gameID = serverFacade.createGame(authToken, newGameName).gameID();
-            newGame = new GameInfo(gameID, null,null , gameName + i);
+            newGame = new GameData(gameID, null,null , gameName + i, new ChessGame());
             expectedGameList.add(newGame);
         }
 
@@ -247,7 +247,7 @@ public class ServerFacadeTests {
     public void normal1PlayerJoinGame(ChessGame.TeamColor playerColor) {
         final String[] authToken = new String[1];
         final int[] newGameID = new int[1];
-        final GameInfo[] actualResult = new GameInfo[1];
+        final GameData[] actualResult = new GameData[1];
         Assertions.assertDoesNotThrow(() -> {
             authToken[0] = serverFacade.register(testUser1, password, email).authToken();
             newGameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
@@ -256,12 +256,12 @@ public class ServerFacadeTests {
             actualResult[0] = serverFacade.listGames(authToken[0]).games().iterator().next();
         } );
 
-        GameInfo expectedResult;
+        GameData expectedResult;
         if(playerColor == ChessGame.TeamColor.WHITE){
-            expectedResult = new GameInfo(newGameID[0], testUser1, null, gameName);
+            expectedResult = new GameData(newGameID[0], testUser1, null, gameName, new ChessGame());
         }
         else{
-            expectedResult = new GameInfo(newGameID[0], null, testUser1, gameName);
+            expectedResult = new GameData(newGameID[0], null, testUser1, gameName, new ChessGame());
         }
 
         Assertions.assertEquals(expectedResult, actualResult[0], "User not added to game");
@@ -273,7 +273,7 @@ public class ServerFacadeTests {
         final String[] authToken = new String[2];
         final String testUser2 = "testUser2";
         final int[] gameID = new int[1];
-        final GameInfo[] actualResult = new GameInfo[1];
+        final GameData[] actualResult = new GameData[1];
         Assertions.assertDoesNotThrow(() -> {
             authToken[0] = serverFacade.register(testUser1, password, email).authToken();
             gameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
@@ -285,12 +285,12 @@ public class ServerFacadeTests {
             actualResult[0] = serverFacade.listGames(authToken[0]).games().iterator().next();
         } );
 
-        GameInfo expectedResult;
+        GameData expectedResult;
         if(player1Color == ChessGame.TeamColor.WHITE){
-            expectedResult = new GameInfo(gameID[0], testUser1, testUser2, gameName);
+            expectedResult = new GameData(gameID[0], testUser1, testUser2, gameName, new ChessGame());
         }
         else{
-            expectedResult = new GameInfo(gameID[0], testUser2, testUser1, gameName);
+            expectedResult = new GameData(gameID[0], testUser2, testUser1, gameName, new ChessGame());
         }
 
         Assertions.assertEquals(expectedResult, actualResult[0], "User not added to game");

@@ -2,14 +2,11 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
-import model.GameInfo;
+import model.GameData;
 import server.facade.ServerFacade;
 import static ui.EscapeSequences.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class Client {
 
@@ -20,7 +17,7 @@ public class Client {
     private String username;
     private String authToken;
 
-    private Map<Integer, Integer> gameOrder = new HashMap<>();
+    private Map<Integer, Integer> clientToDbGameIDMap = null;
 
     public Client(String url) throws ResponseException {
         serverFacade = new ServerFacade(url);
@@ -113,22 +110,26 @@ public class Client {
     public String listGames() throws ResponseException {
         assertLoggedIn();
 
-        HashSet<GameInfo> gameList = serverFacade.listGames(authToken).games();
+        if(clientToDbGameIDMap == null){ //reset map
+            clientToDbGameIDMap = new HashMap<>();
+        }
+        else{
+            clientToDbGameIDMap.clear();
+        }
 
+        HashSet<GameData> gameList = serverFacade.listGames(authToken).games();
         StringBuilder output = new StringBuilder();
-        gameOrder.clear();
-
         int count = 0;
-        for(var gameInfo : gameList){
+        for(var GameData : gameList){
             count++;
 
-            String gameName = gameInfo.gameName();
+            String gameName = GameData.gameName();
 
-            String whitePlayer = setUsernameByColor(ChessGame.TeamColor.WHITE, gameInfo);
-            String blackPlayer = setUsernameByColor(ChessGame.TeamColor.BLACK, gameInfo);
+            String whitePlayer = setUsernameByColor(ChessGame.TeamColor.WHITE, GameData);
+            String blackPlayer = setUsernameByColor(ChessGame.TeamColor.BLACK, GameData);
 
             output.append(listFormatter(count, gameName, whitePlayer, blackPlayer));
-            gameOrder.put(count, gameInfo.gameID());
+            clientToDbGameIDMap.put(count, GameData.gameID());
         }
 
         return output.toString();
@@ -136,29 +137,34 @@ public class Client {
 
     public String playGame(String... params) throws ResponseException {
         assertLoggedIn();
+        if(params.length != 2){
+            throw new ResponseException(400, "please follow command format");
+        }
+
         //validate gameID
         int gameID = getGameID(params[0]);
-        gameIDValid(gameID);
         //validate color selection
+
         if(!params[1].equalsIgnoreCase("white") && !params[1].equalsIgnoreCase("black")){
             throw new ResponseException(400, "please choose to play as black or white");
         }
-        ChessGame.TeamColor playerColor = ChessGame.TeamColor.valueOf(params[1]);
+        ChessGame.TeamColor playerColor = ChessGame.TeamColor.valueOf(params[1].toUpperCase(Locale.ROOT));
 
         serverFacade.joinGame(authToken, username, playerColor, gameID);
 
-        //TODO write function to get game, or change DAO to return gameData instead of gameInfo
+        ChessGame game = getGame(gameID);
 
-        return getBoard(game, playerColor);
+        return chessGameToFormattedString(game, playerColor);
     }
 
     public String observeGame(String... params) throws ResponseException {
         assertLoggedIn();
 
-        int gameID = getGameID(params[0]);
-        gameIDValid(gameID);
+        int gameID = getGameID(params[0]); //gets, converts, and validates param[0] input
 
-        return getBoard(game, null);
+        ChessGame game = getGame(gameID);
+
+        return chessGameToFormattedString(game, null);
     }
 
 
@@ -222,7 +228,7 @@ public class Client {
     }
 
 
-    private String setUsernameByColor(ChessGame.TeamColor color, GameInfo game){
+    private String setUsernameByColor(ChessGame.TeamColor color, GameData game){
         String username = "available";
         switch (color) {
             case BLACK -> {
@@ -288,20 +294,30 @@ public class Client {
             throw new ResponseException(400, "please enter a valid game number as a number (like '3')");
         }
 
-        return gameID;
+        return gameIDValid(gameID);
     }
 
-    private void gameIDValid(int gameID) throws ResponseException {
-        if(gameOrder.isEmpty()){
-            throw new ResponseException(400, "Please list games before attempting to access a game");
+    private int gameIDValid(int gameID) throws ResponseException {
+        if(clientToDbGameIDMap == null){//populate game order if empty
+            this.listGames();
         }
-        if(gameID > 0 && gameOrder.size() >= gameID){
-            throw new ResponseException(400, "Please select a valid game#");
+
+        Integer dBGameID = clientToDbGameIDMap.get(gameID); //get server-side gameID, null if client-side ID not found
+        if(dBGameID == null){
+            throw new ResponseException(400, "Please select a valid gameNumber");
         }
+
+        return dBGameID;
+    }
+
+    private int clientToServerGameID(int clientSideGameID) throws ResponseException {
+        int dBGameID = gameIDValid(clientSideGameID);
+
+        return dBGameID;
     }
 
 
-    private String getBoard(ChessGame game, ChessGame.TeamColor playerColor){
+    private String chessGameToFormattedString(ChessGame game, ChessGame.TeamColor playerColor){
         return switch (playerColor) {
             case BLACK -> blackBoard(game);
             case null, default -> whiteBoard(game);
@@ -311,7 +327,7 @@ public class Client {
     private String whiteBoard(ChessGame game){
         StringBuilder returnString = new StringBuilder();
         for(int i = 8; i > 0; i--){
-            returnString.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY).append(i);
+            returnString.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY).append(" ").append(i).append(" ");
 
             for(int j = 1; j <= 8; j++){
                 returnString.append(SET_TEXT_COLOR_LIGHT_GREY);
@@ -323,9 +339,10 @@ public class Client {
                 }
                 returnString.append(chessPieceToUnicode(game.getBoard().getPiece(new ChessPosition(i, j))));
             }
+            returnString.append(RESET_FORMATTING + "\n");
         }
         returnString.append(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK);
-        returnString.append(EMPTY + "a" + EMPTY + "b" + EMPTY + "c" + EMPTY + "d" + EMPTY + "e" + EMPTY + "f" + EMPTY + "g" + EMPTY + "h" + EMPTY);
+        returnString.append("    " + "a" + "   " + "b" + "   " + "c" + "  " + "d" + "   " + "e" + "  " + "f" +  "   " + "g" + "   " + "h" + " ");
         returnString.append(RESET_FORMATTING);
 
         return returnString.toString();
@@ -346,9 +363,10 @@ public class Client {
                 }
                 returnString.append(chessPieceToUnicode(game.getBoard().getPiece(new ChessPosition(i, j))));
             }
+            returnString.append(RESET_FORMATTING + "\n");
         }
         returnString.append(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK);
-        returnString.append(EMPTY + "a" + EMPTY + "b" + EMPTY + "c" + EMPTY + "d" + EMPTY + "e" + EMPTY + "f" + EMPTY + "g" + EMPTY + "h");
+        returnString.append("    " + "a" + "   " + "b" + "   " + "c" + "  " + "d" + "   " + "e" + "  " + "f" +  "   " + "g" + "   " + "h" + " ");
         returnString.append(RESET_FORMATTING);
 
         return returnString.toString();
@@ -380,6 +398,23 @@ public class Client {
         return returnValue;
     }
 
+    private ChessGame getGame(int clientSideGameNumber) throws ResponseException {
+        Integer gameID = clientToServerGameID(clientSideGameNumber);
+
+        if(gameID == null){ //null check in case user enters invalid number
+            throw new ResponseException(400, "please select a valid game#");
+        }
+
+        HashSet<GameData> gameDataHashSet = serverFacade.listGames(authToken).games();
+        ChessGame returnGame = null;
+        for (var gameData : gameDataHashSet){
+            if(gameData.gameID() == gameID){
+                returnGame = gameData.game();
+            }
+        }
+
+        return returnGame;
+    }
 
 
     private void assertLoggedIn() throws ResponseException {
