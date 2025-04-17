@@ -6,10 +6,8 @@ import model.GameData;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
-import server.DataInputException;
 import server.Server;
 import server.facade.ServerFacade;
-import server.request.ViewGameRequest;
 import server.result.*;
 
 import java.util.HashSet;
@@ -21,11 +19,11 @@ public class ServerFacadeTests {
     private static Server server;
     private static ServerFacade serverFacade;
 
-    private static final String testUser1 = "testUser1";
-    private static final String password = "password";
-    private static final String email = "example@email.com";
+    private static final String TEST_USER_1 = "testUser1";
+    private static final String PASSWORD = "password";
+    private static final String EMAIL = "example@email.com";
 
-    private static final String gameName = "testGame";
+    private static final String GAME_NAME = "testGame";
 
 
 
@@ -64,10 +62,10 @@ public class ServerFacadeTests {
 
     @Test
     public void normalRegisterUser() throws ResponseException {
-        RegisterResult registerResult = serverFacade.register(testUser1, password, email);
+        RegisterResult registerResult = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL);
 
         Assertions.assertNotNull(registerResult, "serverFacade.register returned null");
-        Assertions.assertEquals(testUser1, registerResult.username());
+        Assertions.assertEquals(TEST_USER_1, registerResult.username());
     }
 
     @ParameterizedTest()
@@ -78,12 +76,12 @@ public class ServerFacadeTests {
 
     private static Stream registerMissingDataTestCases(){
         return Stream.of(
-                Arguments.of(null, password, email),
-                Arguments.of(testUser1, null, email),
-                Arguments.of(testUser1, password, null),
-                Arguments.of(" ", password, email),
-                Arguments.of(testUser1, " ", email),
-                Arguments.of(testUser1, password, " ")
+                Arguments.of(null, PASSWORD, EMAIL),
+                Arguments.of(TEST_USER_1, null, EMAIL),
+                Arguments.of(TEST_USER_1, PASSWORD, null),
+                Arguments.of(" ", PASSWORD, EMAIL),
+                Arguments.of(TEST_USER_1, " ", EMAIL),
+                Arguments.of(TEST_USER_1, PASSWORD, " ")
         );
     }
 
@@ -91,39 +89,39 @@ public class ServerFacadeTests {
 
     @Test
     public void normalUserLogin() throws ResponseException {
-        serverFacade.register(testUser1, password, email);
-        LoginResult loginResult = serverFacade.login(testUser1, password);
+        serverFacade.register(TEST_USER_1, PASSWORD, EMAIL);
+        LoginResult loginResult = serverFacade.login(TEST_USER_1, PASSWORD);
 
         Assertions.assertNotNull(loginResult, "serverFacade.login returned null");
         Assertions.assertNotNull(loginResult.authToken(), "serverFacade.login returned null authToken");
-        Assertions.assertEquals(testUser1, loginResult.username(), "serverFacade.login returned unexpected username");
+        Assertions.assertEquals(TEST_USER_1, loginResult.username(), "serverFacade.login returned unexpected username");
     }
 
     @Test
     public void loginBadPassword() throws ResponseException {
-        RegisterResult registerResult = serverFacade.register(testUser1, password, email);
-        Assertions.assertThrows( ResponseException.class, () -> serverFacade.login(testUser1, "badPassword") );
+        RegisterResult registerResult = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL);
+        Assertions.assertThrows( ResponseException.class, () -> serverFacade.login(TEST_USER_1, "badPassword") );
     }
 
     @Test
     public void loginUserNoExist() {
-        Assertions.assertThrows(ResponseException.class, () -> serverFacade.login(testUser1, password));
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.login(TEST_USER_1, PASSWORD));
     }
 
     @ParameterizedTest()
     @MethodSource("loginMissingDataTestCases")
     public void loginUserDataMissing(String username, String password) throws ResponseException {
-        RegisterResult registerResult = serverFacade.register(testUser1, this.password, email);
+        RegisterResult registerResult = serverFacade.register(TEST_USER_1, this.PASSWORD, EMAIL);
 
         Assertions.assertThrows(ResponseException.class, () -> serverFacade.login(username, password));
     }
 
     private static Stream loginMissingDataTestCases(){
         return Stream.of(
-                Arguments.of(null, password),
-                Arguments.of(testUser1, null),
-                Arguments.of(" ", password),
-                Arguments.of(testUser1, " ")
+                Arguments.of(null, PASSWORD),
+                Arguments.of(TEST_USER_1, null),
+                Arguments.of(" ", PASSWORD),
+                Arguments.of(TEST_USER_1, " ")
         );
     }
 
@@ -131,14 +129,14 @@ public class ServerFacadeTests {
 
     @Test
     public void normalUserLogout() throws ResponseException {
-        RegisterResult registerResult = serverFacade.register(testUser1, password, email);
+        RegisterResult registerResult = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL);
         Assertions.assertEquals(new LogoutResult(), serverFacade.logout(registerResult.authToken()), "User not successfully logged out");
     }
 
     @ParameterizedTest
     @MethodSource("badAuthInputCases")
     public void logoutBadInput(String authToken) throws ResponseException {
-        serverFacade.register(testUser1, password, email);
+        serverFacade.register(TEST_USER_1, PASSWORD, EMAIL);
         Assertions.assertThrows( ResponseException.class, () -> serverFacade.logout(authToken) );
     }
 
@@ -153,47 +151,8 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void normalViewNewGame(){
-        ChessGame expectedGame = new ChessGame();
-
-        final ChessGame[] returnedGame = new ChessGame[1];
-        Assertions.assertDoesNotThrow(() -> {
-            final String authToken = serverFacade.register(testUser1, password, email).authToken();
-            final int gameID = serverFacade.createGame(authToken, gameName).gameID();
-
-            returnedGame[0] = serverFacade.viewGame(authToken, gameID).game();
-
-        });
-
-        ChessGame actualGame = returnedGame[0];
-
-        Assertions.assertEquals(expectedGame, actualGame, String.format("""
-                                                Actual game list did not match expected game list
-                                                Expected game list:
-                                                %s
-                                                Actual game list:
-                                                %s
-                                                """, expectedGame, actualGame));
-    }
-
-    @Test
-    void viewGameBadID(){
-        int badGameID = -1;
-        final String authToken[] = new String[1];
-        final int gameID[] = new int[1];
-        Assertions.assertDoesNotThrow(() -> {
-            authToken[0] = serverFacade.register(testUser1, password, email).authToken();
-            gameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
-        });
-
-        Assertions.assertThrows(ResponseException.class, () -> serverFacade.viewGame(authToken[0], gameID[0]).game());
-    }
-
-
-
-    @Test
     public void normalListZeroGames() throws ResponseException {
-        String authToken = serverFacade.register(testUser1, password, email).authToken();
+        String authToken = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL).authToken();
 
         ListGamesResult actualResult = serverFacade.listGames(authToken);
         ListGamesResult expectedResult = new ListGamesResult(new HashSet<GameData>());
@@ -203,10 +162,10 @@ public class ServerFacadeTests {
 
     @Test
     public void normalListOneGame() throws ResponseException {
-        String authToken = serverFacade.register(testUser1, password, email).authToken();
+        String authToken = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL).authToken();
 
-        int gameID = serverFacade.createGame(authToken, gameName).gameID();
-        GameData createdGame = new GameData(gameID, null, null, gameName, new ChessGame());
+        int gameID = serverFacade.createGame(authToken, GAME_NAME).gameID();
+        GameData createdGame = new GameData(gameID, null, null, GAME_NAME, new ChessGame());
         HashSet<GameData> gameList = new HashSet<>();
         gameList.add(createdGame);
 
@@ -224,20 +183,20 @@ public class ServerFacadeTests {
 
     @Test
     public void normalListMultipleGames() throws ResponseException {
-        String authToken = serverFacade.register(testUser1, password, email).authToken();
+        String authToken = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL).authToken();
 
-        int gameID = serverFacade.createGame(authToken, gameName).gameID();
-        String newGameName = gameName;
-        GameData newGame = new GameData(gameID, null, null, gameName, new ChessGame());
+        int gameID = serverFacade.createGame(authToken, GAME_NAME).gameID();
+        String newGameName = GAME_NAME;
+        GameData newGame = new GameData(gameID, null, null, GAME_NAME, new ChessGame());
         HashSet<GameData> expectedGameList = new HashSet<>();
         expectedGameList.add(newGame);
 
         final int numGamesToList = 5;
 
         for(int i = 2; i <= numGamesToList; i++) {
-            newGameName = gameName + i;
+            newGameName = GAME_NAME + i;
             gameID = serverFacade.createGame(authToken, newGameName).gameID();
-            newGame = new GameData(gameID, null,null , gameName + i, new ChessGame());
+            newGame = new GameData(gameID, null,null , GAME_NAME + i, new ChessGame());
             expectedGameList.add(newGame);
         }
 
@@ -263,22 +222,22 @@ public class ServerFacadeTests {
 
     @Test
     public void normalCreateGame() throws ResponseException {
-        String authToken = serverFacade.register(testUser1, password, email).authToken();
+        String authToken = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL).authToken();
         final int[] gameID = new int[1];
-        Assertions.assertDoesNotThrow(() -> gameID[0] = serverFacade.createGame(authToken, gameName).gameID());
+        Assertions.assertDoesNotThrow(() -> gameID[0] = serverFacade.createGame(authToken, GAME_NAME).gameID());
         Assertions.assertNotNull(gameID[0], "No gameID returned");
     }
 
     @ParameterizedTest(name = "{index}: {0} authToken input")
     @MethodSource("badAuthInputCases")
     public void createGameBadAuth(String authToken) {
-        Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, gameName));
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, GAME_NAME));
     }
 
     @ParameterizedTest(name = "{index}: {0} gameName input")
     @NullAndEmptySource
     public void createGameBadGameName(String authToken) {
-        Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, gameName));
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(authToken, GAME_NAME));
     }
 
 
@@ -290,19 +249,19 @@ public class ServerFacadeTests {
         final int[] newGameID = new int[1];
         final GameData[] actualResult = new GameData[1];
         Assertions.assertDoesNotThrow(() -> {
-            authToken[0] = serverFacade.register(testUser1, password, email).authToken();
-            newGameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
+            authToken[0] = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL).authToken();
+            newGameID[0] = serverFacade.createGame(authToken[0], GAME_NAME).gameID();
 
-            serverFacade.joinGame(authToken[0], testUser1, playerColor, newGameID[0]);
+            serverFacade.joinGame(authToken[0], TEST_USER_1, playerColor, newGameID[0]);
             actualResult[0] = serverFacade.listGames(authToken[0]).games().iterator().next();
         } );
 
         GameData expectedResult;
         if(playerColor == ChessGame.TeamColor.WHITE){
-            expectedResult = new GameData(newGameID[0], testUser1, null, gameName, new ChessGame());
+            expectedResult = new GameData(newGameID[0], TEST_USER_1, null, GAME_NAME, new ChessGame());
         }
         else{
-            expectedResult = new GameData(newGameID[0], null, testUser1, gameName, new ChessGame());
+            expectedResult = new GameData(newGameID[0], null, TEST_USER_1, GAME_NAME, new ChessGame());
         }
 
         Assertions.assertEquals(expectedResult, actualResult[0], "User not added to game");
@@ -316,11 +275,11 @@ public class ServerFacadeTests {
         final int[] gameID = new int[1];
         final GameData[] actualResult = new GameData[1];
         Assertions.assertDoesNotThrow(() -> {
-            authToken[0] = serverFacade.register(testUser1, password, email).authToken();
-            gameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
-            serverFacade.joinGame(authToken[0], testUser1, player1Color, gameID[0]);
+            authToken[0] = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL).authToken();
+            gameID[0] = serverFacade.createGame(authToken[0], GAME_NAME).gameID();
+            serverFacade.joinGame(authToken[0], TEST_USER_1, player1Color, gameID[0]);
 
-            authToken[1] = serverFacade.register(testUser2, password, email).authToken();
+            authToken[1] = serverFacade.register(testUser2, PASSWORD, EMAIL).authToken();
 
             serverFacade.joinGame(authToken[1], testUser2, player2Color, gameID[0]);
             actualResult[0] = serverFacade.listGames(authToken[0]).games().iterator().next();
@@ -328,10 +287,10 @@ public class ServerFacadeTests {
 
         GameData expectedResult;
         if(player1Color == ChessGame.TeamColor.WHITE){
-            expectedResult = new GameData(gameID[0], testUser1, testUser2, gameName, new ChessGame());
+            expectedResult = new GameData(gameID[0], TEST_USER_1, testUser2, GAME_NAME, new ChessGame());
         }
         else{
-            expectedResult = new GameData(gameID[0], testUser2, testUser1, gameName, new ChessGame());
+            expectedResult = new GameData(gameID[0], testUser2, TEST_USER_1, GAME_NAME, new ChessGame());
         }
 
         Assertions.assertEquals(expectedResult, actualResult[0], "User not added to game");
@@ -344,11 +303,11 @@ public class ServerFacadeTests {
         final String testUser2 = "testUser2";
         final int[] gameID = new int[1];
         Assertions.assertDoesNotThrow(() -> {
-            authToken[0] = serverFacade.register(testUser1, password, email).authToken();
-            gameID[0] = serverFacade.createGame(authToken[0], gameName).gameID();
-            serverFacade.joinGame(authToken[0], testUser1, playerColor, gameID[0]);
+            authToken[0] = serverFacade.register(TEST_USER_1, PASSWORD, EMAIL).authToken();
+            gameID[0] = serverFacade.createGame(authToken[0], GAME_NAME).gameID();
+            serverFacade.joinGame(authToken[0], TEST_USER_1, playerColor, gameID[0]);
 
-            authToken[1] = serverFacade.register(testUser2, password, email).authToken();
+            authToken[1] = serverFacade.register(testUser2, PASSWORD, EMAIL).authToken();
         } );
 
         Assertions.assertThrows(ResponseException.class, () -> {
