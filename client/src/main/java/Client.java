@@ -120,16 +120,16 @@ public class Client {
         HashSet<GameData> gameList = serverFacade.listGames(authToken).games();
         StringBuilder output = new StringBuilder();
         int count = 0;
-        for(var GameData : gameList){
+        for(var gameData : gameList){
             count++;
 
-            String gameName = GameData.gameName();
+            String gameName = gameData.gameName();
 
-            String whitePlayer = setUsernameByColor(ChessGame.TeamColor.WHITE, GameData);
-            String blackPlayer = setUsernameByColor(ChessGame.TeamColor.BLACK, GameData);
+            String whitePlayer = setUsernameByColor(ChessGame.TeamColor.WHITE, gameData);
+            String blackPlayer = setUsernameByColor(ChessGame.TeamColor.BLACK, gameData);
 
             output.append(listFormatter(count, gameName, whitePlayer, blackPlayer));
-            clientToDbGameIDMap.put(count, GameData.gameID());
+            clientToDbGameIDMap.put(count, gameData.gameID());
         }
 
         return output.toString();
@@ -330,14 +330,7 @@ public class Client {
             returnString.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY).append(" ").append(i).append(" ");
 
             for(int j = 1; j <= 8; j++){
-                returnString.append(SET_TEXT_COLOR_LIGHT_GREY);
-                if((i+j)%2 == 0){
-                    returnString.append(SET_BG_COLOR_WHITE);
-                }
-                else{
-                    returnString.append(SET_BG_COLOR_BLACK);
-                }
-                returnString.append(chessPieceToUnicode(game.getBoard().getPiece(new ChessPosition(i, j))));
+                chessPrintInnards(returnString, i, j, game);
             }
             returnString.append(RESET_FORMATTING + "\n");
         }
@@ -354,22 +347,26 @@ public class Client {
             returnString.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY).append(" ").append(i).append(" ");
 
             for(int j = 8; j >= 1; j--){
-                returnString.append(SET_TEXT_COLOR_LIGHT_GREY);
-                if((i+j)%2 == 0){
-                    returnString.append(SET_BG_COLOR_WHITE);
-                }
-                else{
-                    returnString.append(SET_BG_COLOR_BLACK);
-                }
-                returnString.append(chessPieceToUnicode(game.getBoard().getPiece(new ChessPosition(i, j))));
+                chessPrintInnards(returnString, i, j, game);
             }
             returnString.append(RESET_FORMATTING + "\n");
         }
         returnString.append(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK);
-        returnString.append("    " + "a" + "   " + "b" + "   " + "c" + "  " + "d" + "   " + "e" + "  " + "f" +  "   " + "g" + "   " + "h" + " ");
+        returnString.append("    " + "h" + "   " + "g" + "   " + "f" + "  " + "e" + "   " + "d" + "  " + "c" +  "   " + "b" + "   " + "a" + " ");
         returnString.append(RESET_FORMATTING);
 
         return returnString.toString();
+    }
+
+    private void chessPrintInnards(StringBuilder returnString, int i, int j, ChessGame game){
+        returnString.append(SET_TEXT_COLOR_LIGHT_GREY);
+        if((i+j)%2 == 0){
+            returnString.append(SET_BG_COLOR_WHITE);
+        }
+        else{
+            returnString.append(SET_BG_COLOR_BLACK);
+        }
+        returnString.append(chessPieceToUnicode(game.getBoard().getPiece(new ChessPosition(i, j))));
     }
 
     private String chessPieceToUnicode(ChessPiece piece){
