@@ -10,11 +10,9 @@ import server.DataInputException;
 import server.request.CreateGameRequest;
 import server.request.JoinGameRequest;
 import server.request.ListGamesRequest;
-import server.request.ViewGameRequest;
 import server.result.CreateGameResult;
 import server.result.JoinGameResult;
 import server.result.ListGamesResult;
-import server.result.ViewGameResult;
 
 import static chess.ChessGame.TeamColor.BLACK;
 
@@ -77,19 +75,6 @@ public class GameService {
         }
 
         return null;
-    }
-
-    public ViewGameResult viewGame(ViewGameRequest viewGameRequest) throws DataInputException {
-        int gameID = viewGameRequest.gameID();
-        ChessGame chessGame;
-
-        try{
-            chessGame = gameDAO.getGame(gameID).game();
-        } catch (DataAccessException e) {
-            throw new DataInputException(e.getMessage());
-        }
-
-        return new ViewGameResult(chessGame);
     }
 
     private GameData updateGamePlayer(String whiteUsername, String blackUsername, GameData oldGame){

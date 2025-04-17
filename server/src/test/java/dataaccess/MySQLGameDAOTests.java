@@ -2,12 +2,10 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
-import model.GameInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 
 import java.util.HashSet;
 
@@ -81,7 +79,7 @@ class MySQLGameDAOTests {
     void successListNoGames() throws DataAccessException {
         mySQLGameDAO.clear();
 
-        String expected = new HashSet<GameInfo>().toString();
+        String expected = new HashSet<GameData>().toString();
         String actual = mySQLGameDAO.listGames().toString();
         Assertions.assertEquals(expected, actual, String.format("""
                                                 Actual game list did not match expected game list
@@ -94,8 +92,8 @@ class MySQLGameDAOTests {
 
     @Test
     void successListOneGame() throws DataAccessException {
-        HashSet<GameInfo> expectedGameList = new HashSet<>();
-        expectedGameList.add(new GameInfo(gameID, null, null, gameName));
+        HashSet<GameData> expectedGameList = new HashSet<>();
+        expectedGameList.add(new GameData(gameID, null, null, gameName, new ChessGame()));
 
         String expected = expectedGameList.toString();
         String actual = mySQLGameDAO.listGames().toString();
@@ -110,12 +108,12 @@ class MySQLGameDAOTests {
 
     @Test
     void successListMultipleGames() throws DataAccessException {
-        HashSet<GameInfo> expectedGameList = new HashSet<>();
-        expectedGameList.add(new GameInfo(gameID, null, null, gameName));
+        HashSet<GameData> expectedGameList = new HashSet<>();
+        expectedGameList.add(new GameData(gameID, null, null, gameName, new ChessGame()));
         final int numGamesToList = 5;
 
         for(int i = 2; i <= numGamesToList; i++) {
-            GameInfo newGame = new GameInfo(mySQLGameDAO.getGame(mySQLGameDAO.createGame(gameName + (i))));
+            GameData newGame = mySQLGameDAO.getGame(mySQLGameDAO.createGame(gameName + (i)));
             expectedGameList.add(newGame);
         }
 
@@ -133,10 +131,10 @@ class MySQLGameDAOTests {
 
     @Test
     @DisplayName("White Joins Game Alone")
-    void updateGameInfoWhiteOnly() throws DataAccessException {
-        HashSet<GameInfo> expectedGameList = new HashSet<>();
+    void updateGameDataWhiteOnly() throws DataAccessException {
+        HashSet<GameData> expectedGameList = new HashSet<>();
         GameData expectedGameData = new GameData(gameID, testUser, null, gameName, new ChessGame());
-        expectedGameList.add(new GameInfo(expectedGameData));
+        expectedGameList.add(expectedGameData);
         String expected = expectedGameList.toString();
 
         mySQLUserDAO.createUser(testUser, password, email);
@@ -153,10 +151,10 @@ class MySQLGameDAOTests {
 
     @Test
     @DisplayName("Black Joins Game Alone")
-    void updateGameInfoBlackOnly() throws DataAccessException {
-        HashSet<GameInfo> expectedGameList = new HashSet<>();
+    void updateGameDataBlackOnly() throws DataAccessException {
+        HashSet<GameData> expectedGameList = new HashSet<>();
         GameData expectedGameData = new GameData(gameID, null, testUser, gameName, new ChessGame());
-        expectedGameList.add(new GameInfo(expectedGameData));
+        expectedGameList.add(expectedGameData);
         String expected = expectedGameList.toString();
 
         mySQLUserDAO.createUser(testUser, password, email);
@@ -173,10 +171,10 @@ class MySQLGameDAOTests {
 
     @Test
     @DisplayName("White then Black Join Game")
-    void updateGameInfoWhiteFirst() throws DataAccessException {
-        HashSet<GameInfo> expectedGameList = new HashSet<>();
+    void updateGameDataWhiteFirst() throws DataAccessException {
+        HashSet<GameData> expectedGameList = new HashSet<>();
         GameData expectedGameData = new GameData(gameID, testUser, testUser2, gameName, new ChessGame());
-        expectedGameList.add(new GameInfo(expectedGameData));
+        expectedGameList.add(expectedGameData);
         String expected = expectedGameList.toString();
 
         mySQLUserDAO.createUser(testUser, password, email);
@@ -197,10 +195,10 @@ class MySQLGameDAOTests {
 
     @Test
     @DisplayName("Black then White Join Game")
-    void updateGameInfoBlackFirst() throws DataAccessException {
-        HashSet<GameInfo> expectedGameList = new HashSet<>();
+    void updateGameDataBlackFirst() throws DataAccessException {
+        HashSet<GameData> expectedGameList = new HashSet<>();
         GameData expectedGameData = new GameData(gameID, testUser2, testUser, gameName, new ChessGame());
-        expectedGameList.add(new GameInfo(expectedGameData));
+        expectedGameList.add(expectedGameData);
         String expected = expectedGameList.toString();
 
         mySQLUserDAO.createUser(testUser, password, email);

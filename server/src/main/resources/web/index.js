@@ -86,9 +86,6 @@ function logout() {
 function gamesList() {
   displayRequest('GET', '/game', null);
 }
-function viewGame() {
-  displayRequest('GET', '/board', { gameNumber: 'gameNumber' });
-}
 function createGame() {
   displayRequest('POST', '/game', { gameName: 'gameName' });
 }

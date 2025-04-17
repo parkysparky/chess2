@@ -42,33 +42,6 @@ class GameServiceTests {
     }
 
 
-    @Test
-    void successViewNewGame(){
-        ChessGame expectedGame = new ChessGame();
-        final ChessGame[] returnedGame = new ChessGame[1];
-
-        Assertions.assertDoesNotThrow(() -> {
-            returnedGame[0] = gameService.viewGame(new ViewGameRequest(gameID)).game();
-
-        });
-
-        ChessGame actualGame = returnedGame[0];
-
-        Assertions.assertEquals(expectedGame, actualGame, String.format("""
-                                                Actual game list did not match expected game list
-                                                Expected game list:
-                                                %s
-                                                Actual game list:
-                                                %s
-                                                """, expectedGame, actualGame));
-    }
-
-    @Test
-    void viewGameBadID(){
-        int badGameID = -1;
-        Assertions.assertThrows(DataInputException.class, () -> gameService.viewGame(new ViewGameRequest(badGameID)).game());
-    }
-
 
     @Test
     @DisplayName("List No Games") //later on, fix this text not to have dependency on clear()
